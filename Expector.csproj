@@ -160,9 +160,18 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="ExpectorRibbon.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ExpectorRibbon.designer.cs">
+      <DependentUpon>ExpectorRibbon.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <EmbeddedResource Include="ExpectorRibbon.resx">
+      <DependentUpon>ExpectorRibbon.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
