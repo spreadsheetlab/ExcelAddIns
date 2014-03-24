@@ -1,13 +1,13 @@
 ﻿namespace Expector
 {
-    partial class ExpectorRibbon : Microsoft.Office.Tools.Ribbon.RibbonBase
+    partial class ThisAddIn : Microsoft.Office.Tools.Ribbon.RibbonBase
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        public ExpectorRibbon()
+        public ThisAddIn()
             : base(Globals.Factory.GetRibbonFactory())
         {
             InitializeComponent();
