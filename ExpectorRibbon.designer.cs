@@ -1,13 +1,13 @@
 ﻿namespace Expector
 {
-    partial class ThisAddIn : Microsoft.Office.Tools.Ribbon.RibbonBase
+    partial class ExpectorRibbon : Microsoft.Office.Tools.Ribbon.RibbonBase
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        public ThisAddIn()
+        public ExpectorRibbon()
             : base(Globals.Factory.GetRibbonFactory())
         {
             InitializeComponent();
@@ -76,12 +76,12 @@
             // 
             this.FindTestButton.Label = "Find Tests";
             this.FindTestButton.Name = "FindTestButton";
-            this.FindTestButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.FindTestButton_Click);
             // 
             // MarkTestButton
             // 
             this.MarkTestButton.Label = "Mark Tests";
             this.MarkTestButton.Name = "MarkTestButton";
+            this.MarkTestButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.MarkTestButton_Click);
             // 
             // MarkCoverageButton
             // 

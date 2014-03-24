@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace Expector.Properties {
+    using System;
     
     
     /// <summary>

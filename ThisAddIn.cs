@@ -6,6 +6,8 @@ using System.Xml.Linq;
 using Excel = Microsoft.Office.Interop.Excel;
 using Office = Microsoft.Office.Core;
 using Microsoft.Office.Tools.Excel;
+using Nl.Infotron.Parsing;
+
 
 namespace Expector
 {
@@ -17,6 +19,28 @@ namespace Expector
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
+        }
+
+        public void Test()
+        {
+            Microsoft.Office.Interop.Excel.Application X = Application;
+
+            foreach (Excel.Worksheet w in Application.Worksheets)
+            {
+                foreach (Excel.Range r in w.Cells)
+                {
+                    string Formula = r.Formula;
+
+                    //couple istest from core here
+                    ExcelFormulaParser P = new ExcelFormulaParser();
+                    if (P.IsTestFormula(Formula))
+                    {
+                        r.Interior.Color = 24;
+                    }
+
+                }
+            }
+
         }
 
         #region VSTO generated code
