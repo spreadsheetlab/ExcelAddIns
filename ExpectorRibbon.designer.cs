@@ -76,6 +76,7 @@
             // 
             this.FindTestButton.Label = "Find Tests";
             this.FindTestButton.Name = "FindTestButton";
+            this.FindTestButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.FindTestButton_Click);
             // 
             // MarkTestButton
             // 

@@ -17,5 +17,10 @@ namespace Expector
         {
             Globals.ThisAddIn.Test();
         }
+
+        private void FindTestButton_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
     }
 }

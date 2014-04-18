@@ -6,7 +6,8 @@ using System.Xml.Linq;
 using Excel = Microsoft.Office.Interop.Excel;
 using Office = Microsoft.Office.Core;
 using Microsoft.Office.Tools.Excel;
-using Nl.Infotron.Parsing;
+using Infotron.Parsing;
+using System.Windows.Forms;
 
 
 namespace Expector
@@ -23,24 +24,28 @@ namespace Expector
 
         public void Test()
         {
-            Microsoft.Office.Interop.Excel.Application X = Application;
+            Excel.Worksheet w = Application.ActiveWorkbook.ActiveSheet;
 
-            foreach (Excel.Worksheet w in Application.Worksheets)
-            {
-                foreach (Excel.Range r in w.Cells)
+            int nTests = 0;
+
+                foreach (Excel.Range cell in w.UsedRange)
                 {
-                    string Formula = r.Formula;
-
-                    //couple istest from core here
-                    ExcelFormulaParser P = new ExcelFormulaParser();
-                    if (P.IsTestFormula(Formula))
+                    if (cell.HasFormula)
                     {
-                        r.Interior.Color = 24;
+                        string Formula = cell.Formula.Substring(1, cell.Formula.Length - 1);
+                        
+
+                        ExcelFormulaParser P = new ExcelFormulaParser();
+
+                        if (P.IsTestFormula(Formula))
+                        {
+                            cell.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Green);
+                            nTests++;
+                        }
                     }
-
                 }
-            }
 
+                MessageBox.Show(String.Format("{0} tests detected", nTests.ToString()));
         }
 
         #region VSTO generated code
