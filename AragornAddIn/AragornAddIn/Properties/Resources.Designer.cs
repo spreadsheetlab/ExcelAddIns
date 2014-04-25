@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace AragornAddIn.Properties {
+    using System;
     
     
     /// <summary>
@@ -56,6 +57,26 @@ namespace AragornAddIn.Properties {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap _00c_TH_01 {
+            get {
+                object obj = ResourceManager.GetObject("00c_TH_01", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Aragorn {
+            get {
+                object obj = ResourceManager.GetObject("Aragorn", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

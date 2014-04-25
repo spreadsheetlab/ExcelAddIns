@@ -8,6 +8,9 @@ using Office = Microsoft.Office.Core;
 using Microsoft.Office.Tools.Excel;
 using Nl.Infotron.Analyzer.DataModel;
 using Nl.Infotron.Analyzer;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Timers;
 
 namespace AragornAddIn
 {
@@ -20,6 +23,15 @@ namespace AragornAddIn
 
             
         }
+
+
+        public void TurnOnAragorn()
+        {
+            MessageBox.Show("Ready to roll!");
+        }
+
+
+
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
