@@ -31,10 +31,11 @@ namespace AragornAddIn
 
         public void TurnOnAragorn()
         {
-            //MessageBox.Show("Ready to roll!");
+            MessageBox.Show("AraSENSE is activated");
             Excel.Worksheet activeWorksheet1 = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
             //Excel.Range R = ((Excel.Range)Application.Selection); // points to the active selected cell or range
 
+            
             activeWorksheet1.SelectionChange += new  Excel.DocEvents_SelectionChangeEventHandler(activeWorksheet1_SelectionChange);
 
            
@@ -48,7 +49,7 @@ namespace AragornAddIn
 
             Excel.Worksheet activeWorksheet = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
             //Excel.Range R = ((Excel.Range)Application.Selection); // points to the active selected cell or range
-            MessageBox.Show(" :O :O");
+            
             if (Target.Top - 70 <= 0)
             {
                 if (Target.Left - 140 <= 0)
