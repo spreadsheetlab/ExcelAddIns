@@ -15,12 +15,12 @@ namespace Expector
 
         private void MarkTestButton_Click(object sender, RibbonControlEventArgs e)
         {
-            Globals.ThisAddIn.Test();
+            Globals.ThisAddIn.MarkTests();
         }
 
         private void FindTestButton_Click(object sender, RibbonControlEventArgs e)
         {
-
+            Globals.ThisAddIn.FindTests();
         }
     }
 }

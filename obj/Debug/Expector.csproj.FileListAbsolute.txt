@@ -19,3 +19,4 @@ C:\Users\Felienne\Expector\bin\Debug\FormulaParser.pdb
 C:\Users\Felienne\Expector\bin\Debug\Util.pdb
 C:\Users\Felienne\Expector\bin\Debug\NLog.xml
 C:\Users\Felienne\Expector\bin\Debug\Irony.pdb
+C:\Users\Felienne\Expector\obj\Debug\Expector.TestCheck.resources

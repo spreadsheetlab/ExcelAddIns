@@ -213,6 +213,12 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="VerifyTests.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VerifyTests.Designer.cs">
+      <DependentUpon>VerifyTests.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -225,6 +231,9 @@
     </Compile>
     <EmbeddedResource Include="ExpectorRibbon.resx">
       <DependentUpon>ExpectorRibbon.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VerifyTests.resx">
+      <DependentUpon>VerifyTests.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Infotron.Expector_TemporaryKey.pfx" />
     <None Include="packages.config" />

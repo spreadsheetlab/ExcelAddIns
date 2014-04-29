@@ -14,6 +14,9 @@ namespace Expector
 {
     public partial class ThisAddIn
     {
+        List<string> TestFormulas = new List<string>();
+        VerifyTests V;
+
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
         }
@@ -22,30 +25,43 @@ namespace Expector
         {
         }
 
-        public void Test()
+
+        public void FindTests()
         {
             Excel.Worksheet w = Application.ActiveWorkbook.ActiveSheet;
 
-            int nTests = 0;
+            V = new VerifyTests(this);
 
-                foreach (Excel.Range cell in w.UsedRange)
+            foreach (Excel.Range cell in w.UsedRange)
+            {
+                if (cell.HasFormula)
                 {
-                    if (cell.HasFormula)
-                    {
-                        string Formula = cell.Formula.Substring(1, cell.Formula.Length - 1);
+                    string Formula = cell.Formula.Substring(1, cell.Formula.Length - 1);
                         
+                    ExcelFormulaParser P = new ExcelFormulaParser();
 
-                        ExcelFormulaParser P = new ExcelFormulaParser();
+                    if (P.IsTestFormula(Formula))
+                    {
+                        int Passing = P.GetPassingBranch(Formula);
 
-                        if (P.IsTestFormula(Formula))
+                        string Text = P.GetCondition(Formula) + " should be ";
+
+                        if (P.GetPassingBranch(Formula) == 0) //if the first branch is passing, the test codintion should be true, else false
                         {
-                            cell.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Green);
-                            nTests++;
+                            Text += "true";
                         }
+                        else
+                        {
+                            Text += "false";
+                        }
+
+                        V.PrintTest(Text, Formula);                                           
                     }
                 }
+            }
 
-                MessageBox.Show(String.Format("{0} tests detected", nTests.ToString()));
+            V.Show();
+
         }
 
         #region VSTO generated code
@@ -61,5 +77,25 @@ namespace Expector
         }
         
         #endregion
+
+        internal void MarkTests()
+        {
+            if (TestFormulas.Count == 0)
+            {
+                MessageBox.Show("No tests saved yet, first run 'save tests'");
+            }
+            else
+            {
+                foreach (string item in TestFormulas)
+                {
+                    
+                }
+            }
+        }
+
+        internal void SaveTests(List <string> formulas)
+        {
+            TestFormulas = formulas;
+        }
     }
 }
