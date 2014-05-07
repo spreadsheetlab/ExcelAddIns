@@ -6,37 +6,52 @@ using System.Xml.Linq;
 using Excel = Microsoft.Office.Interop.Excel;
 using Office = Microsoft.Office.Core;
 using Microsoft.Office.Tools.Excel;
-using Nl.Infotron.Analyzer.DataModel;
-using Nl.Infotron.Analyzer;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Timers;
+using Infotron.PerfectXL;
+using Infotron.PerfectXL.DataModel;
+using GemBox.Spreadsheet;
+using Infotron.Converter;
+using Infotron.Util;
 
 namespace AragornAddIn
 {
     public partial class ThisAddIn
     {
 
-        Excel.Shape textbox;
-        System.Timers.Timer popupDelay;
-        private void ThisAddIn_Startup(object sender, System.EventArgs e)
+        Excel.Shape textbox; // Declare the textbox as a class variable
+        System.Timers.Timer popupDelay; //Declare the delay for lasting the popups
+        Spreadsheet spreadsheet; // Declare the spreadsheet as a class variable
+        private void ThisAddIn_Startup(object sender, System.EventArgs e) //executed on startup of excel, analyzes whole sheet
         {
-            //IAnalyzer a = new DefaultAnalyzer();
-            //Excel.Worksheet activeWorksheet1 = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
+
+            Boolean analyzeAllSiblings = true;
+            Controller c = new Controller();
+            spreadsheet = new Spreadsheet();
+
+            spreadsheet = c.OpenSpreadsheet("C:\\Copy of 66.xlsx", analyzeAllSiblings);
+            
+
             
 
             
         }
 
 
-        public void TurnOnAragorn()
+        public void TurnOnAragorn() //executed on ON button click
         {
             MessageBox.Show("AraSENSE is activated");
-            Excel.Worksheet activeWorksheet1 = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
-            //Excel.Range R = ((Excel.Range)Application.Selection); // points to the active selected cell or range
-
             
-            activeWorksheet1.SelectionChange += new  Excel.DocEvents_SelectionChangeEventHandler(activeWorksheet1_SelectionChange);
+
+            //MessageBox.Show(Application.ActiveWorkbook.FullName); // gives full path
+            //MessageBox.Show(Application.ActiveWorkbook.Name); // gives file name
+
+            Excel.Worksheet activeWorksheet1 = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
+            
+            
+            
+            activeWorksheet1.SelectionChange += new  Excel.DocEvents_SelectionChangeEventHandler(activeWorksheet1_SelectionChange); //the event handler for on change of cell event
 
            
             
@@ -44,11 +59,33 @@ namespace AragornAddIn
 
 
 
-        void activeWorksheet1_SelectionChange(Excel.Range Target)
+        void activeWorksheet1_SelectionChange(Excel.Range Target) //the method to handle the change of cell event, shows the popup
         {
 
+            
+            
             Excel.Worksheet activeWorksheet = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
-            //Excel.Range R = ((Excel.Range)Application.Selection); // points to the active selected cell or range
+            //MessageBox.Show(Target.Address);
+            String cellAddress=String.Join("",Target.Address.Split('$'));
+            //MessageBox.Show(cellAddress);
+            Cell cell = spreadsheet.GetWorksheet(activeWorksheet.Name).GetCell(cellAddress);
+            //MessageBox.Show("Cell formula from infotron core  "+cell.Formula);//.Location.ToString());
+            List<Cell> dependents = cell.GetDependents();
+            //MessageBox.Show("cell.Precedents.Count: " + cell.Precedents.Count);
+            //for (int i = 0; i <cell.Precedents.Count; i++) // Loop through List with for
+            //{
+            //    MessageBox.Show("Iterating List: " + i);
+            //}
+            MessageBox.Show("dependents.Count: " + dependents.Count);
+            for (int i = 0; i < dependents.Count; i++) // Loop through List with for
+            {
+                MessageBox.Show("Iterating List: " + i);
+                Location loc = dependents[i].Location;
+                String str = loc.ToString();
+                MessageBox.Show("Inside list: " + str);
+            }
+
+            
             
             if (Target.Top - 70 <= 0)
             {
@@ -77,10 +114,10 @@ namespace AragornAddIn
                 }
             }
 
-            textbox.TextEffect.Text = "Beware! This cell is being used in formulas contained in cells ";//+ Target.DirectDependents.get_Address(false);
+            textbox.TextEffect.Text = "Beware! This cell is being used in formulas contained in cells ";//+ ;
             textbox.Fill.ForeColor.RGB = 0x87CEEB;
 
-            popupDelay = new System.Timers.Timer(3000);
+            popupDelay = new System.Timers.Timer(2000);
             popupDelay.Start();
             popupDelay.Elapsed += new ElapsedEventHandler(VanishPopup);
             //throw new NotImplementedException();
