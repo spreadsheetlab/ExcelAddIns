@@ -63,67 +63,69 @@ namespace AragornAddIn
         void activeWorksheet1_SelectionChange(Excel.Range Target) //the method to handle the change of cell event, shows the popup
         {
 
-            
-            
-            Excel.Worksheet activeWorksheet = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
-            //MessageBox.Show(Target.Address);
-            String cellAddress=String.Join("",Target.Address.Split('$'));
-            //MessageBox.Show(cellAddress);
-            Cell cell = spreadsheet.GetWorksheet(activeWorksheet.Name).GetCell(cellAddress);
-            //MessageBox.Show("Cell formula from infotron core  "+cell.Formula);//.Location.ToString());
-            List<Cell> dependents = cell.GetDependents();
-            //MessageBox.Show("cell.Precedents.Count: " + cell.Precedents.Count);
-            //for (int i = 0; i <cell.Precedents.Count; i++) // Loop through List with for
-            //{
-            //    MessageBox.Show("Iterating List: " + i);
-            //}
-            //MessageBox.Show("dependents.Count: " + dependents.Count);
-            for (int i = 0; i < dependents.Count; i++) // Loop through List with for
+            if (Target.get_Value()!=null)
             {
-                //MessageBox.Show("Iterating List: " + i);
-                Location loc = dependents[i].Location;
-                String str = loc.ToString();
-                //MessageBox.Show("Inside list: " + str);
-                popUp = popUp + str + " ";
+                Excel.Worksheet activeWorksheet = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
+                //MessageBox.Show(Target.Address);
+                String cellAddress = String.Join("", Target.Address.Split('$'));
+                //MessageBox.Show(cellAddress);
+                Cell cell = spreadsheet.GetWorksheet(activeWorksheet.Name).GetCell(cellAddress);
+                //MessageBox.Show("Cell formula from infotron core  "+cell.Formula);//.Location.ToString());
+                List<Cell> dependents = cell.GetDependents();
+                //MessageBox.Show("cell.Precedents.Count: " + cell.Precedents.Count);
+                //for (int i = 0; i <cell.Precedents.Count; i++) // Loop through List with for
+                //{
+                //    MessageBox.Show("Iterating List: " + i);
+                //}
+                //MessageBox.Show("dependents.Count: " + dependents.Count);
+                for (int i = 0; i < dependents.Count; i++) // Loop through List with for
+                {
+                    //MessageBox.Show("Iterating List: " + i);
+                    Location loc = dependents[i].Location;
+                    String str = loc.ToString();
+                    //MessageBox.Show("Inside list: " + str);
+                    popUp = popUp + str + " ";
 
+                }
+
+                if (popUp != "")
+                {
+                    if (Target.Top - 70 <= 0)
+                    {
+                        if (Target.Left - 140 <= 0)
+                        {
+                            textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top, 140, 90);
+
+                        }
+                        else
+                        {
+                            textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top, 140, 90);
+
+                        }
+                    }
+                    else
+                    {
+                        if (Target.Left - 140 <= 0)
+                        {
+                            textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top - 70, 140, 90);
+
+                        }
+                        else
+                        {
+                            textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top - 70, 140, 90);
+
+                        }
+                    }
+
+                    textbox.TextEffect.Text = "Beware! This cell is being used in formulas contained in cells " + popUp;//+ ;
+                    textbox.Fill.ForeColor.RGB = 0x87CEEB;
+
+                    popupDelay = new System.Timers.Timer(2000);
+                    popupDelay.Start();
+                    popupDelay.Elapsed += new ElapsedEventHandler(VanishPopup);
+                    //throw new NotImplementedException();
+                }
             }
-
-            
-            
-            if (Target.Top - 70 <= 0)
-            {
-                if (Target.Left - 140 <= 0)
-                {
-                    textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top, 140, 90);
-
-                }
-                else
-                {
-                    textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top, 140, 90);
-
-                }
-            }
-            else
-            {
-                if (Target.Left - 140 <= 0)
-                {
-                    textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top - 70, 140, 90);
-
-                }
-                else
-                {
-                    textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top - 70, 140, 90);
-
-                }
-            }
-
-            textbox.TextEffect.Text = "Beware! This cell is being used in formulas contained in cells "+popUp;//+ ;
-            textbox.Fill.ForeColor.RGB = 0x87CEEB;
-
-            popupDelay = new System.Timers.Timer(2000);
-            popupDelay.Start();
-            popupDelay.Elapsed += new ElapsedEventHandler(VanishPopup);
-            //throw new NotImplementedException();
         }
 
 
