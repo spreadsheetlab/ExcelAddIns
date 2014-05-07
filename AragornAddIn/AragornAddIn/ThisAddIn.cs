@@ -23,6 +23,7 @@ namespace AragornAddIn
         Excel.Shape textbox; // Declare the textbox as a class variable
         System.Timers.Timer popupDelay; //Declare the delay for lasting the popups
         Spreadsheet spreadsheet; // Declare the spreadsheet as a class variable
+        String popUp="" ; // the string to contain celle references shown in the popup
         private void ThisAddIn_Startup(object sender, System.EventArgs e) //executed on startup of excel, analyzes whole sheet
         {
 
@@ -76,13 +77,15 @@ namespace AragornAddIn
             //{
             //    MessageBox.Show("Iterating List: " + i);
             //}
-            MessageBox.Show("dependents.Count: " + dependents.Count);
+            //MessageBox.Show("dependents.Count: " + dependents.Count);
             for (int i = 0; i < dependents.Count; i++) // Loop through List with for
             {
-                MessageBox.Show("Iterating List: " + i);
+                //MessageBox.Show("Iterating List: " + i);
                 Location loc = dependents[i].Location;
                 String str = loc.ToString();
-                MessageBox.Show("Inside list: " + str);
+                //MessageBox.Show("Inside list: " + str);
+                popUp = popUp + str + " ";
+
             }
 
             
@@ -114,7 +117,7 @@ namespace AragornAddIn
                 }
             }
 
-            textbox.TextEffect.Text = "Beware! This cell is being used in formulas contained in cells ";//+ ;
+            textbox.TextEffect.Text = "Beware! This cell is being used in formulas contained in cells "+popUp;//+ ;
             textbox.Fill.ForeColor.RGB = 0x87CEEB;
 
             popupDelay = new System.Timers.Timer(2000);
@@ -128,6 +131,7 @@ namespace AragornAddIn
         {
 
             textbox.Delete();
+            popUp = "";
             popupDelay.Stop();
         }
 
