@@ -86,10 +86,25 @@ namespace AragornAddIn
                 Cell cell = spreadsheet.GetWorksheet(activeWorksheet.Name).GetCell(cellAddress);
                 //MessageBox.Show("Cell formula from infotron core  "+cell.Formula);//.Location.ToString());
                 List<Cell> dependents = cell.GetDependents();
+
+                Boolean workSheetFlag = false;
                 
                 for (int i = 0; i < dependents.Count; i++) // Loop through List with for
                 {
-                    //MessageBox.Show("Iterating List: " + i);
+                    MessageBox.Show("Iterating List: " + dependents[i].Worksheet.Name);
+                    if (i != 0)
+                    {
+                        if (dependents[i].Worksheet.Name != dependents[i - 1].Worksheet.Name)
+                        {
+                            if (workSheetFlag == false)
+                            { 
+                                popUp = popUp + "in this sheet and the following cells in the follwing different sheets ===> " + "<Sheet>"+dependents[i].Worksheet.Name + ":";
+                                workSheetFlag = true;
+                            }
+                            else
+                                popUp = popUp +  "<Sheet>"+dependents[i].Worksheet.Name + ":";
+                        }
+                    }
                     Location loc = dependents[i].Location;
                     String str = loc.ToString();
                     //MessageBox.Show("Inside list: " + str);
@@ -103,12 +118,12 @@ namespace AragornAddIn
                     {
                         if (Target.Left - 140 <= 0)
                         {
-                            textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top, 140, 90);
+                            textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top, 140, 130);
 
                         }
                         else
                         {
-                            textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top, 140, 90);
+                            textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top, 140, 130);
 
                         }
                     }
@@ -116,12 +131,12 @@ namespace AragornAddIn
                     {
                         if (Target.Left - 140 <= 0)
                         {
-                            textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top - 70, 140, 90);
+                            textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top - 70, 140, 130);
 
                         }
                         else
                         {
-                            textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top - 70, 140, 90);
+                            textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top - 70, 140, 130);
 
                         }
                     }
@@ -129,7 +144,7 @@ namespace AragornAddIn
                     textbox.TextEffect.Text = "Beware! This cell is being used in formulas contained in cells " + popUp;//+ ;
                     textbox.Fill.ForeColor.RGB = 0x87CEEB;
 
-                    popupDelay = new System.Timers.Timer(2000);
+                    popupDelay = new System.Timers.Timer(8000);
                     popupDelay.Start();
                     popupDelay.Elapsed += new ElapsedEventHandler(VanishPopup);
                     //throw new NotImplementedException();
