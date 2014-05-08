@@ -27,11 +27,17 @@ namespace AragornAddIn
         private void ThisAddIn_Startup(object sender, System.EventArgs e) //executed on startup of excel, analyzes whole sheet
         {
 
-            Boolean analyzeAllSiblings = true;
-            Controller c = new Controller();
-            spreadsheet = new Spreadsheet();
+            //Boolean analyzeAllSiblings = true;
+            //Controller c = new Controller();
+            //spreadsheet = new Spreadsheet();
 
-            spreadsheet = c.OpenSpreadsheet("C:\\Copy of 66.xlsx", analyzeAllSiblings);
+            //String fileName = @"C:\Copy of 66.xlsx";
+            //if (String.Equals(fileName, Application.ActiveWorkbook.FullName))
+            //{ MessageBox.Show("EQUAL"); }
+
+            //MessageBox.Show(fileName + "\n" + Application.ActiveWorkbook.FullName+"Q");
+
+            //spreadsheet = c.OpenSpreadsheet(fileName, analyzeAllSiblings);//(@"C:\Copy of 66.xlsx", analyzeAllSiblings);
             
 
             
@@ -42,11 +48,19 @@ namespace AragornAddIn
 
         public void TurnOnAragorn() //executed on ON button click
         {
+
+            Boolean analyzeAllSiblings = true;
+            Controller c = new Controller();
+            spreadsheet = new Spreadsheet();
+           
+            spreadsheet = c.OpenSpreadsheet(Application.ActiveWorkbook.FullName, analyzeAllSiblings);
+            
+            
+            
             MessageBox.Show("AraSENSE is activated");
             
 
-            //MessageBox.Show(Application.ActiveWorkbook.FullName); // gives full path
-            //MessageBox.Show(Application.ActiveWorkbook.Name); // gives file name
+           
 
             Excel.Worksheet activeWorksheet1 = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
             
@@ -72,12 +86,7 @@ namespace AragornAddIn
                 Cell cell = spreadsheet.GetWorksheet(activeWorksheet.Name).GetCell(cellAddress);
                 //MessageBox.Show("Cell formula from infotron core  "+cell.Formula);//.Location.ToString());
                 List<Cell> dependents = cell.GetDependents();
-                //MessageBox.Show("cell.Precedents.Count: " + cell.Precedents.Count);
-                //for (int i = 0; i <cell.Precedents.Count; i++) // Loop through List with for
-                //{
-                //    MessageBox.Show("Iterating List: " + i);
-                //}
-                //MessageBox.Show("dependents.Count: " + dependents.Count);
+                
                 for (int i = 0; i < dependents.Count; i++) // Loop through List with for
                 {
                     //MessageBox.Show("Iterating List: " + i);
