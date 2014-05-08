@@ -10,14 +10,18 @@ using System.Windows.Forms;
 
 namespace Expector
 {
-    public class TestCheck
+    public class TestCheck : testFormula
     {
-        public string formula;
         public CheckBox checkbox;
 
-        public TestCheck(string Formula, CheckBox Checkbox)
+        public TestCheck(testFormula Formula, CheckBox Checkbox)
         {
-            formula = Formula;
+            original = Formula.original;
+            shouldbe = Formula.shouldbe;
+            worksheet = Formula.worksheet;
+            condition = Formula.condition;
+            location = Formula.location;
+
             checkbox = Checkbox;
         }
 
@@ -27,15 +31,15 @@ namespace Expector
     {
         public List<TestCheck> TestsChecked = new List<TestCheck>();
 
-        ThisAddIn Expector;
+        Expector Expector;
 
-        public VerifyTests(ThisAddIn t)
+        public VerifyTests(Expector t)
         {
             Expector = t;
             InitializeComponent();
         }
 
-        internal void PrintTest(string Text, string Formula)
+        internal void PrintTest(string Text, testFormula Formula)
         {
             int NTestsPrinted = TestsChecked.Count;
 
@@ -43,7 +47,7 @@ namespace Expector
 
             Label l = new Label();
             l.Location = new Point(12, height);
-            l.Text = Text;
+            l.Text = Formula.worksheet + "!"+Formula.location + ":"+ Text;
             l.AutoSize = true;
             this.Controls.Add(l);
 
@@ -59,19 +63,18 @@ namespace Expector
 
         private void button1_Click(object sender, EventArgs e)
         {
-            List<string> formulas = new List<string>();
+            List<testFormula> formulas = new List<testFormula>();
 
             foreach (var c in TestsChecked)
 	        {
                 int i = 0;
 		        if (c.checkbox.Checked)
 	            {
-                    formulas.Add(c.formula);
+                    formulas.Add(c);
                     i++;
 	            }
 	        }
 
-            MessageBox.Show("Tests saved");
             Expector.SaveTests(formulas);
 
             this.Close();

@@ -40,6 +40,7 @@
             this.group2 = this.Factory.CreateRibbonGroup();
             this.FindTestButton = this.Factory.CreateRibbonButton();
             this.MarkTestButton = this.Factory.CreateRibbonButton();
+            this.ColorTestsButton = this.Factory.CreateRibbonButton();
             this.MarkCoverageButton = this.Factory.CreateRibbonButton();
             this.MakeNonTestButton = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
@@ -68,31 +69,40 @@
             // 
             this.group2.Items.Add(this.FindTestButton);
             this.group2.Items.Add(this.MarkTestButton);
+            this.group2.Items.Add(this.ColorTestsButton);
             this.group2.Items.Add(this.MarkCoverageButton);
             this.group2.Items.Add(this.MakeNonTestButton);
             this.group2.Name = "group2";
             // 
             // FindTestButton
             // 
-            this.FindTestButton.Label = "Find Tests";
+            this.FindTestButton.Label = "Initialize Tests";
             this.FindTestButton.Name = "FindTestButton";
             this.FindTestButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.FindTestButton_Click);
             // 
             // MarkTestButton
             // 
-            this.MarkTestButton.Label = "Mark Tests";
+            this.MarkTestButton.Label = "Run Tests";
             this.MarkTestButton.Name = "MarkTestButton";
-            this.MarkTestButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.MarkTestButton_Click);
+            this.MarkTestButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.RunTestButton_Click);
+            // 
+            // ColorTestsButton
+            // 
+            this.ColorTestsButton.Label = "Color Tests";
+            this.ColorTestsButton.Name = "ColorTestsButton";
+            this.ColorTestsButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ColorTestsButtonClick);
             // 
             // MarkCoverageButton
             // 
-            this.MarkCoverageButton.Label = "Mark Covered Formulas";
+            this.MarkCoverageButton.Label = "Highlight Tested Cells";
             this.MarkCoverageButton.Name = "MarkCoverageButton";
+            this.MarkCoverageButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.MarkCoverageButton_Click);
             // 
             // MakeNonTestButton
             // 
-            this.MakeNonTestButton.Label = "Mark Non-Covered Formulas";
+            this.MakeNonTestButton.Label = "Highlight Non-Tested Cells";
             this.MakeNonTestButton.Name = "MakeNonTestButton";
+            this.MakeNonTestButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.MakeNonTestButton_Click);
             // 
             // ExpectorRibbon
             // 
@@ -120,6 +130,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton MarkTestButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton MarkCoverageButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton MakeNonTestButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton ColorTestsButton;
     }
 
     partial class ThisRibbonCollection

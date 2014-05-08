@@ -13,14 +13,29 @@ namespace Expector
 
         }
 
-        private void MarkTestButton_Click(object sender, RibbonControlEventArgs e)
+        private void RunTestButton_Click(object sender, RibbonControlEventArgs e)
         {
-            Globals.ThisAddIn.MarkTests();
+            Globals.Expector.RunTests();
         }
 
         private void FindTestButton_Click(object sender, RibbonControlEventArgs e)
         {
-            Globals.ThisAddIn.FindTests();
+            Globals.Expector.InitializeTests();
+        }
+
+        private void ColorTestsButtonClick(object sender, RibbonControlEventArgs e)
+        {
+            Globals.Expector.ColorTests();
+        }
+
+        private void MarkCoverageButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Globals.Expector.HighLightTested();
+        }
+
+        private void MakeNonTestButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Globals.Expector.HighLightNonTested();
         }
     }
 }
