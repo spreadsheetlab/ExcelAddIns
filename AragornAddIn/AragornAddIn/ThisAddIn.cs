@@ -87,7 +87,7 @@ namespace AragornAddIn
                 //MessageBox.Show("Cell formula from infotron core  "+cell.Formula);//.Location.ToString());
                 List<Cell> dependents = cell.GetDependents();
 
-                Boolean workSheetFlag = false;
+                //Boolean workSheetFlag = false;
                 
                 for (int i = 0; i < dependents.Count; i++) // Loop through List with for
                 {
@@ -96,13 +96,8 @@ namespace AragornAddIn
                     {
                         if (dependents[i].Worksheet.Name != dependents[i - 1].Worksheet.Name)
                         {
-                            if (workSheetFlag == false)
-                            { 
-                                popUp = popUp + "in this sheet and the following cells in the follwing different sheets ===> " + "<Sheet>"+dependents[i].Worksheet.Name + ":";
-                                workSheetFlag = true;
-                            }
-                            else
-                                popUp = popUp +  "<Sheet>"+dependents[i].Worksheet.Name + ":";
+                           
+                                popUp = popUp +  "\n<Sheet "+dependents[i].Worksheet.Name + ">: ";
                         }
                     }
                     Location loc = dependents[i].Location;
@@ -141,7 +136,7 @@ namespace AragornAddIn
                         }
                     }
 
-                    textbox.TextEffect.Text = "Beware! This cell is being used in formulas contained in cells " + popUp;//+ ;
+                    textbox.TextEffect.Text = "Beware! Dependents sensed >>\n" + popUp;//+ ;
                     textbox.Fill.ForeColor.RGB = 0x87CEEB;
 
                     popupDelay = new System.Timers.Timer(8000);
