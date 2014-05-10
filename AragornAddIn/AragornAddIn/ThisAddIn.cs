@@ -20,10 +20,12 @@ namespace AragornAddIn
     public partial class ThisAddIn
     {
 
-        Excel.Shape textbox; // Declare the textbox as a class variable
-        System.Timers.Timer popupDelay; //Declare the delay for lasting the popups
+        Queue<PopUp> popUpQueue = new Queue<PopUp>();
+        
+        //Excel.Shape textbox; // Declare the textbox as a class variable
+        //System.Timers.Timer popupDelay; //Declare the delay for lasting the popups
         Spreadsheet spreadsheet; // Declare the spreadsheet as a class variable
-        String popUp="" ; // the string to contain celle references shown in the popup
+        //String popUpText="" ; // the string to contain celle references shown in the popup
         private void ThisAddIn_Startup(object sender, System.EventArgs e) //executed on startup of excel, analyzes whole sheet
         {
 
@@ -77,7 +79,10 @@ namespace AragornAddIn
         void activeWorksheet1_SelectionChange(Excel.Range Target) //the method to handle the change of cell event, shows the popup
         {
 
-            if (Target.get_Value()!=null)
+            PopUp popUp = new PopUp();
+            popUp.popUpText = "";
+            
+            if (Target.get_Value()!=null) //checking for non-empty cell
             {
                 Excel.Worksheet activeWorksheet = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
                 //MessageBox.Show(Target.Address);
@@ -96,29 +101,31 @@ namespace AragornAddIn
                     {
                         if (dependents[i].Worksheet.Name != dependents[i - 1].Worksheet.Name)
                         {
-                           
-                                popUp = popUp +  "\n<Sheet "+dependents[i].Worksheet.Name + ">: ";
+
+                            popUp.popUpText = popUp.popUpText + "\n<Sheet " + dependents[i].Worksheet.Name + ">: ";
                         }
                     }
                     Location loc = dependents[i].Location;
                     String str = loc.ToString();
                     //MessageBox.Show("Inside list: " + str);
-                    popUp = popUp + str + " ";
+                    popUp.popUpText = popUp.popUpText + str + " ";
 
                 }
 
-                if (popUp != "")
+                if (popUp.popUpText != "")
                 {
+                    
+                    
                     if (Target.Top - 70 <= 0)
                     {
                         if (Target.Left - 140 <= 0)
                         {
-                            textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top, 140, 130);
+                            popUp.textBox= activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top, 140, 130);
 
                         }
                         else
                         {
-                            textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top, 140, 130);
+                            popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top, 140, 130);
 
                         }
                     }
@@ -126,35 +133,45 @@ namespace AragornAddIn
                     {
                         if (Target.Left - 140 <= 0)
                         {
-                            textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top - 70, 140, 130);
+                            popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top - 70, 140, 130);
 
                         }
                         else
                         {
-                            textbox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top - 70, 140, 130);
+                            popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top - 70, 140, 130);
 
                         }
                     }
 
-                    textbox.TextEffect.Text = "Beware! Dependents sensed >>\n" + popUp;//+ ;
-                    textbox.Fill.ForeColor.RGB = 0x87CEEB;
+                    popUp.textBox.TextEffect.Text = "Beware! Dependents sensed >>\n" + popUp.popUpText;//+ ;
+                    popUp.textBox.Fill.ForeColor.RGB = 0x87CEEB;
 
-                    popupDelay = new System.Timers.Timer(3000);
-                    popupDelay.Start();
-                    popupDelay.Elapsed += new ElapsedEventHandler(VanishPopup);
+                    popUp.popupDelay = new System.Timers.Timer(3000);
+                    popUp.popupDelay.Start();
+
+                    popUpQueue.Enqueue(popUp);
+
+                    popUp.popupDelay.Elapsed += new ElapsedEventHandler(popupDelay_Elapsed); //+= new ElapsedEventHandler(VanishPopup);
                     //throw new NotImplementedException();
                 }
             }
         }
 
-
-        private void VanishPopup(object source, ElapsedEventArgs e)
+        void popupDelay_Elapsed(object sender, ElapsedEventArgs e)
         {
 
-            textbox.Delete();
-            popUp = "";
-            popupDelay.Stop();
+            
+            
+            PopUp popUp = popUpQueue.Dequeue();
+            popUp.textBox.Cut();
+            popUp.popUpText = "";
+            popUp.popupDelay.Stop();
+            
+            //throw new NotImplementedException();
         }
+
+
+       
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
         {
