@@ -91,7 +91,7 @@ namespace AragornAddIn
                 
                 for (int i = 0; i < dependents.Count; i++) // Loop through List with for
                 {
-                    MessageBox.Show("Iterating List: " + dependents[i].Worksheet.Name);
+                    //MessageBox.Show("Iterating List: " + dependents[i].Worksheet.Name);
                     if (i != 0)
                     {
                         if (dependents[i].Worksheet.Name != dependents[i - 1].Worksheet.Name)
@@ -139,7 +139,7 @@ namespace AragornAddIn
                     textbox.TextEffect.Text = "Beware! Dependents sensed >>\n" + popUp;//+ ;
                     textbox.Fill.ForeColor.RGB = 0x87CEEB;
 
-                    popupDelay = new System.Timers.Timer(8000);
+                    popupDelay = new System.Timers.Timer(3000);
                     popupDelay.Start();
                     popupDelay.Elapsed += new ElapsedEventHandler(VanishPopup);
                     //throw new NotImplementedException();
