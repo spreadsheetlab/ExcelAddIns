@@ -163,15 +163,31 @@ namespace AragornAddIn
         void popupDelay_Elapsed(object sender, ElapsedEventArgs e)
         {
             PopUp popUp = popUpQueue.Dequeue();
+            popUp.popupDelay.Stop();
             Boolean deleteFailed= false;
+            Boolean userLock=false;
             do
             {
                 try
                 {
+                    do
+                    {
+                        try
+                        {
+                            popUp.textBox.Cut();
+                            popUp.popUpText = "";
+                            
+                            deleteFailed = false;
+                            userLock = false;
+                        }
+                        catch (System.UnauthorizedAccessException ex1)
+                        {
+                            userLock = true;
+                        }
+
+                    } while (userLock);
                    
-                    popUp.textBox.Cut();
-                    popUp.popUpText = "";
-                    popUp.popupDelay.Stop();
+                   
                     
                 }
 
