@@ -21,6 +21,7 @@ namespace AragornAddIn
     {
 
         Queue<PopUp> popUpQueue = new Queue<PopUp>();
+        Boolean queueWrite = true;
         
         //Excel.Shape textbox; // Declare the textbox as a class variable
         //System.Timers.Timer popupDelay; //Declare the delay for lasting the popups
@@ -149,7 +150,9 @@ namespace AragornAddIn
                     popUp.popupDelay = new System.Timers.Timer(3000);
                     popUp.popupDelay.Start();
 
+                   
                     popUpQueue.Enqueue(popUp);
+                   
 
                     popUp.popupDelay.Elapsed += new ElapsedEventHandler(popupDelay_Elapsed); //+= new ElapsedEventHandler(VanishPopup);
                     //throw new NotImplementedException();
@@ -159,13 +162,24 @@ namespace AragornAddIn
 
         void popupDelay_Elapsed(object sender, ElapsedEventArgs e)
         {
-
-            
-            
             PopUp popUp = popUpQueue.Dequeue();
-            popUp.textBox.Cut();
-            popUp.popUpText = "";
-            popUp.popupDelay.Stop();
+            Boolean deleteFailed= false;
+            do
+            {
+                try
+                {
+                   
+                    popUp.textBox.Cut();
+                    popUp.popUpText = "";
+                    popUp.popupDelay.Stop();
+                    
+                }
+
+                catch (System.Runtime.InteropServices.COMException ex)
+                {
+                    deleteFailed = true;
+                }
+            } while (deleteFailed);
             
             //throw new NotImplementedException();
         }
