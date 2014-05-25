@@ -22,8 +22,10 @@ namespace AragornAddIn
 
         Queue<PopUp> popUpQueue = new Queue<PopUp>();
        // Boolean queueWrite = true;
-        Boolean aragornOff = false;
+        Boolean aragornOff = true;
         int aragornTurnedOn = 0;
+        List<Excel.Worksheet> sheetList;
+        Excel.Worksheet activeWorksheet1;
         
         //Excel.Shape textbox; // Declare the textbox as a class variable
         //System.Timers.Timer popupDelay; //Declare the delay for lasting the popups
@@ -43,10 +45,10 @@ namespace AragornAddIn
             //MessageBox.Show(fileName + "\n" + Application.ActiveWorkbook.FullName+"Q");
 
             //spreadsheet = c.OpenSpreadsheet(fileName, analyzeAllSiblings);//(@"C:\Copy of 66.xlsx", analyzeAllSiblings);
-            
 
             
 
+            
             
         }
 
@@ -59,25 +61,63 @@ namespace AragornAddIn
 
             aragornOff = false;
             MessageBox.Show("AraSENSE is activated");
-            
 
-           if(aragornTurnedOn==0)
-           {
-               PollCellChangeEvent();
-           }
 
-           aragornTurnedOn++; 
+            if (aragornTurnedOn == 0)
+            {
+
+                PollCellChangeEvent();
+
+            }
+
+            aragornTurnedOn++; 
             
         }
 
+        private void PollSheetChangeEvent()
+        {
+            Excel.Workbook activeWorkbook = ((Excel.Workbook)Application.ActiveWorkbook); //select active workbook
+           activeWorkbook.SheetDeactivate += new Excel.WorkbookEvents_SheetDeactivateEventHandler(activeWorkbook_SheetDeactivate);
+            //Excel.Workbook activeWorkbook = ((Excel.Workbook)Application.ActiveWorkbook); //select active worksheet
+            //activeWorksheet1.Deactivate += new Excel.DocEvents_DeactivateEventHandler(activeWorksheet1_Deactivate);
+
+        }
+
+      
+
+        void activeWorkbook_SheetDeactivate(object Sh)
+        {
+           // MessageBox.Show("Sheet Changed");
+
+            if(aragornOff==false)
+            {
+                PollCellChangeEvent();
+            }
+            else
+            { aragornTurnedOn = 0; }
+        }
+
+       
+
+        //void activeWorksheet1_Deactivate()
+        //{
+            
+        //}
+
+       
+        
+
         private void PollCellChangeEvent()
         {
-            Excel.Worksheet activeWorksheet1 = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
+            
+            
+            activeWorksheet1 = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
 
+           
 
 
             activeWorksheet1.SelectionChange += new Excel.DocEvents_SelectionChangeEventHandler(activeWorksheet1_SelectionChange); //the event handler for on change of cell event
-
+            
         }
 
         public void ProcessWorkBook()
@@ -88,6 +128,7 @@ namespace AragornAddIn
 
             spreadsheet = c.OpenSpreadsheet(Application.ActiveWorkbook.FullName, analyzeAllSiblings);
             MessageBox.Show("AraSENSE is ready for activation");
+            PollSheetChangeEvent();
         }
 
         public void TurnOffAragorn()
