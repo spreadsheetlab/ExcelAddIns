@@ -17,5 +17,21 @@ namespace AragornAddIn
         {
             Globals.ThisAddIn.TurnOnAragorn();
         }
+
+        private void button2_Click(object sender, RibbonControlEventArgs e)
+        {
+
+            Globals.ThisAddIn.TurnOffAragorn();
+        }
+
+        private void button3_Click(object sender, RibbonControlEventArgs e)
+        {
+            Globals.ThisAddIn.ProcessWorkBook();
+
+            button3.Enabled = false;
+            button1.Enabled = true;
+        }
+
+
     }
 }
