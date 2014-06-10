@@ -111,20 +111,24 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
-    <Reference Include="AnalyzerCore">
-      <HintPath>..\..\..\infotron\AnalyzerCore\bin\Debug\AnalyzerCore.dll</HintPath>
+    <Reference Include="GemBox.Spreadsheet, Version=37.3.30.1123, Culture=neutral, PublicKeyToken=b1b72c69714d4847, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\infotron\Infotron.Converter\bin\Debug\GemBox.Spreadsheet.dll</HintPath>
     </Reference>
-    <Reference Include="GemBox.Spreadsheet">
-      <HintPath>..\..\..\infotron\lib\GemBox.Spreadsheet.dll</HintPath>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\infotron\AnalyzerCore\bin\Debug\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>..\..\..\infotron\AnalyzerCore\bin\Release\ICSharpCode.SharpZipLib.dll</HintPath>
+    <Reference Include="Infotron.Converter, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\infotron\AnalyzerCore\bin\Debug\Infotron.Converter.dll</HintPath>
     </Reference>
-    <Reference Include="Infotron.Converter">
-      <HintPath>..\..\..\infotron\Infotron.Converter\bin\Release\Infotron.Converter.dll</HintPath>
+    <Reference Include="Irony, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ca48ace7223ead47, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\infotron\AnalyzerCore\bin\Debug\Irony.dll</HintPath>
     </Reference>
-    <Reference Include="Irony">
-      <HintPath>..\..\..\infotron\AnalyzerCore\bin\Release\Irony.dll</HintPath>
+    <Reference Include="PerfectXLCore">
+      <HintPath>..\..\..\infotron\AnalyzerCore\bin\Debug\PerfectXLCore.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -135,8 +139,9 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Util">
-      <HintPath>..\..\..\infotron\Util\bin\Release\Util.dll</HintPath>
+    <Reference Include="Util, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\infotron\AnalyzerCore\bin\Debug\Util.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

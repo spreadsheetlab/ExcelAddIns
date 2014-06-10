@@ -14,6 +14,7 @@ using Infotron.PerfectXL.DataModel;
 using GemBox.Spreadsheet;
 using Infotron.Converter;
 using Infotron.Util;
+using Infotron.PerfectXL.SmellAnalyzer;
 
 namespace AragornAddIn
 {
@@ -123,7 +124,7 @@ namespace AragornAddIn
         public void ProcessWorkBook()
         {
             Boolean analyzeAllSiblings = true;
-            Controller c = new Controller();
+            AnalysisController c = new AnalysisController();
             spreadsheet = new Spreadsheet();
 
             spreadsheet = c.OpenSpreadsheet(Application.ActiveWorkbook.FullName, analyzeAllSiblings);
