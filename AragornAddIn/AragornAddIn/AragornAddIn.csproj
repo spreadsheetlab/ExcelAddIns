@@ -111,6 +111,51 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
+    <Reference Include="AutoMapper">
+      <HintPath>..\packages\AutoMapper.3.1.1\lib\net40\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="AutoMapper.Net4">
+      <HintPath>..\packages\AutoMapper.3.1.1\lib\net40\AutoMapper.Net4.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="EPPlus">
+      <HintPath>..\packages\PerfectXL.Dependencies.0.7.2\lib\EPPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="FormulaParser">
+      <HintPath>..\packages\PerfectXLCore.0.7.3.0\lib\net45\FormulaParser.dll</HintPath>
+    </Reference>
+    <Reference Include="GemBox.Spreadsheet">
+      <HintPath>..\packages\PerfectXL.Dependencies.0.7.2\lib\GemBox.Spreadsheet.dll</HintPath>
+    </Reference>
+    <Reference Include="Infotron.Converter">
+      <HintPath>..\packages\PerfectXLCore.0.7.3.0\lib\net45\Infotron.Converter.dll</HintPath>
+    </Reference>
+    <Reference Include="Ionic.Zip.Reduced">
+      <HintPath>..\packages\DotNetZip.Reduced.1.9.1.8\lib\net20\Ionic.Zip.Reduced.dll</HintPath>
+    </Reference>
+    <Reference Include="Irony">
+      <HintPath>..\packages\PerfectXL.Dependencies.0.7.2\lib\Irony.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.2.1.0\lib\net45\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="PerfectXL.Domain">
+      <HintPath>..\packages\PerfectXLCore.0.7.3.0\lib\net45\PerfectXL.Domain.dll</HintPath>
+    </Reference>
+    <Reference Include="PerfectXL.Infrastructure">
+      <HintPath>..\packages\PerfectXLCore.0.7.3.0\lib\net45\PerfectXL.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="PerfectXL.Repository">
+      <HintPath>..\packages\PerfectXLCore.0.7.3.0\lib\net45\PerfectXL.Repository.dll</HintPath>
+    </Reference>
+    <Reference Include="PerfectXLCore">
+      <HintPath>..\packages\PerfectXLCore.0.7.3.0\lib\net45\PerfectXLCore.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
@@ -121,6 +166,21 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Util">
+      <HintPath>..\packages\PerfectXLCore.0.7.3.0\lib\net45\Util.dll</HintPath>
+    </Reference>
+    <Reference Include="yFilesAdapter">
+      <HintPath>..\packages\PerfectXL.Dependencies.0.7.2\lib\yFilesAdapter.dll</HintPath>
+    </Reference>
+    <Reference Include="yFilesAlgorithms">
+      <HintPath>..\packages\PerfectXL.Dependencies.0.7.2\lib\yFilesAlgorithms.dll</HintPath>
+    </Reference>
+    <Reference Include="yFilesGraphMLCompatibility">
+      <HintPath>..\packages\PerfectXL.Dependencies.0.7.2\lib\yFilesGraphMLCompatibility.dll</HintPath>
+    </Reference>
+    <Reference Include="yFilesViewer">
+      <HintPath>..\packages\PerfectXL.Dependencies.0.7.2\lib\yFilesViewer.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Office.Tools.v4.0.Framework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
@@ -178,6 +238,8 @@
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="AragornAddIn_TemporaryKey.pfx" />
+    <None Include="NLog.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -208,6 +270,20 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Aragorn.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\packages\AutoMapper.3.1.1\lib\net40\AutoMapper.Net4.dll">
+      <Link>AutoMapper.Net4.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Reporting\icons\accept.png" />
+    <Content Include="Reporting\icons\calculator.png" />
+    <Content Include="Reporting\icons\chart.png" />
+    <Content Include="Reporting\icons\delete.png" />
+    <Content Include="Reporting\icons\fast_forward.png" />
+    <Content Include="Reporting\icons\link.png" />
+    <Content Include="Reporting\icons\refresh.png" />
+    <Content Include="Reporting\icons\wired.png" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
