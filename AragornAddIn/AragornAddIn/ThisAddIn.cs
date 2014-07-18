@@ -127,7 +127,9 @@ namespace AragornAddIn
             AnalysisController c = new AnalysisController();
             spreadsheet = new Spreadsheet();
 
-            spreadsheet = c.OpenSpreadsheet(Application.ActiveWorkbook.FullName, analyzeAllSiblings);
+            SpreadsheetInfo.SetLicense("E7OS-D3IG-PM8L-A03O");
+
+            spreadsheet = c.OpenSpreadsheet(Application.ActiveWorkbook.FullName, analyzeAllSiblings: false, precedentsForAllSiblings: true);
             MessageBox.Show("AraSENSE is ready for activation");
             PollSheetChangeEvent();
         }
