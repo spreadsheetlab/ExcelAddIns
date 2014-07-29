@@ -5,16 +5,37 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AragornAddIn", "AragornAddIn\AragornAddIn.csproj", "{492DBFF9-1087-499F-B878-1421FD740CB1}"
 EndProject
+Project("{6141683F-8A12-4E36-9623-2EB02B2C2303}") = "AragornInstaller", "AragornInstaller\AragornInstaller.isproj", "{B92DA935-6C30-4195-B4E6-A632D6D446AF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{492DBFF9-1087-499F-B878-1421FD740CB1} = {492DBFF9-1087-499F-B878-1421FD740CB1}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		CD_ROM|Any CPU = CD_ROM|Any CPU
 		Debug|Any CPU = Debug|Any CPU
+		DVD-5|Any CPU = DVD-5|Any CPU
 		Release|Any CPU = Release|Any CPU
+		SingleImage|Any CPU = SingleImage|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{492DBFF9-1087-499F-B878-1421FD740CB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{492DBFF9-1087-499F-B878-1421FD740CB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{492DBFF9-1087-499F-B878-1421FD740CB1}.CD_ROM|Any CPU.ActiveCfg = Release|Any CPU
+		{492DBFF9-1087-499F-B878-1421FD740CB1}.CD_ROM|Any CPU.Build.0 = Release|Any CPU
+		{492DBFF9-1087-499F-B878-1421FD740CB1}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{492DBFF9-1087-499F-B878-1421FD740CB1}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{492DBFF9-1087-499F-B878-1421FD740CB1}.DVD-5|Any CPU.ActiveCfg = Debug|Any CPU
+		{492DBFF9-1087-499F-B878-1421FD740CB1}.DVD-5|Any CPU.Build.0 = Debug|Any CPU
 		{492DBFF9-1087-499F-B878-1421FD740CB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{492DBFF9-1087-499F-B878-1421FD740CB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{492DBFF9-1087-499F-B878-1421FD740CB1}.SingleImage|Any CPU.ActiveCfg = Release|Any CPU
+		{492DBFF9-1087-499F-B878-1421FD740CB1}.SingleImage|Any CPU.Build.0 = Release|Any CPU
+		{B92DA935-6C30-4195-B4E6-A632D6D446AF}.CD_ROM|Any CPU.ActiveCfg = CD_ROM
+		{B92DA935-6C30-4195-B4E6-A632D6D446AF}.CD_ROM|Any CPU.Build.0 = CD_ROM
+		{B92DA935-6C30-4195-B4E6-A632D6D446AF}.Debug|Any CPU.ActiveCfg = DVD-5
+		{B92DA935-6C30-4195-B4E6-A632D6D446AF}.DVD-5|Any CPU.ActiveCfg = DVD-5
+		{B92DA935-6C30-4195-B4E6-A632D6D446AF}.DVD-5|Any CPU.Build.0 = DVD-5
+		{B92DA935-6C30-4195-B4E6-A632D6D446AF}.Release|Any CPU.ActiveCfg = SingleImage
+		{B92DA935-6C30-4195-B4E6-A632D6D446AF}.SingleImage|Any CPU.ActiveCfg = SingleImage
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
