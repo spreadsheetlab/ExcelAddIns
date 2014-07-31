@@ -15,44 +15,104 @@ using GemBox.Spreadsheet;
 using Infotron.Converter;
 using Infotron.Util;
 using Infotron.PerfectXL.SmellAnalyzer;
+using AragornAddIn;
 
 namespace AragornAddIn
 {
     public partial class ThisAddIn
     {
+        
+        Excel._Workbook activeWorkbook;
 
+        Excel.Sheets sheetCollection;
+
+        List<Excel.Worksheet> sheetList=new List<Excel.Worksheet>();
+
+       
+        
         Queue<PopUp> popUpQueue = new Queue<PopUp>();
        // Boolean queueWrite = true;
         Boolean aragornOff = true;
         int aragornTurnedOn = 0;
-        List<Excel.Worksheet> sheetList;
-        Excel.Worksheet activeWorksheet1;
+       
         
         //Excel.Shape textbox; // Declare the textbox as a class variable
         //System.Timers.Timer popupDelay; //Declare the delay for lasting the popups
         Spreadsheet spreadsheet; // Declare the spreadsheet as a class variable
         //String popUpText="" ; // the string to contain celle references shown in the popup
-        private void ThisAddIn_Startup(object sender, System.EventArgs e) //executed on startup of excel, analyzes whole sheet
+        private void ThisAddIn_Startup(object sender, System.EventArgs e) //executed on startup of excel
         {
 
-            //Boolean analyzeAllSiblings = true;
-            //Controller c = new Controller();
-            //spreadsheet = new Spreadsheet();
-
-            //String fileName = @"C:\Copy of 66.xlsx";
-            //if (String.Equals(fileName, Application.ActiveWorkbook.FullName))
-            //{ MessageBox.Show("EQUAL"); }
-
-            //MessageBox.Show(fileName + "\n" + Application.ActiveWorkbook.FullName+"Q");
-
-            //spreadsheet = c.OpenSpreadsheet(fileName, analyzeAllSiblings);//(@"C:\Copy of 66.xlsx", analyzeAllSiblings);
-
-            
-
+           
+            //MessageBox.Show("Inside Startup");
+            //Excel.Workbook activeWorkbook = ((Excel.Workbook)Application.ActiveWorkbook); //select active workbook
+            //activeWorkbook.SheetDeactivate += new Excel.WorkbookEvents_SheetDeactivateEventHandler(activeWorkbook_SheetDeactivate);
             
             
         }
 
+        public void ProcessWorkBook()
+        {
+            
+            AnalysisController c = new AnalysisController();
+            spreadsheet = new Spreadsheet();
+
+            SpreadsheetInfo.SetLicense("E7OS-D3IG-PM8L-A03O");
+
+            spreadsheet = c.OpenSpreadsheet(Application.ActiveWorkbook.FullName, analyzeAllSiblings: false, precedentsForAllSiblings: true);
+            MessageBox.Show("AraSENSE is ready for activation");
+
+            activeWorkbook = ((Excel.Workbook)Application.ActiveWorkbook); //select active workbook
+            sheetCollection = activeWorkbook.Sheets;
+
+            MessageBox.Show("Number of sheets " + activeWorkbook.Sheets.Count);
+
+            for (int i = 1; i < sheetCollection.Count; i++)
+            {
+                sheetList.Add(sheetCollection[i]);
+
+                sheetCollection[i].SelectionChange += new Excel.DocEvents_SelectionChangeEventHandler(activeWorksheet1_SelectionChange); //the event handler for on change of cell event
+               
+            }
+
+
+                //activeWorkbook.SheetDeactivate += new Excel.WorkbookEvents_SheetDeactivateEventHandler(activeWorkbook_SheetDeactivate);
+
+                        
+        }
+
+        //void activeWorkbook_SheetDeactivate(object Sh)
+        //{
+
+        //    SheetChangeEvent();
+            
+        //}
+
+        //private void SheetChangeEvent()
+        //{
+
+        //    MessageBox.Show("Sheet Changed");
+
+        //    if (aragornOff == false)
+        //    {
+        //        activeWorksheet1 = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
+        //        activeWorksheet1.SelectionChange += new Excel.DocEvents_SelectionChangeEventHandler(activeWorksheet1_SelectionChange); //the event handler for on change of cell event
+
+        //    }
+
+        //    else
+        //    { aragornTurnedOn = 0; }
+
+        //}
+
+        void activeWorksheet1_SelectionChange(Excel.Range Target) //the method to handle the change of cell event, shows the popup
+        {
+            CellChangeEvent(Target);
+        }
+
+        
+
+               
 
         public void TurnOnAragorn() //executed on ON button click
         {
@@ -64,86 +124,33 @@ namespace AragornAddIn
             MessageBox.Show("AraSENSE is activated");
 
 
-            if (aragornTurnedOn == 0)
-            {
+            //if (aragornTurnedOn == 0)
+            //{
 
-                PollCellChangeEvent();
+            //    activeWorksheet1 = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
+            //    activeWorksheet1.SelectionChange += new Excel.DocEvents_SelectionChangeEventHandler(activeWorksheet1_SelectionChange); //the event handler for on change of cell event
 
-            }
+            //}
 
             aragornTurnedOn++; 
             
         }
 
-        private void PollSheetChangeEvent()
-        {
-            Excel.Workbook activeWorkbook = ((Excel.Workbook)Application.ActiveWorkbook); //select active workbook
-           activeWorkbook.SheetDeactivate += new Excel.WorkbookEvents_SheetDeactivateEventHandler(activeWorkbook_SheetDeactivate);
-            //Excel.Workbook activeWorkbook = ((Excel.Workbook)Application.ActiveWorkbook); //select active worksheet
-            //activeWorksheet1.Deactivate += new Excel.DocEvents_DeactivateEventHandler(activeWorksheet1_Deactivate);
-
-        }
-
-      
-
-        void activeWorkbook_SheetDeactivate(object Sh)
-        {
-           // MessageBox.Show("Sheet Changed");
-
-            if(aragornOff==false)
-            {
-                PollCellChangeEvent();
-            }
-            else
-            { aragornTurnedOn = 0; }
-        }
-
-       
-
-        //void activeWorksheet1_Deactivate()
-        //{
-            
-        //}
-
-       
-        
-
-        private void PollCellChangeEvent()
-        {
-            
-            
-            activeWorksheet1 = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
-
-           
-
-
-            activeWorksheet1.SelectionChange += new Excel.DocEvents_SelectionChangeEventHandler(activeWorksheet1_SelectionChange); //the event handler for on change of cell event
-            
-        }
-
-        public void ProcessWorkBook()
-        {
-            Boolean analyzeAllSiblings = true;
-            AnalysisController c = new AnalysisController();
-            spreadsheet = new Spreadsheet();
-
-            SpreadsheetInfo.SetLicense("E7OS-D3IG-PM8L-A03O");
-
-            spreadsheet = c.OpenSpreadsheet(Application.ActiveWorkbook.FullName, analyzeAllSiblings: false, precedentsForAllSiblings: true);
-            MessageBox.Show("AraSENSE is ready for activation");
-            PollSheetChangeEvent();
-        }
 
         public void TurnOffAragorn()
         {
             aragornOff = true;
+            //aragornTurnedOn = 0;
             MessageBox.Show("AraSENSE is de-activated");
         }
 
 
 
-        void activeWorksheet1_SelectionChange(Excel.Range Target) //the method to handle the change of cell event, shows the popup
+
+        private void CellChangeEvent(Excel.Range Target)
         {
+
+
             if (aragornOff == false)
             {
                 PopUp popUp = new PopUp();
@@ -179,6 +186,8 @@ namespace AragornAddIn
 
                     }
 
+                   // MessageBox.Show("Iterating List: " + popUp.popUpText);
+                    
                     if (popUp.popUpText != "")
                     {
 
@@ -225,14 +234,15 @@ namespace AragornAddIn
                     }
                 }
             }
+            
         }
 
         void popupDelay_Elapsed(object sender, ElapsedEventArgs e)
         {
             PopUp popUp = popUpQueue.Dequeue();
             popUp.popupDelay.Stop();
-            Boolean deleteFailed= false;
-            Boolean userLock=false;
+            Boolean deleteFailed = false;
+            Boolean userLock = false;
             do
             {
                 try
@@ -243,7 +253,7 @@ namespace AragornAddIn
                         {
                             popUp.textBox.Cut();
                             popUp.popUpText = "";
-                            
+
                             deleteFailed = false;
                             userLock = false;
                         }
@@ -253,9 +263,9 @@ namespace AragornAddIn
                         }
 
                     } while (userLock);
-                   
-                   
-                    
+
+
+
                 }
 
                 catch (System.Runtime.InteropServices.COMException ex)
@@ -263,9 +273,12 @@ namespace AragornAddIn
                     deleteFailed = true;
                 }
             } while (deleteFailed);
-            
+
             //throw new NotImplementedException();
         }
+
+
+     
 
 
        
