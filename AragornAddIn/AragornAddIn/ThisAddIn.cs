@@ -156,6 +156,9 @@ namespace AragornAddIn
 
         private void CellChangeEvent(Excel.Range Target)
         {
+
+            Boolean colonFlag = false;
+            Boolean newWorksheet = false;
             try
             {
                 if (aragornOff == false)
@@ -180,23 +183,78 @@ namespace AragornAddIn
                         for (int i = 0; i < dependents.Count; i++) // Loop through List with for
                         {
                             //MessageBox.Show("Iterating List: " + dependents[i].Worksheet.Name);
+
+                            Location loc2 = dependents[i].Location;
                             if (i != 0)
                             {
+                                Location loc1 = dependents[i - 1].Location;
+                                String str1 = loc1.ToString();
+                                String str2 = loc2.ToString();
                                 if (dependents[i].Worksheet.Name != dependents[i - 1].Worksheet.Name)
                                 {
 
-                                    popUp.popUpText = popUp.popUpText + "\n<Sheet " + dependents[i].Worksheet.Name + ">: ";
+                                    //popUp.popUpText = popUp.popUpText + "\n<Sheet " + dependents[i].Worksheet.Name + ">! ";
+                                    
+                                    if (colonFlag == true)
+                                    {
+                                        
+                                        popUp.popUpText = popUp.popUpText + str1 + " ";
+                                        colonFlag = false;
+                                    }
+                                    popUp.popUpText = popUp.popUpText + "\n<Sheet " + dependents[i].Worksheet.Name + ">! " + str2 + " ";
+
+
                                 }
+                                
+                                else
+                                {
+                                    if ((loc1.Row == loc2.Row))
+                                    {
+                                        if (colonFlag == false)
+                                        {
+                                            popUp.popUpText = popUp.popUpText + ":";
+                                            colonFlag = true;
+                                        }
+
+                                    }
+                                    else
+                                    {
+
+                                        if (colonFlag == true)
+                                        {
+
+                                            popUp.popUpText = popUp.popUpText + str1 + " ";
+                                            colonFlag = false;
+                                        }
+                                        popUp.popUpText = popUp.popUpText + str2 + " ";
+
+
+                                    }
+                                }
+                                
+
+                                
                             }
-                            Location loc = dependents[i].Location;
-                            String str = loc.ToString();
+                            
+
+                            else
+                            {
+                                String str = loc2.ToString();
+                                popUp.popUpText = popUp.popUpText + str + " ";
+                                
+                            }
+
+                            
                             //MessageBox.Show("Inside list: " + str);
-                            popUp.popUpText = popUp.popUpText + str + " ";
+                            
 
                         }
 
                         // MessageBox.Show("Iterating List: " + popUp.popUpText);
 
+                        
+                        
+                        
                         if (popUp.popUpText != "")
                         {
 
@@ -228,10 +286,12 @@ namespace AragornAddIn
                                 }
                             }
 
+
+                            
                             popUp.textBox.TextEffect.Text = "Beware! Dependents sensed >>\n" + popUp.popUpText;//+ ;
-
-
                             popUp.textBox.Fill.ForeColor.RGB = 0x87CEEB;
+
+                            
 
                             popUp.popupDelay = new System.Timers.Timer(3000);
                             popUp.popupDelay.Start();
