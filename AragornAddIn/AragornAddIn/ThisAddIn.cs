@@ -208,7 +208,7 @@ namespace AragornAddIn
                                 
                                 else
                                 {
-                                    if ((loc1.Row == loc2.Row))
+                                    if ((loc1.Row == loc2.Row)&&((loc2.Column-loc1.Column)==1))
                                     {
                                         if (colonFlag == false)
                                         {
