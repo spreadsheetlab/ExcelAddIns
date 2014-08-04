@@ -11,6 +11,8 @@ namespace AragornAddIn
 
         public Microsoft.Office.Interop.Excel.Shape textBox;
 
+        public Microsoft.Office.Interop.Excel.Hyperlinks hyperLinks;
+
         public System.Timers.Timer popupDelay;
 
         public String popUpText;

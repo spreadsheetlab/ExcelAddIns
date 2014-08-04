@@ -15,44 +15,221 @@ using GemBox.Spreadsheet;
 using Infotron.Converter;
 using Infotron.Util;
 using Infotron.PerfectXL.SmellAnalyzer;
+using AragornAddIn;
 
 namespace AragornAddIn
 {
     public partial class ThisAddIn
     {
+        
+        Excel.Workbook activeWorkbook;
 
+        Excel.Sheets sheetCollection;
+
+        List<Excel.Worksheet> sheetList=new List<Excel.Worksheet>();
+        int popUpCount = 0;
+
+        Boolean popUpDeleteLock = false;
+
+        Boolean wkBookClosure = false;
+
+        
+       
+        
         Queue<PopUp> popUpQueue = new Queue<PopUp>();
        // Boolean queueWrite = true;
         Boolean aragornOff = true;
         int aragornTurnedOn = 0;
-        List<Excel.Worksheet> sheetList;
-        Excel.Worksheet activeWorksheet1;
+       
         
-        //Excel.Shape textbox; // Declare the textbox as a class variable
-        //System.Timers.Timer popupDelay; //Declare the delay for lasting the popups
+        
         Spreadsheet spreadsheet; // Declare the spreadsheet as a class variable
-        //String popUpText="" ; // the string to contain celle references shown in the popup
-        private void ThisAddIn_Startup(object sender, System.EventArgs e) //executed on startup of excel, analyzes whole sheet
+        
+        private void ThisAddIn_Startup(object sender, System.EventArgs e) //executed on startup of excel
         {
 
-            //Boolean analyzeAllSiblings = true;
-            //Controller c = new Controller();
-            //spreadsheet = new Spreadsheet();
-
-            //String fileName = @"C:\Copy of 66.xlsx";
-            //if (String.Equals(fileName, Application.ActiveWorkbook.FullName))
-            //{ MessageBox.Show("EQUAL"); }
-
-            //MessageBox.Show(fileName + "\n" + Application.ActiveWorkbook.FullName+"Q");
-
-            //spreadsheet = c.OpenSpreadsheet(fileName, analyzeAllSiblings);//(@"C:\Copy of 66.xlsx", analyzeAllSiblings);
-
-            
-
+           
+            //MessageBox.Show("Inside Startup");
+            //Excel.Workbook activeWorkbook = ((Excel.Workbook)Application.ActiveWorkbook); //select active workbook
+            //activeWorkbook.SheetDeactivate += new Excel.WorkbookEvents_SheetDeactivateEventHandler(activeWorkbook_SheetDeactivate);
             
             
         }
 
+        public void ProcessWorkBook()
+        {
+            try
+            {
+
+
+                MessageBox.Show("Kindly wait till the workbook is being processed");
+                AnalysisController c = new AnalysisController();
+                spreadsheet = new Spreadsheet();
+
+                SpreadsheetInfo.SetLicense("E7OS-D3IG-PM8L-A03O");
+
+                spreadsheet = c.OpenSpreadsheet(Application.ActiveWorkbook.FullName, analyzeAllSiblings: false, precedentsForAllSiblings: true);
+                MessageBox.Show("AraSENSE is ready for activation");
+
+                activeWorkbook = ((Excel.Workbook)Application.ActiveWorkbook); //select active workbook
+
+                activeWorkbook.BeforeClose += new Excel.WorkbookEvents_BeforeCloseEventHandler(activeWorkbook_BeforeClose);
+
+                //activeWorkbook.SheetChange += new Excel.WorkbookEvents_SheetChangeEventHandler(activeWorkbook_SheetChange);
+                activeWorkbook.AfterSave += new Excel.WorkbookEvents_AfterSaveEventHandler(activeWorkbook_AfterSave);
+                
+                sheetCollection = activeWorkbook.Sheets;
+
+               // MessageBox.Show("Number of sheets " + activeWorkbook.Sheets.Count);
+
+                for (int i = 1; i < sheetCollection.Count; i++)
+                {
+                    sheetList.Add(sheetCollection[i]);
+
+                    sheetCollection[i].SelectionChange += new Excel.DocEvents_SelectionChangeEventHandler(activeWorksheet1_SelectionChange); //the event handler for on change of cell event
+
+
+                     
+
+
+                }
+
+
+                //activeWorkbook.SheetDeactivate += new Excel.WorkbookEvents_SheetDeactivateEventHandler(activeWorkbook_SheetDeactivate);
+            } 
+            
+            catch (Exception  e)
+            {
+                MessageBox.Show("Error!\nPlease load a proper Excel file with .xls or .xlsx extension first in order to process\nError Message: " + e);
+            }
+
+                        
+        }
+
+        void activeWorkbook_AfterSave(bool Success)
+        {
+            //MessageBox.Show("Inside Workbook Saved");
+            ReProcessWorkbook();
+        }
+
+        
+
+        private void ReProcessWorkbook()
+        {
+            
+            if(wkBookClosure==false)
+            {
+                MessageBox.Show("You have saved modifications to the workbook. Kindly wait till it is reprocessed.");
+                //activeWorkbook.Save();
+                AnalysisController c = new AnalysisController();
+                spreadsheet = new Spreadsheet();
+
+                spreadsheet = c.OpenSpreadsheet(Application.ActiveWorkbook.FullName, analyzeAllSiblings: false, precedentsForAllSiblings: true);
+                MessageBox.Show("AraSENSE is ready again.");
+            }
+            
+            
+        }
+
+        void activeWorkbook_BeforeClose(ref bool Cancel)
+        {
+            
+            MessageBox.Show("You have chosen to close this workbook. Due to Aragorn all changes will be saved.");
+            WorkBookCloseCleanUp();
+        }
+
+        
+
+        private void WorkBookCloseCleanUp()
+        {
+            //MessageBox.Show("Inside sheet dd");
+
+
+
+            while (popUpDeleteLock == true) ;
+            popUpDeleteLock = true;
+            while(popUpQueue.Count!=0)
+            {
+
+                
+                PopUp popUp = popUpQueue.Dequeue();
+                popUpCount--;
+                popUp.popupDelay.Stop();
+                Boolean deleteFailed = false;
+                Boolean userLock = false;
+                do
+                {
+                    try
+                    {
+                        do
+                        {
+                            try
+                            {
+                                popUp.textBox.Cut();
+                                popUp.popUpText = "";
+
+                                deleteFailed = false;
+                                userLock = false;
+                            }
+                            catch (System.UnauthorizedAccessException ex1)
+                            {
+                                userLock = true;
+                            }
+
+                        } while (userLock);
+
+
+
+                    }
+
+                    catch (System.Runtime.InteropServices.COMException ex)
+                    {
+                        deleteFailed = true;
+                    }
+                } while (deleteFailed);
+
+              
+            }
+            popUpDeleteLock = false;
+            
+            wkBookClosure = true;
+            activeWorkbook.Save();
+            wkBookClosure = false;
+
+        }
+
+        //void activeWorkbook_SheetDeactivate(object Sh)
+        //{
+
+        //    SheetChangeEvent();
+            
+        //}
+
+        //private void SheetChangeEvent()
+        //{
+
+        //    MessageBox.Show("Sheet Changed");
+
+        //    if (aragornOff == false)
+        //    {
+        //        activeWorksheet1 = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
+        //        activeWorksheet1.SelectionChange += new Excel.DocEvents_SelectionChangeEventHandler(activeWorksheet1_SelectionChange); //the event handler for on change of cell event
+
+        //    }
+
+        //    else
+        //    { aragornTurnedOn = 0; }
+
+        //}
+
+        void activeWorksheet1_SelectionChange(Excel.Range Target) //the method to handle the change of cell event, shows the popup
+        {
+            CellChangeEvent(Target);
+        }
+
+        
+
+               
 
         public void TurnOnAragorn() //executed on ON button click
         {
@@ -64,208 +241,261 @@ namespace AragornAddIn
             MessageBox.Show("AraSENSE is activated");
 
 
-            if (aragornTurnedOn == 0)
-            {
+            //if (aragornTurnedOn == 0)
+            //{
 
-                PollCellChangeEvent();
+            //    activeWorksheet1 = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
+            //    activeWorksheet1.SelectionChange += new Excel.DocEvents_SelectionChangeEventHandler(activeWorksheet1_SelectionChange); //the event handler for on change of cell event
 
-            }
+            //}
 
             aragornTurnedOn++; 
             
         }
 
-        private void PollSheetChangeEvent()
-        {
-            Excel.Workbook activeWorkbook = ((Excel.Workbook)Application.ActiveWorkbook); //select active workbook
-           activeWorkbook.SheetDeactivate += new Excel.WorkbookEvents_SheetDeactivateEventHandler(activeWorkbook_SheetDeactivate);
-            //Excel.Workbook activeWorkbook = ((Excel.Workbook)Application.ActiveWorkbook); //select active worksheet
-            //activeWorksheet1.Deactivate += new Excel.DocEvents_DeactivateEventHandler(activeWorksheet1_Deactivate);
-
-        }
-
-      
-
-        void activeWorkbook_SheetDeactivate(object Sh)
-        {
-           // MessageBox.Show("Sheet Changed");
-
-            if(aragornOff==false)
-            {
-                PollCellChangeEvent();
-            }
-            else
-            { aragornTurnedOn = 0; }
-        }
-
-       
-
-        //void activeWorksheet1_Deactivate()
-        //{
-            
-        //}
-
-       
-        
-
-        private void PollCellChangeEvent()
-        {
-            
-            
-            activeWorksheet1 = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
-
-           
-
-
-            activeWorksheet1.SelectionChange += new Excel.DocEvents_SelectionChangeEventHandler(activeWorksheet1_SelectionChange); //the event handler for on change of cell event
-            
-        }
-
-        public void ProcessWorkBook()
-        {
-            Boolean analyzeAllSiblings = true;
-            AnalysisController c = new AnalysisController();
-            spreadsheet = new Spreadsheet();
-
-            SpreadsheetInfo.SetLicense("E7OS-D3IG-PM8L-A03O");
-
-            spreadsheet = c.OpenSpreadsheet(Application.ActiveWorkbook.FullName, analyzeAllSiblings: false, precedentsForAllSiblings: true);
-            MessageBox.Show("AraSENSE is ready for activation");
-            PollSheetChangeEvent();
-        }
 
         public void TurnOffAragorn()
         {
             aragornOff = true;
+            //aragornTurnedOn = 0;
             MessageBox.Show("AraSENSE is de-activated");
         }
 
 
 
-        void activeWorksheet1_SelectionChange(Excel.Range Target) //the method to handle the change of cell event, shows the popup
+
+        private void CellChangeEvent(Excel.Range Target)
         {
-            if (aragornOff == false)
+
+            Boolean colonFlag = false;
+            Boolean newWorksheet = false;
+            try
             {
-                PopUp popUp = new PopUp();
-                popUp.popUpText = "";
-
-                if (Target.get_Value() != null) //checking for non-empty cell
+                if (aragornOff == false)
                 {
-                    Excel.Worksheet activeWorksheet = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
-                    //MessageBox.Show(Target.Address);
-                    String cellAddress = String.Join("", Target.Address.Split('$'));
-                    //MessageBox.Show(cellAddress);
-                    Cell cell = spreadsheet.GetWorksheet(activeWorksheet.Name).GetCell(cellAddress);
-                    //MessageBox.Show("Cell formula from infotron core  "+cell.Formula);//.Location.ToString());
-                    List<Cell> dependents = cell.GetDependents();
+                    PopUp popUp = new PopUp();
+                    popUp.popUpText = "";
 
-                    //Boolean workSheetFlag = false;
-
-                    for (int i = 0; i < dependents.Count; i++) // Loop through List with for
+                    if (Target.get_Value() != null) //checking for non-empty cell
                     {
-                        //MessageBox.Show("Iterating List: " + dependents[i].Worksheet.Name);
-                        if (i != 0)
-                        {
-                            if (dependents[i].Worksheet.Name != dependents[i - 1].Worksheet.Name)
-                            {
 
-                                popUp.popUpText = popUp.popUpText + "\n<Sheet " + dependents[i].Worksheet.Name + ">: ";
+                        Excel.Worksheet activeWorksheet = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
+                        //MessageBox.Show(Target.Address);
+                        String cellAddress = String.Join("", Target.Address.Split('$'));
+                        //MessageBox.Show(cellAddress);
+                        Cell cell = spreadsheet.GetWorksheet(activeWorksheet.Name).GetCell(cellAddress);
+                        //MessageBox.Show("Cell formula from infotron core  "+cell.Formula);//.Location.ToString());
+                        List<Cell> dependents = new List<Cell>();
+                        dependents = cell.GetDependents();
+
+                        //Boolean workSheetFlag = false;
+
+                        for (int i = 0; i < dependents.Count; i++) // Loop through List with for
+                        {
+                            //MessageBox.Show("Iterating List: " + dependents[i].Worksheet.Name);
+
+                            Location loc2 = dependents[i].Location;
+                            if (i != 0)
+                            {
+                                Location loc1 = dependents[i - 1].Location;
+                                String str1 = loc1.ToString();
+                                String str2 = loc2.ToString();
+                                if (dependents[i].Worksheet.Name != dependents[i - 1].Worksheet.Name)
+                                {
+
+                                    //popUp.popUpText = popUp.popUpText + "\n<Sheet " + dependents[i].Worksheet.Name + ">! ";
+                                    
+                                    if (colonFlag == true)
+                                    {
+                                        
+                                        popUp.popUpText = popUp.popUpText + str1 + " ";
+                                        colonFlag = false;
+                                    }
+                                    popUp.popUpText = popUp.popUpText + "\n<Sheet " + dependents[i].Worksheet.Name + ">! " + str2 + " ";
+
+
+                                }
+                                
+                                else
+                                {
+                                    if ((loc1.Row == loc2.Row)&&((loc2.Column-loc1.Column)==1))
+                                    {
+                                        if (colonFlag == false)
+                                        {
+                                            popUp.popUpText = popUp.popUpText + ":";
+                                            colonFlag = true;
+                                        }
+
+                                    }
+                                    else
+                                    {
+
+                                        if (colonFlag == true)
+                                        {
+
+                                            popUp.popUpText = popUp.popUpText + str1 + " ";
+                                            colonFlag = false;
+                                        }
+                                        popUp.popUpText = popUp.popUpText + str2 + " ";
+
+
+                                    }
+                                }
+                                
+
+                                
                             }
-                        }
-                        Location loc = dependents[i].Location;
-                        String str = loc.ToString();
-                        //MessageBox.Show("Inside list: " + str);
-                        popUp.popUpText = popUp.popUpText + str + " ";
+                            
 
-                    }
-
-                    if (popUp.popUpText != "")
-                    {
-
-
-                        if (Target.Top - 70 <= 0)
-                        {
-                            if (Target.Left - 140 <= 0)
+                            else
                             {
-                                popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top, 140, 130);
+                                String str = loc2.ToString();
+                                popUp.popUpText = popUp.popUpText + str + " ";
+                                
+                            }
 
+                            
+                            //MessageBox.Show("Inside list: " + str);
+                            
+
+                        }
+
+                        // MessageBox.Show("Iterating List: " + popUp.popUpText);
+
+                        
+                        
+                        
+                        if (popUp.popUpText != "")
+                        {
+
+
+                            if (Target.Top - 70 <= 0)
+                            {
+                                if (Target.Left - 140 <= 0)
+                                {
+                                    popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top, 140, 130);
+
+                                }
+                                else
+                                {
+                                    popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top, 140, 130);
+
+                                }
                             }
                             else
                             {
-                                popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top, 140, 130);
+                                if (Target.Left - 140 <= 0)
+                                {
+                                    popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top - 70, 140, 130);
 
+                                }
+                                else
+                                {
+                                    popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top - 70, 140, 130);
+
+                                }
                             }
+
+
+                            
+                            popUp.textBox.TextFrame2.TextRange.Text = "Beware! Dependents sensed >>\n" + popUp.popUpText;//+ ;
+
+                            popUp.textBox.TextFrame2.WordWrap = (Office.MsoTriState) 1;
+
+                            popUp.textBox.TextFrame2.AutoSize = (Office.MsoAutoSize) 1; 
+
+                            popUp.textBox.Fill.ForeColor.RGB = 0x87CEEB;
+
+                            
+
+                            popUp.popupDelay = new System.Timers.Timer(3000);
+                            popUp.popupDelay.Start();
+
+
+                            popUpQueue.Enqueue(popUp);
+                            popUpCount++;
+
+
+                            popUp.popupDelay.Elapsed += new ElapsedEventHandler(popupDelay_Elapsed); //+= new ElapsedEventHandler(VanishPopup);
+                            //throw new NotImplementedException();
                         }
-                        else
-                        {
-                            if (Target.Left - 140 <= 0)
-                            {
-                                popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top - 70, 140, 130);
-
-                            }
-                            else
-                            {
-                                popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top - 70, 140, 130);
-
-                            }
-                        }
-
-                        popUp.textBox.TextEffect.Text = "Beware! Dependents sensed >>\n" + popUp.popUpText;//+ ;
-                        popUp.textBox.Fill.ForeColor.RGB = 0x87CEEB;
-
-                        popUp.popupDelay = new System.Timers.Timer(3000);
-                        popUp.popupDelay.Start();
-
-
-                        popUpQueue.Enqueue(popUp);
-
-
-                        popUp.popupDelay.Elapsed += new ElapsedEventHandler(popupDelay_Elapsed); //+= new ElapsedEventHandler(VanishPopup);
-                        //throw new NotImplementedException();
                     }
                 }
             }
+
+            catch (Exception e)
+            {
+               // MessageBox.Show("Error!\nPlease try selecting another 'single' cell please\nError Message: " + e);
+            }
+            
         }
 
         void popupDelay_Elapsed(object sender, ElapsedEventArgs e)
         {
-            PopUp popUp = popUpQueue.Dequeue();
-            popUp.popupDelay.Stop();
-            Boolean deleteFailed= false;
-            Boolean userLock=false;
-            do
+            try
             {
-                try
+                while (popUpDeleteLock == true) ;
+                if (popUpQueue.Count != 0)
                 {
+
+
+                    popUpDeleteLock = true;
+                    PopUp popUp = new PopUp();
+                    popUp = popUpQueue.Dequeue();
+                    popUpCount--;
+                    popUp.popupDelay.Stop();
+                    Boolean deleteFailed = false;
+                    Boolean userLock = false;
                     do
                     {
                         try
                         {
-                            popUp.textBox.Cut();
-                            popUp.popUpText = "";
-                            
-                            deleteFailed = false;
-                            userLock = false;
+                            do
+                            {
+                                try
+                                {
+                                    popUp.textBox.Cut();
+                                    popUp.popUpText = "";
+
+                                    deleteFailed = false;
+                                    userLock = false;
+                                }
+                                catch (System.UnauthorizedAccessException ex1)
+                                {
+                                    userLock = true;
+                                }
+
+                            } while (userLock);
+
+
+
                         }
-                        catch (System.UnauthorizedAccessException ex1)
+
+                        catch (System.Runtime.InteropServices.COMException ex)
                         {
-                            userLock = true;
+                            deleteFailed = true;
                         }
+                    } while (deleteFailed);
 
-                    } while (userLock);
-                   
-                   
-                    
-                }
 
-                catch (System.Runtime.InteropServices.COMException ex)
-                {
-                    deleteFailed = true;
+
+                    popUpDeleteLock = false;
+
                 }
-            } while (deleteFailed);
             
+
+            }catch (NullReferenceException es)
+            { 
+                MessageBox.Show("Fatal Error! (I know this is crappy but we have to work on it. Really sorry)");
+                
+            
+            }
+           
             //throw new NotImplementedException();
         }
+
+
+     
 
 
        
