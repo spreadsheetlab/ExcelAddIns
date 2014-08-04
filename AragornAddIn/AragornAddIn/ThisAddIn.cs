@@ -288,7 +288,12 @@ namespace AragornAddIn
 
 
                             
-                            popUp.textBox.TextEffect.Text = "Beware! Dependents sensed >>\n" + popUp.popUpText;//+ ;
+                            popUp.textBox.TextFrame2.TextRange.Text = "Beware! Dependents sensed >>\n" + popUp.popUpText;//+ ;
+
+                            popUp.textBox.TextFrame2.WordWrap = (Office.MsoTriState) 1;
+
+                            popUp.textBox.TextFrame2.AutoSize = (Office.MsoAutoSize) 1; 
+
                             popUp.textBox.Fill.ForeColor.RGB = 0x87CEEB;
 
                             
