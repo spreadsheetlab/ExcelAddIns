@@ -30,6 +30,10 @@ namespace AragornAddIn
         int popUpCount = 0;
 
         Boolean popUpDeleteLock = false;
+
+        Boolean wkBookClosure = false;
+
+        
        
         
         Queue<PopUp> popUpQueue = new Queue<PopUp>();
@@ -38,10 +42,9 @@ namespace AragornAddIn
         int aragornTurnedOn = 0;
        
         
-        //Excel.Shape textbox; // Declare the textbox as a class variable
-        //System.Timers.Timer popupDelay; //Declare the delay for lasting the popups
+        
         Spreadsheet spreadsheet; // Declare the spreadsheet as a class variable
-        //String popUpText="" ; // the string to contain celle references shown in the popup
+        
         private void ThisAddIn_Startup(object sender, System.EventArgs e) //executed on startup of excel
         {
 
@@ -57,6 +60,9 @@ namespace AragornAddIn
         {
             try
             {
+
+
+                MessageBox.Show("Kindly wait till the workbook is being processed");
                 AnalysisController c = new AnalysisController();
                 spreadsheet = new Spreadsheet();
 
@@ -67,8 +73,10 @@ namespace AragornAddIn
 
                 activeWorkbook = ((Excel.Workbook)Application.ActiveWorkbook); //select active workbook
 
-                activeWorkbook.BeforeClose += new Excel.WorkbookEvents_BeforeCloseEventHandler(activeWorkbook_BeforeClose); 
+                activeWorkbook.BeforeClose += new Excel.WorkbookEvents_BeforeCloseEventHandler(activeWorkbook_BeforeClose);
 
+                //activeWorkbook.SheetChange += new Excel.WorkbookEvents_SheetChangeEventHandler(activeWorkbook_SheetChange);
+                activeWorkbook.AfterSave += new Excel.WorkbookEvents_AfterSaveEventHandler(activeWorkbook_AfterSave);
                 
                 sheetCollection = activeWorkbook.Sheets;
 
@@ -81,7 +89,7 @@ namespace AragornAddIn
                     sheetCollection[i].SelectionChange += new Excel.DocEvents_SelectionChangeEventHandler(activeWorksheet1_SelectionChange); //the event handler for on change of cell event
 
 
-                     //sheetCollection[i].Deactivate += new Excel.DocEvents_DeactivateEventHandler(wk_Deactivate);
+                     
 
 
                 }
@@ -98,25 +106,49 @@ namespace AragornAddIn
                         
         }
 
-        void activeWorkbook_BeforeClose(ref bool Cancel)
+        void activeWorkbook_AfterSave(bool Success)
         {
-            SheetDeactivateEventHandler();
+            //MessageBox.Show("Inside Workbook Saved");
+            ReProcessWorkbook();
         }
 
-        void wk_Deactivate()
+        
+
+        private void ReProcessWorkbook()
         {
+            
+            if(wkBookClosure==false)
+            {
+                MessageBox.Show("You have saved modifications to the workbook. Kindly wait till it is reprocessed.");
+                //activeWorkbook.Save();
+                AnalysisController c = new AnalysisController();
+                spreadsheet = new Spreadsheet();
+
+                spreadsheet = c.OpenSpreadsheet(Application.ActiveWorkbook.FullName, analyzeAllSiblings: false, precedentsForAllSiblings: true);
+                MessageBox.Show("AraSENSE is ready again.");
+            }
+            
             
         }
 
-        private void SheetDeactivateEventHandler()
+        void activeWorkbook_BeforeClose(ref bool Cancel)
         {
-            MessageBox.Show("Inside sheet dd");
+            
+            MessageBox.Show("You have chosen to close this workbook. Due to Aragorn all changes will be saved.");
+            WorkBookCloseCleanUp();
+        }
+
+        
+
+        private void WorkBookCloseCleanUp()
+        {
+            //MessageBox.Show("Inside sheet dd");
 
 
 
             while (popUpDeleteLock == true) ;
             popUpDeleteLock = true;
-            while(popUpCount!=0)
+            while(popUpQueue.Count!=0)
             {
 
                 
@@ -160,6 +192,9 @@ namespace AragornAddIn
             }
             popUpDeleteLock = false;
             
+            wkBookClosure = true;
+            activeWorkbook.Save();
+            wkBookClosure = false;
 
         }
 
@@ -397,55 +432,65 @@ namespace AragornAddIn
 
         void popupDelay_Elapsed(object sender, ElapsedEventArgs e)
         {
-
-            while (popUpDeleteLock == true) ;
-            if(popUpCount!=0)
+            try
             {
-
-
-                popUpDeleteLock = true;
-                PopUp popUp = new PopUp();
-                popUp= popUpQueue.Dequeue();
-                popUpCount--;
-                popUp.popupDelay.Stop();
-                Boolean deleteFailed = false;
-                Boolean userLock = false;
-                do
+                while (popUpDeleteLock == true) ;
+                if (popUpQueue.Count != 0)
                 {
-                    try
+
+
+                    popUpDeleteLock = true;
+                    PopUp popUp = new PopUp();
+                    popUp = popUpQueue.Dequeue();
+                    popUpCount--;
+                    popUp.popupDelay.Stop();
+                    Boolean deleteFailed = false;
+                    Boolean userLock = false;
+                    do
                     {
-                        do
+                        try
                         {
-                            try
+                            do
                             {
-                                popUp.textBox.Cut();
-                                popUp.popUpText = "";
+                                try
+                                {
+                                    popUp.textBox.Cut();
+                                    popUp.popUpText = "";
 
-                                deleteFailed = false;
-                                userLock = false;
-                            }
-                            catch (System.UnauthorizedAccessException ex1)
-                            {
-                                userLock = true;
-                            }
+                                    deleteFailed = false;
+                                    userLock = false;
+                                }
+                                catch (System.UnauthorizedAccessException ex1)
+                                {
+                                    userLock = true;
+                                }
 
-                        } while (userLock);
+                            } while (userLock);
 
 
 
-                    }
+                        }
 
-                    catch (System.Runtime.InteropServices.COMException ex)
-                    {
-                        deleteFailed = true;
-                    }
-                } while (deleteFailed);
+                        catch (System.Runtime.InteropServices.COMException ex)
+                        {
+                            deleteFailed = true;
+                        }
+                    } while (deleteFailed);
 
-                popUpDeleteLock = false;
 
-            }
+
+                    popUpDeleteLock = false;
+
+                }
             
 
+            }catch (NullReferenceException es)
+            { 
+                MessageBox.Show("Fatal Error! (I know this is crappy but we have to work on it. Really sorry)");
+                
+            
+            }
+           
             //throw new NotImplementedException();
         }
 
