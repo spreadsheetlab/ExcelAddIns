@@ -63,14 +63,14 @@ namespace AragornAddIn
 
 
                 MessageBox.Show("Kindly wait till the workbook is being processed");
+
                 AnalysisController c = new AnalysisController();
                 c.AnalysisMaxRows = 10000;
-                spreadsheet = new Spreadsheet();
-
+                //spreadsheet = new Spreadsheet();
                 SpreadsheetInfo.SetLicense("E7OS-D3IG-PM8L-A03O");
-
                 spreadsheet = c.OpenSpreadsheet(Application.ActiveWorkbook.FullName, analyzeAllSiblings: false, precedentsForAllSiblings: true);
-                MessageBox.Show("AraSENSE is ready for activation");
+                
+                
 
                 activeWorkbook = ((Excel.Workbook)Application.ActiveWorkbook); //select active workbook
 
@@ -78,23 +78,10 @@ namespace AragornAddIn
 
                 //activeWorkbook.SheetChange += new Excel.WorkbookEvents_SheetChangeEventHandler(activeWorkbook_SheetChange);
                 activeWorkbook.AfterSave += new Excel.WorkbookEvents_AfterSaveEventHandler(activeWorkbook_AfterSave);
-                
-                sheetCollection = activeWorkbook.Sheets;
 
-               // MessageBox.Show("Number of sheets " + activeWorkbook.Sheets.Count);
+                CreateEventHandlers();
 
-                for (int i = 1; i <= sheetCollection.Count; i++)
-                {
-                    sheetList.Add(sheetCollection[i]);
-
-                    sheetCollection[i].SelectionChange += new Excel.DocEvents_SelectionChangeEventHandler(activeWorksheet1_SelectionChange); //the event handler for on change of cell event
-
-
-                     
-
-
-                }
-
+                MessageBox.Show("AraSENSE is ready for activation");
 
                 //activeWorkbook.SheetDeactivate += new Excel.WorkbookEvents_SheetDeactivateEventHandler(activeWorkbook_SheetDeactivate);
             } 
@@ -107,6 +94,27 @@ namespace AragornAddIn
                         
         }
 
+        private void CreateEventHandlers()
+        {
+            activeWorkbook = ((Excel.Workbook)Application.ActiveWorkbook); //select active workbook
+            sheetCollection = activeWorkbook.Sheets;
+
+            //MessageBox.Show("Number of sheets " + activeWorkbook.Sheets.Count);
+            sheetList.Clear();
+
+            for (int i = 1; i <= sheetCollection.Count; i++)
+            {
+                sheetList.Add(sheetCollection[i]);
+
+                sheetList[i-1].SelectionChange += new Excel.DocEvents_SelectionChangeEventHandler(activeWorksheet1_SelectionChange); //the event handler for on change of cell event
+
+
+
+
+
+            }
+        }
+
         void activeWorkbook_AfterSave(bool Success)
         {
             //MessageBox.Show("Inside Workbook Saved");
@@ -117,19 +125,40 @@ namespace AragornAddIn
 
         private void ReProcessWorkbook()
         {
-            
+            DestroyEventHandlers();
             if(wkBookClosure==false)
             {
                 MessageBox.Show("You have saved modifications to the workbook. Kindly wait till it is reprocessed.");
                 //activeWorkbook.Save();
                 AnalysisController c = new AnalysisController();
-                spreadsheet = new Spreadsheet();
-
+                c.AnalysisMaxRows = 10000;
+                //spreadsheet = new Spreadsheet();
+                SpreadsheetInfo.SetLicense("E7OS-D3IG-PM8L-A03O");
                 spreadsheet = c.OpenSpreadsheet(Application.ActiveWorkbook.FullName, analyzeAllSiblings: false, precedentsForAllSiblings: true);
+               
+                CreateEventHandlers();
+
                 MessageBox.Show("AraSENSE is ready again.");
             }
             
             
+        }
+
+        private void DestroyEventHandlers()
+        {
+
+            //MessageBox.Show("Number of sheets " + sheetList.Count);
+            for (int i = 0; i < sheetList.Count; i++)
+            {
+
+
+                sheetList[i].SelectionChange -= activeWorksheet1_SelectionChange;
+
+
+
+
+
+            }
         }
 
         void activeWorkbook_BeforeClose(ref bool Cancel)
@@ -283,7 +312,7 @@ namespace AragornAddIn
                         Excel.Worksheet activeWorksheet = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
                         //MessageBox.Show(Target.Address);
                         String cellAddress = String.Join("", Target.Address.Split('$'));
-                        //MessageBox.Show(cellAddress);
+                       // MessageBox.Show(cellAddress);
                         Cell cell = spreadsheet.GetWorksheet(activeWorksheet.Name).GetCell(cellAddress);
                         //MessageBox.Show("Cell formula from infotron core  "+cell.Formula);//.Location.ToString());
                         List<Cell> dependents = new List<Cell>();
