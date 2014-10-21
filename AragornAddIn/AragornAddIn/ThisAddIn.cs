@@ -83,7 +83,7 @@ namespace AragornAddIn
 
                // MessageBox.Show("Number of sheets " + activeWorkbook.Sheets.Count);
 
-                for (int i = 1; i < sheetCollection.Count; i++)
+                for (int i = 1; i <= sheetCollection.Count; i++)
                 {
                     sheetList.Add(sheetCollection[i]);
 
