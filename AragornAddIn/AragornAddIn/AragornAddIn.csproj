@@ -230,6 +230,7 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="AragornWorkbookClass.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="ClosureDialog.cs">
       <SubType>Form</SubType>
