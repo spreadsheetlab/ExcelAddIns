@@ -351,6 +351,8 @@ namespace AragornAddIn
                             else
                             {
                                 String str = loc2.ToString();
+                                if (dependents[i].Worksheet.Name != activeWorksheet.Name)
+                                { popUp.popUpText = popUp.popUpText + "\n<Sheet " + dependents[i].Worksheet.Name + ">! "; }
                                 popUp.popUpText = popUp.popUpText + str + " ";
                                 
                             }
