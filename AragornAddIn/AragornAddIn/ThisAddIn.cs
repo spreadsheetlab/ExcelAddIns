@@ -64,6 +64,7 @@ namespace AragornAddIn
 
                 MessageBox.Show("Kindly wait till the workbook is being processed");
                 AnalysisController c = new AnalysisController();
+                c.AnalysisMaxRows = 10000;
                 spreadsheet = new Spreadsheet();
 
                 SpreadsheetInfo.SetLicense("E7OS-D3IG-PM8L-A03O");
@@ -425,7 +426,7 @@ namespace AragornAddIn
 
             catch (Exception e)
             {
-               // MessageBox.Show("Error!\nPlease try selecting another 'single' cell please\nError Message: " + e);
+               MessageBox.Show("Error!\nPlease try selecting another 'single' cell please\nError Message: " + e);
             }
             
         }
