@@ -326,6 +326,7 @@ namespace AragornAddIn
         {
             aragornOff = true;
             //aragornTurnedOn = 0;
+            Globals.Ribbons.Ribbon1.label1.Label = ""; 
             MessageBox.Show("AraSENSE is de-activated");
         }
 
@@ -336,7 +337,8 @@ namespace AragornAddIn
         {
 
             Boolean colonFlag = false;
-            Boolean newWorksheet = false;
+            //Boolean newWorksheet = false;
+            int dependentsCount = 0;
             try
             {
                 if (aragornOff == false)
@@ -369,6 +371,8 @@ namespace AragornAddIn
                         //MessageBox.Show("Cell formula from infotron core  "+cell.Formula);//.Location.ToString());
                         List<Cell> dependents = new List<Cell>();
                         dependents = cell.GetDependents();
+                        dependentsCount = dependents.Count;
+                        //MessageBox.Show("dependentsCount  " + dependentsCount);
 
                         //Boolean workSheetFlag = false;
 
@@ -485,13 +489,13 @@ namespace AragornAddIn
                             //}
                             popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 0, 140, 130);
 
-                            
-                            popUp.textBox.TextFrame2.TextRange.Text = "Dependents\n=============\n" + popUp.popUpText;//+ ;
+
+                            popUp.textBox.TextFrame2.TextRange.Text = "Dependents\n=============\n" + "No. of Dependents: " + dependentsCount + "\n" + popUp.popUpText;//+ ;
 
                             /**********/
                             //Globals.Ribbons.Ribbon1.editBox1.Label = "Beware! Dependents sensed >>\n" + popUp.popUpText;
 
-                            Globals.Ribbons.Ribbon1.label1.Label= popUp.popUpText; 
+                            Globals.Ribbons.Ribbon1.label1.Label = "No. of Dependents: " + dependentsCount+":    :"+popUp.popUpText; 
                             /*********/
 
                             popUp.textBox.TextFrame2.WordWrap = (Office.MsoTriState) 1;
