@@ -63,30 +63,39 @@ namespace AragornAddIn
             try
             {
 
-                MessageBox.Show("Kindly wait till the workbook is being processed");
+                if(workbookList.Exists(w => w.wkbook.Name == Application.ActiveWorkbook.Name))
+                {
+                    MessageBox.Show("This workbook has been already processed");
+                }
+                
+                else
+                {
+                    MessageBox.Show("Kindly wait while the workbook is being processed");
 
-                AragornWorkbookClass workbook = new AragornWorkbookClass();
+                    AragornWorkbookClass workbook = new AragornWorkbookClass();
 
-                workbook.wkbook = ((Excel.Workbook)Application.ActiveWorkbook); //select active workbook
+                    workbook.wkbook = ((Excel.Workbook)Application.ActiveWorkbook); //select active workbook
 
-                AnalysisController c = new AnalysisController();
-                c.AnalysisMaxRows = 10000;
-                //spreadsheet = new Spreadsheet();
-                SpreadsheetInfo.SetLicense("E7OS-D3IG-PM8L-A03O");
-                workbook.spreadsheet = c.OpenSpreadsheet(Application.ActiveWorkbook.FullName, analyzeAllSiblings: false, precedentsForAllSiblings: true);
+                    AnalysisController c = new AnalysisController();
+                    c.AnalysisMaxRows = 10000;
+                    //spreadsheet = new Spreadsheet();
+                    SpreadsheetInfo.SetLicense("E7OS-D3IG-PM8L-A03O");
+                    workbook.spreadsheet = c.OpenSpreadsheet(Application.ActiveWorkbook.FullName, analyzeAllSiblings: false, precedentsForAllSiblings: true);
 
 
 
-                CreateWorkbookEventHandlers(workbook);
+                    CreateWorkbookEventHandlers(workbook);
 
                
 
-                CreateSheetEventHandlers(workbook);
+                    CreateSheetEventHandlers(workbook);
 
-                workbookList.Add(workbook);
+                    workbookList.Add(workbook);
 
-                MessageBox.Show("AraSENSE is ready for activation");
+                    MessageBox.Show("AraSENSE is ready for activation");
 
+                }
+                
 
 
                 //activeWorkbook.SheetDeactivate += new Excel.WorkbookEvents_SheetDeactivateEventHandler(activeWorkbook_SheetDeactivate);
