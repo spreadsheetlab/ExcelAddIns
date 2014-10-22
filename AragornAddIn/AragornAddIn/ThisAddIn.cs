@@ -247,6 +247,8 @@ namespace AragornAddIn
             wkBookClosure = true;
             Excel.Workbook activeWorkbook = ((Excel.Workbook)Application.ActiveWorkbook);
             activeWorkbook.Save();
+            AragornWorkbookClass workbook = workbookList.Find(w => w.wkbook.Name == activeWorkbook.Name);
+            workbookList.Remove(workbook);
             wkBookClosure = false;
 
         }
