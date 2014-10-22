@@ -50,7 +50,11 @@ namespace AragornAddIn
         private void ThisAddIn_Startup(object sender, System.EventArgs e) //executed on startup of excel
         {
 
-           
+            //Globals.Ribbons.Ribbon1.editBox1.Label = "Kutt";
+            //Globals.Ribbons.Ribbon1.editBox1.Text = "Kutt";
+             //Globals.Ribbons.Ribbon1.editBox1.
+            
+
             //MessageBox.Show("Inside Startup");
             //Excel.Workbook activeWorkbook = ((Excel.Workbook)Application.ActiveWorkbook); //select active workbook
             //activeWorkbook.SheetDeactivate += new Excel.WorkbookEvents_SheetDeactivateEventHandler(activeWorkbook_SheetDeactivate);
@@ -356,7 +360,10 @@ namespace AragornAddIn
                         if(cell==null)
                         {
                             
-                            //MessageBox.Show("You have made changes on this spreadsheet. Please hit the save button");
+                            
+                        
+                            Globals.Ribbons.Ribbon1.label1.Label = "No Dependents of selected cell detected. If you have modified this spreadsheet please save in order to see the changes relfected"; 
+                        
                             return;
                         }
                         //MessageBox.Show("Cell formula from infotron core  "+cell.Formula);//.Location.ToString());
@@ -446,36 +453,46 @@ namespace AragornAddIn
                         {
 
 
-                            if (Target.Top - 70 <= 0)
-                            {
-                                if (Target.Left - 140 <= 0)
-                                {
-                                    popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top, 140, 130);
+                            //if (Target.Top - 70 <= 0)
+                            //{
+                            //    if (Target.Left - 140 <= 0)
+                            //    {
+                            //        popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top, 140, 130);
 
-                                }
-                                else
-                                {
-                                    popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top, 140, 130);
+                            //    }
+                            //    else
+                            //    {
+                            //        popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top, 140, 130);
 
-                                }
-                            }
-                            else
-                            {
-                                if (Target.Left - 140 <= 0)
-                                {
-                                    popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top - 70, 140, 130);
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (Target.Left - 140 <= 0)
+                            //    {
+                            //        popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left + Target.Width, Target.Top - 70, 140, 130);
 
-                                }
-                                else
-                                {
-                                    popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top - 70, 140, 130);
+                            //    }
+                            //    else
+                            //    {
+                            //        popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, Target.Left - 140, Target.Top - 70, 140, 130);
 
-                                }
-                            }
+                            //    }
 
+
+                           
+
+                            //}
+                            popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 0, 140, 130);
 
                             
-                            popUp.textBox.TextFrame2.TextRange.Text = "Beware! Dependents sensed >>\n" + popUp.popUpText;//+ ;
+                            popUp.textBox.TextFrame2.TextRange.Text = "Dependents\n=============\n" + popUp.popUpText;//+ ;
+
+                            /**********/
+                            //Globals.Ribbons.Ribbon1.editBox1.Label = "Beware! Dependents sensed >>\n" + popUp.popUpText;
+
+                            Globals.Ribbons.Ribbon1.label1.Label= popUp.popUpText; 
+                            /*********/
 
                             popUp.textBox.TextFrame2.WordWrap = (Office.MsoTriState) 1;
 
@@ -496,6 +513,11 @@ namespace AragornAddIn
                             popUp.popupDelay.Elapsed += new ElapsedEventHandler(popupDelay_Elapsed); //+= new ElapsedEventHandler(VanishPopup);
                             //throw new NotImplementedException();
                         }
+                        else
+                        {
+                            Globals.Ribbons.Ribbon1.label1.Label = "No Dependents of selected cell detected. If you have modified this spreadsheet please save in order to see the changes relfected"; 
+                        }
+                       
                     
                 }
             }
