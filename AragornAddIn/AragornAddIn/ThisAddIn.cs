@@ -340,8 +340,8 @@ namespace AragornAddIn
                     PopUp popUp = new PopUp();
                     popUp.popUpText = "";
 
-                    if (Target.get_Value() != null) //checking for non-empty cell
-                    {
+                    //if (Target.get_Value() != null) //checking for non-empty cell
+                    
 
                         Excel.Worksheet activeWorksheet = ((Excel.Worksheet)Application.ActiveSheet); //select active worksheet
                         //MessageBox.Show(Target.Address);
@@ -353,6 +353,12 @@ namespace AragornAddIn
                         Spreadsheet spreadsheet = workbookList.Find(w => w.wkbook.Name == activeWorkbook.Name).spreadsheet;
 
                         Cell cell = spreadsheet.GetWorksheet(activeWorksheet.Name).GetCell(cellAddress);
+                        if(cell==null)
+                        {
+                            
+                            //MessageBox.Show("You have made changes on this spreadsheet. Please hit the save button");
+                            return;
+                        }
                         //MessageBox.Show("Cell formula from infotron core  "+cell.Formula);//.Location.ToString());
                         List<Cell> dependents = new List<Cell>();
                         dependents = cell.GetDependents();
@@ -490,7 +496,7 @@ namespace AragornAddIn
                             popUp.popupDelay.Elapsed += new ElapsedEventHandler(popupDelay_Elapsed); //+= new ElapsedEventHandler(VanishPopup);
                             //throw new NotImplementedException();
                         }
-                    }
+                    
                 }
             }
 
