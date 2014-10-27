@@ -490,12 +490,12 @@ namespace AragornAddIn
                             popUp.textBox = activeWorksheet.Shapes.AddTextbox(Microsoft.Office.Core.MsoTextOrientation.msoTextOrientationHorizontal, 0, 0, 140, 130);
 
 
-                            popUp.textBox.TextFrame2.TextRange.Text = "Dependents\n=============\n" + "No. of Dependents: " + dependentsCount + "\n" + popUp.popUpText;//+ ;
+                            popUp.textBox.TextFrame2.TextRange.Text = "Dependents\n=============\n" + "No. of Dependents: " + dependentsCount + "\n\n" + popUp.popUpText;//+ ;
 
                             /**********/
                             //Globals.Ribbons.Ribbon1.editBox1.Label = "Beware! Dependents sensed >>\n" + popUp.popUpText;
 
-                            Globals.Ribbons.Ribbon1.label1.Label = "No. of Dependents: " + dependentsCount+":    :"+popUp.popUpText; 
+                            Globals.Ribbons.Ribbon1.label1.Label = "No. of Dependents: " + dependentsCount+"==>>"+popUp.popUpText; 
                             /*********/
 
                             popUp.textBox.TextFrame2.WordWrap = (Office.MsoTriState) 1;
