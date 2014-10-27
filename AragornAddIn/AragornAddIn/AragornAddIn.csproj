@@ -111,50 +111,57 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
-    <Reference Include="AutoMapper">
-      <HintPath>..\packages\AutoMapper.3.1.1\lib\net40\AutoMapper.dll</HintPath>
-    </Reference>
-    <Reference Include="AutoMapper.Net4">
-      <HintPath>..\packages\AutoMapper.3.1.1\lib\net40\AutoMapper.Net4.dll</HintPath>
-    </Reference>
-    <Reference Include="EntityFramework">
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
-    <Reference Include="EntityFramework.SqlServer">
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="EPPlus">
-      <HintPath>..\packages\PerfectXL.Dependencies.0.7.2\lib\EPPlus.dll</HintPath>
+    <Reference Include="EPPlus, Version=2.8.0.1, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\PerfectXL.Dependencies.0.8.0\lib\EPPlus.dll</HintPath>
     </Reference>
-    <Reference Include="FormulaParser">
-      <HintPath>..\packages\PerfectXLCore.0.7.4.0\lib\net45\FormulaParser.dll</HintPath>
+    <Reference Include="FormulaParser, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\PerfectXLCore.0.7.5.0\lib\net45\FormulaParser.dll</HintPath>
     </Reference>
-    <Reference Include="GemBox.Spreadsheet">
-      <HintPath>..\packages\PerfectXL.Dependencies.0.7.2\lib\GemBox.Spreadsheet.dll</HintPath>
+    <Reference Include="GemBox.Spreadsheet, Version=37.3.30.1153, Culture=neutral, PublicKeyToken=b1b72c69714d4847, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\PerfectXL.Dependencies.0.8.0\lib\GemBox.Spreadsheet.dll</HintPath>
     </Reference>
-    <Reference Include="Infotron.Converter">
-      <HintPath>..\packages\PerfectXLCore.0.7.4.0\lib\net45\Infotron.Converter.dll</HintPath>
+    <Reference Include="Infotron.Converter, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\PerfectXLCore.0.7.5.0\lib\net45\Infotron.Converter.dll</HintPath>
     </Reference>
-    <Reference Include="Ionic.Zip.Reduced">
+    <Reference Include="Ionic.Zip.Reduced, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\DotNetZip.Reduced.1.9.1.8\lib\net20\Ionic.Zip.Reduced.dll</HintPath>
     </Reference>
-    <Reference Include="Irony">
-      <HintPath>..\packages\PerfectXL.Dependencies.0.7.2\lib\Irony.dll</HintPath>
+    <Reference Include="Irony, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ca48ace7223ead47, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\PerfectXL.Dependencies.0.8.0\lib\Irony.dll</HintPath>
     </Reference>
-    <Reference Include="NLog">
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog, Version=2.1.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NLog.2.1.0\lib\net45\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="PerfectXL.Domain">
-      <HintPath>..\packages\PerfectXLCore.0.7.4.0\lib\net45\PerfectXL.Domain.dll</HintPath>
+    <Reference Include="PerfectXL.Domain, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\PerfectXLCore.0.7.5.0\lib\net45\PerfectXL.Domain.dll</HintPath>
     </Reference>
-    <Reference Include="PerfectXL.Infrastructure">
-      <HintPath>..\packages\PerfectXLCore.0.7.4.0\lib\net45\PerfectXL.Infrastructure.dll</HintPath>
+    <Reference Include="PerfectXL.Infrastructure, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\PerfectXLCore.0.7.5.0\lib\net45\PerfectXL.Infrastructure.dll</HintPath>
     </Reference>
-    <Reference Include="PerfectXL.Repository">
-      <HintPath>..\packages\PerfectXLCore.0.7.4.0\lib\net45\PerfectXL.Repository.dll</HintPath>
-    </Reference>
-    <Reference Include="PerfectXLCore">
-      <HintPath>..\packages\PerfectXLCore.0.7.4.0\lib\net45\PerfectXLCore.dll</HintPath>
+    <Reference Include="PerfectXLCore, Version=0.7.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\PerfectXLCore.0.7.5.0\lib\net45\PerfectXLCore.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -166,20 +173,25 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Util">
-      <HintPath>..\packages\PerfectXLCore.0.7.4.0\lib\net45\Util.dll</HintPath>
+    <Reference Include="Util, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\PerfectXLCore.0.7.5.0\lib\net45\Util.dll</HintPath>
     </Reference>
-    <Reference Include="yFilesAdapter">
-      <HintPath>..\packages\PerfectXL.Dependencies.0.7.2\lib\yFilesAdapter.dll</HintPath>
+    <Reference Include="yFilesAdapter, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\PerfectXL.Dependencies.0.8.0\lib\yFilesAdapter.dll</HintPath>
     </Reference>
-    <Reference Include="yFilesAlgorithms">
-      <HintPath>..\packages\PerfectXL.Dependencies.0.7.2\lib\yFilesAlgorithms.dll</HintPath>
+    <Reference Include="yFilesAlgorithms, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\PerfectXL.Dependencies.0.8.0\lib\yFilesAlgorithms.dll</HintPath>
     </Reference>
-    <Reference Include="yFilesGraphMLCompatibility">
-      <HintPath>..\packages\PerfectXL.Dependencies.0.7.2\lib\yFilesGraphMLCompatibility.dll</HintPath>
+    <Reference Include="yFilesGraphMLCompatibility, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\PerfectXL.Dependencies.0.8.0\lib\yFilesGraphMLCompatibility.dll</HintPath>
     </Reference>
-    <Reference Include="yFilesViewer">
-      <HintPath>..\packages\PerfectXL.Dependencies.0.7.2\lib\yFilesViewer.dll</HintPath>
+    <Reference Include="yFilesViewer, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\PerfectXL.Dependencies.0.8.0\lib\yFilesViewer.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -218,6 +230,7 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="AragornWorkbookClass.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="ClosureDialog.cs">
       <SubType>Form</SubType>
@@ -296,20 +309,6 @@
     <None Include="Resources\Aragorn.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\packages\AutoMapper.3.1.1\lib\net40\AutoMapper.Net4.dll">
-      <Link>AutoMapper.Net4.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Reporting\icons\accept.png" />
-    <Content Include="Reporting\icons\calculator.png" />
-    <Content Include="Reporting\icons\chart.png" />
-    <Content Include="Reporting\icons\delete.png" />
-    <Content Include="Reporting\icons\fast_forward.png" />
-    <Content Include="Reporting\icons\link.png" />
-    <Content Include="Reporting\icons\refresh.png" />
-    <Content Include="Reporting\icons\wired.png" />
-  </ItemGroup>
-  <ItemGroup>
     <COMReference Include="VSTOEE100">
       <Guid>{AAB9C2AA-6036-4AE1-A41C-A40AB7F39520}</Guid>
       <VersionMajor>10</VersionMajor>
@@ -319,6 +318,20 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Reporting\icons\accept.png" />
+    <Content Include="Reporting\icons\calculator.png" />
+    <Content Include="Reporting\icons\chart.png" />
+    <Content Include="Reporting\icons\copy.png" />
+    <Content Include="Reporting\icons\delete.png" />
+    <Content Include="Reporting\icons\doubleMinus.png" />
+    <Content Include="Reporting\icons\empty.png" />
+    <Content Include="Reporting\icons\fast_forward.png" />
+    <Content Include="Reporting\icons\hidden.png" />
+    <Content Include="Reporting\icons\link.png" />
+    <Content Include="Reporting\icons\refresh.png" />
+    <Content Include="Reporting\icons\wired.png" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

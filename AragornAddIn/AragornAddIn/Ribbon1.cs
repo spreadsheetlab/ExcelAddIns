@@ -39,6 +39,11 @@ namespace AragornAddIn
             button1.Enabled = true;
         }
 
+        private void editBox1_TextChanged(object sender, RibbonControlEventArgs e)
+        {
+
+        }
+
 
     }
 }
