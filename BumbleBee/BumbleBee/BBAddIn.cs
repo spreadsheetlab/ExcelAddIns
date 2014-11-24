@@ -36,6 +36,68 @@ namespace ExcelAddIn3
         }
     }
 
+    public class SmellyCell
+    {
+        public Range Cell;
+        public Object OriginalPattern;
+        public Object OriginalColor;
+        public Object OriginalComment;
+
+        public SmellyCell(Range cell,
+            Object originalPattern,
+            Object originalColor,
+            Object originalComment)
+        {
+            this.Cell = cell;
+            this.OriginalPattern = originalPattern;
+            this.OriginalColor = originalColor;
+            this.OriginalComment = (originalComment != null) ? ((Comment)originalComment).Text() : null;
+        }
+
+        public void Reset(){
+            Cell.Interior.Color = OriginalColor;
+            Cell.Interior.Pattern = OriginalPattern;
+            Cell.Comment.Delete();
+            if (OriginalComment != null) Cell.AddComment(OriginalComment.ToString());
+        }
+
+        public void Apply(Smell smell)
+        {
+            Cell.Interior.Pattern = XlPattern.xlPatternSolid;
+            Cell.Interior.Color = System.Drawing.ColorTranslator.ToOle(Color.Red);
+
+            var existingComment = "";
+            var analyzerExtension = new tmpAnalyzerExtension(smell.AnalysisType);
+            var comments = analyzerExtension.GetSmellMessage(smell);
+            if (!string.IsNullOrEmpty(comments))
+            {
+                if (Cell.Comment != null)
+                {
+                    existingComment = Cell.Comment.Text() + "\n";
+                    Cell.Comment.Delete();
+                }
+                Cell.AddComment(existingComment + comments);
+                Cell.Comment.Visible = true;
+            }
+        }
+
+        public override bool Equals(System.Object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+
+            var smellyCell = obj as SmellyCell;
+            if (smellyCell == null)
+            {
+                return false;
+            }
+
+            return (Cell.Address == smellyCell.Cell.Address);
+        }
+    }
+
     public partial class BBAddIn
     {
 
@@ -43,7 +105,7 @@ namespace ExcelAddIn3
         public Ribbon1 theRibbon;
         List<FSharpTransformationRule> AllTransformations = new List<FSharpTransformationRule>();
         public AnalysisController AnalysisController;
-        private List<Range> coloredCells = new List<Range>();
+        private ISet<SmellyCell> coloredCells = new HashSet<SmellyCell>();
 
 
         private static string RemoveFirstSymbol(string input)
@@ -329,11 +391,9 @@ namespace ExcelAddIn3
 
         private void decolorCells()
         {
-            foreach (var cell in coloredCells)
+            foreach (SmellyCell smellyCell in coloredCells)
             {
-                cell.Interior.Color =
-                    System.Drawing.ColorTranslator.ToOle(Color.White);
-                cell.Comment.Visible = false;
+                smellyCell.Reset();
             }
             coloredCells.Clear();
         }
@@ -347,23 +407,13 @@ namespace ExcelAddIn3
                 var cell = (smell.SourceType == RiskSourceType.SiblingClass) ? ((SiblingClass)smell.Source).Cells[0] : (Cell)smell.Source;
 
                 var excelCell = Application.Sheets[cell.Worksheet.Name].Cells[cell.Location.Row + 1, cell.Location.Column + 1];
-                coloredCells.Add(excelCell);
 
-                excelCell.Interior.Pattern = XlPattern.xlPatternSolid;
-                excelCell.Interior.Color =
-                    System.Drawing.ColorTranslator.ToOle(Color.Red);
-
-                if (string.IsNullOrEmpty(excelCell.Comment))
+                var smellyCell = new SmellyCell(excelCell, excelCell.Interior.Pattern, excelCell.Interior.Color, excelCell.Comment);
+                smellyCell.Apply(smell);
+                if (!coloredCells.Any(x => x.Equals(smellyCell)))
                 {
-                    var analyzerExtension = new tmpAnalyzerExtension(smell.AnalysisType);
-                    var comments = analyzerExtension.GetSmellMessage(smell);
-                    if (!string.IsNullOrEmpty(comments))
-                    {
-                        excelCell.AddComment(comments);
-                    }
+                    coloredCells.Add(smellyCell);
                 }
-
-                excelCell.Comment.Visible = true;
             }
             catch (Exception e)
             {
@@ -377,7 +427,8 @@ namespace ExcelAddIn3
             foreach (var smellType in AnalysisController.DetectedSmells.Select(x => x.AnalysisType).Distinct())
             {
                 tmpAnalyzerExtension analyzerExtension = new tmpAnalyzerExtension(smellType);
-                addSelectSmellTypeItem(smellType.ToString(), analyzerExtension.SmellName);
+                if (AnalysisController.DetectedSmells.Any(x => analyzerExtension.GetMetricScore(x.RiskValue) > MetricScore.None))
+                    addSelectSmellTypeItem(smellType.ToString(), analyzerExtension.SmellName);
             }
 
             addSelectSmellTypeItem("", "(all)", true);
