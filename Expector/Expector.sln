@@ -10,6 +10,8 @@ Project("{6141683F-8A12-4E36-9623-2EB02B2C2303}") = "Setup", "..\Setup1\Setup.is
 		{985A6AD4-5E31-4112-9404-3F15D2F3225E} = {985A6AD4-5E31-4112-9404-3F15D2F3225E}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpectorTests", "..\..\infotron\ExpectorTests\ExpectorTests.csproj", "{B7A63B62-1340-4685-A507-4E7EC1E54BE7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		CD_ROM|Any CPU = CD_ROM|Any CPU
@@ -17,6 +19,7 @@ Global
 		DVD-5|Any CPU = DVD-5|Any CPU
 		Release|Any CPU = Release|Any CPU
 		SingleImage|Any CPU = SingleImage|Any CPU
+		Staging|Any CPU = Staging|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{985A6AD4-5E31-4112-9404-3F15D2F3225E}.CD_ROM|Any CPU.ActiveCfg = Release|Any CPU
@@ -30,6 +33,8 @@ Global
 		{985A6AD4-5E31-4112-9404-3F15D2F3225E}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{985A6AD4-5E31-4112-9404-3F15D2F3225E}.SingleImage|Any CPU.ActiveCfg = Release|Any CPU
 		{985A6AD4-5E31-4112-9404-3F15D2F3225E}.SingleImage|Any CPU.Build.0 = Release|Any CPU
+		{985A6AD4-5E31-4112-9404-3F15D2F3225E}.Staging|Any CPU.ActiveCfg = Debug|Any CPU
+		{985A6AD4-5E31-4112-9404-3F15D2F3225E}.Staging|Any CPU.Build.0 = Debug|Any CPU
 		{06E91048-795E-40AF-9ADF-9D74FD50DA57}.CD_ROM|Any CPU.ActiveCfg = CD_ROM
 		{06E91048-795E-40AF-9ADF-9D74FD50DA57}.CD_ROM|Any CPU.Build.0 = CD_ROM
 		{06E91048-795E-40AF-9ADF-9D74FD50DA57}.Debug|Any CPU.ActiveCfg = DVD-5
@@ -38,6 +43,19 @@ Global
 		{06E91048-795E-40AF-9ADF-9D74FD50DA57}.Release|Any CPU.ActiveCfg = SingleImage
 		{06E91048-795E-40AF-9ADF-9D74FD50DA57}.SingleImage|Any CPU.ActiveCfg = SingleImage
 		{06E91048-795E-40AF-9ADF-9D74FD50DA57}.SingleImage|Any CPU.Build.0 = SingleImage
+		{06E91048-795E-40AF-9ADF-9D74FD50DA57}.Staging|Any CPU.ActiveCfg = SingleImage
+		{B7A63B62-1340-4685-A507-4E7EC1E54BE7}.CD_ROM|Any CPU.ActiveCfg = Staging|Any CPU
+		{B7A63B62-1340-4685-A507-4E7EC1E54BE7}.CD_ROM|Any CPU.Build.0 = Staging|Any CPU
+		{B7A63B62-1340-4685-A507-4E7EC1E54BE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7A63B62-1340-4685-A507-4E7EC1E54BE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7A63B62-1340-4685-A507-4E7EC1E54BE7}.DVD-5|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7A63B62-1340-4685-A507-4E7EC1E54BE7}.DVD-5|Any CPU.Build.0 = Debug|Any CPU
+		{B7A63B62-1340-4685-A507-4E7EC1E54BE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7A63B62-1340-4685-A507-4E7EC1E54BE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7A63B62-1340-4685-A507-4E7EC1E54BE7}.SingleImage|Any CPU.ActiveCfg = Staging|Any CPU
+		{B7A63B62-1340-4685-A507-4E7EC1E54BE7}.SingleImage|Any CPU.Build.0 = Staging|Any CPU
+		{B7A63B62-1340-4685-A507-4E7EC1E54BE7}.Staging|Any CPU.ActiveCfg = Staging|Any CPU
+		{B7A63B62-1340-4685-A507-4E7EC1E54BE7}.Staging|Any CPU.Build.0 = Staging|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
