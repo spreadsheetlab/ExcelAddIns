@@ -154,21 +154,18 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>Infotron.Expector_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>Expector_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>BBC836A6A290C1D4CB4358077A7B78392F5AA87B</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>B814C9C0F06D25BF8DF49F21DD4703D8528E1494</ManifestCertificateThumbprint>
   </PropertyGroup>
   <!--
     This section specifies references for the project.
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
-    <Reference Include="AnalyzerCore">
-      <HintPath>packages\InfotronCore.0.6.7\lib\AnalyzerCore.dll</HintPath>
-    </Reference>
     <Reference Include="FormulaParser">
-      <HintPath>..\infotron\FormulaParser\bin\Debug\FormulaParser.dll</HintPath>
+      <HintPath>..\..\infotron\FormulaParser\bin\Debug\FormulaParser.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Office.Interop.Excel, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -182,6 +179,9 @@
     <Reference Include="Microsoft.VisualStudio.Tools.Applications.Runtime, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Office, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c">
       <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="PerfectXLCore">
+      <HintPath>..\..\infotron\AnalyzerCore\bin\Debug\PerfectXLCore.dll</HintPath>
     </Reference>
     <Reference Include="stdole, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -197,7 +197,7 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Util, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\infotron\Util\bin\Debug\Util.dll</HintPath>
+      <HintPath>..\..\infotron\Util\bin\Debug\Util.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -245,6 +245,7 @@
     <EmbeddedResource Include="VerifyTests.resx">
       <DependentUpon>VerifyTests.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="Expector_1_TemporaryKey.pfx" />
     <None Include="Infotron.Expector_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
