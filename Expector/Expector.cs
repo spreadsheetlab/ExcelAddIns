@@ -130,6 +130,7 @@ namespace Expector
                         catch (Exception)
                         {
                             //just skip this cell
+                            int i = 0;
                         }
                        
                     }
