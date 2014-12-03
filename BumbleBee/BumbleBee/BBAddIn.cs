@@ -36,14 +36,21 @@ namespace ExcelAddIn3
         }
     }
 
-    public class SmellyCell
+    public enum ApplyTo
+    {
+        Range,
+        Worksheet,
+        Workbook
+    }
+
+    public class HighlightedCell
     {
         public Range Cell;
         public Object OriginalPattern;
         public Object OriginalColor;
         public Object OriginalComment;
 
-        public SmellyCell(Range cell,
+        public HighlightedCell(Range cell,
             Object originalPattern,
             Object originalColor,
             Object originalComment)
@@ -57,7 +64,7 @@ namespace ExcelAddIn3
         public void Reset(){
             Cell.Interior.Color = OriginalColor;
             Cell.Interior.Pattern = OriginalPattern;
-            Cell.Comment.Delete();
+            if (Cell.Comment != null) Cell.Comment.Delete();
             if (OriginalComment != null) Cell.AddComment(OriginalComment.ToString());
         }
 
@@ -88,13 +95,18 @@ namespace ExcelAddIn3
                 return false;
             }
 
-            var smellyCell = obj as SmellyCell;
+            var smellyCell = obj as HighlightedCell;
             if (smellyCell == null)
             {
                 return false;
             }
 
             return (Cell.Address == smellyCell.Cell.Address);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 
@@ -105,8 +117,8 @@ namespace ExcelAddIn3
         public Ribbon1 theRibbon;
         List<FSharpTransformationRule> AllTransformations = new List<FSharpTransformationRule>();
         public AnalysisController AnalysisController;
-        private ISet<SmellyCell> coloredCells = new HashSet<SmellyCell>();
-
+        private ISet<HighlightedCell> smellyCells = new HashSet<HighlightedCell>();
+        private ISet<HighlightedCell> transformationCells = new HashSet<HighlightedCell>();
 
         private static string RemoveFirstSymbol(string input)
         {
@@ -161,17 +173,21 @@ namespace ExcelAddIn3
             AllTransformations.Sort(T.Compare);          
         }
 
- 
-
+        private void InitializeTransformations()
+        {
+            theRibbon.Preview.Text = "";
+            theRibbon.dropDown1.Items.Clear();
+            decolorCells(transformationCells);
+        }
 
         public void FindApplicableTransformations()
         {
             Log("FindApplicableTransformations");
 
-            theRibbon.dropDown1.Items.Clear();
+            InitializeTransformations();
             Excel.Worksheet activeWorksheet = ((Excel.Worksheet)Application.ActiveSheet);
             Excel.Range R = ((Excel.Range)Application.Selection);
-            string Formula = R.Formula;
+            string Formula = R.Item[1, 1].Formula;
 
             if (Formula.Length > 0)
             {
@@ -205,131 +221,95 @@ namespace ExcelAddIn3
 
         public void MakePreview()
         {
+            decolorCells(transformationCells);
             if (theRibbon.dropDown1.Items.Count > 0) //if we have transformations available
             {
-                //get the transformation
                 FSharpTransformationRule T = AllTransformations.FirstOrDefault(x => x.Name == theRibbon.dropDown1.SelectedItem.Label);
 
-                Excel.Worksheet activeWorksheet = ((Excel.Worksheet)Application.ActiveSheet);
                 Excel.Range R = ((Excel.Range)Application.Selection);
+                string formula = RemoveFirstSymbol(R.Item[1, 1].Formula);
+                theRibbon.Preview.Text = T.ApplyOn(formula);
 
                 if (R.Count == 1)
                 {
-                    string Formula = RemoveFirstSymbol(R.Formula);
-                    theRibbon.Preview.Text = T.ApplyOn(Formula);
+                    foreach (Excel.Worksheet worksheet in Application.Worksheets)
+                    {
+                        applyInRange(T, worksheet.UsedRange, true);
+                    }
                 }
                 else
                 {
-                    //get first cell for preview
-                    Excel.Range Cell1 = R.Cells.Item[0, 0];
-                    string Formula = RemoveFirstSymbol(Cell1.Formula);
-                    theRibbon.Preview.Text = T.ApplyOn(Formula);
+                    applyInRange(T, Application.Selection, true);
                 }
             }
         }
 
-        public void ApplyEverywhere()
+        public void ApplyTransformation(ApplyTo scope)
         {
-            Log("ApplyEverywhere, " + theRibbon.dropDown1.SelectedItem.Label);
-            //get the transformation
+            if (theRibbon.dropDown1.SelectedItem == null)
+            {
+                Log("ApplyTransformation tried with empty dropdown");
+                return;
+            }
+
+            decolorCells(transformationCells);
+
+            Log("Apply in " + scope.ToString() + " transformation " + theRibbon.dropDown1.SelectedItem.Label);
+
             FSharpTransformationRule T = AllTransformations.FirstOrDefault(x => x.Name == theRibbon.dropDown1.SelectedItem.Label);
 
-            foreach (var item in Application.Worksheets)
+            switch (scope)
             {
-                Excel.Worksheet Worksheet = ((Excel.Worksheet)item);
-                Excel.Range R = ((Excel.Range)Worksheet.Cells);
-
-                //find last filled cells
-                int Lower = 50;//R.Cells.Find("*", Type.Missing, Type.Missing, Type.Missing, Type.Missing, Excel.XlSearchDirection.xlNext, Type.Missing, Type.Missing, Type.Missing).Row;
-                int RightMost = 50;//R.Cells.Find("*", Type.Missing, Excel.XlFindLookIn.xlValues, Type.Missing, Type.Missing, Excel.XlSearchDirection.xlNext, Type.Missing, Type.Missing, Type.Missing).Column;
-
-                for (int i = 1; i <= Lower; i++)
-                {
-                    for (int j = 1; j <= RightMost; j++)
+                case ApplyTo.Range:
+                    applyInRange(T, Application.Selection);
+                    break;
+                case ApplyTo.Worksheet:
+                    applyInRange(T, Application.ActiveSheet.UsedRange);
+                    break;
+                case ApplyTo.Workbook:
+                    foreach (Excel.Worksheet worksheet in Application.Worksheets)
                     {
-                        Excel.Range Cell = R.Cells.Item[i, j];
-                        string Formula = Cell.Formula;
-                        if (Cell.HasFormula)
-                        {
-                            Formula = RemoveFirstSymbol(Formula);
-                            if (T.CanBeAppliedonBool(Formula))
-                            {
-                                Cell.Formula = "=" + T.ApplyOn(Formula);
-                                Cell.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Red);
-                            }
-                        }
+                        applyInRange(T, worksheet.UsedRange);
                     }
-                }
+                    break;
             }
-
-        }
-
-        public void ApplyinSheet()
-        {
-            Log("ApplyinSheet, " + theRibbon.dropDown1.SelectedItem.Label);
-            //get the transformation
-            FSharpTransformationRule T = AllTransformations.FirstOrDefault(x => x.Name == theRibbon.dropDown1.SelectedItem.Label);
-
-            Excel.Worksheet activeWorksheet = ((Excel.Worksheet)Application.ActiveSheet);
-            Excel.Range R = ((Excel.Range)activeWorksheet.Cells);
-
-            //find last filled cells
-            int Lower = 50;//R.Cells.Find("*", Type.Missing, Type.Missing, Type.Missing, Type.Missing, Excel.XlSearchDirection.xlNext, Type.Missing, Type.Missing, Type.Missing).Row;
-            int RightMost = 50;//R.Cells.Find("*", Type.Missing, Excel.XlFindLookIn.xlValues, Type.Missing, Type.Missing, Excel.XlSearchDirection.xlNext, Type.Missing, Type.Missing, Type.Missing).Column;
-        
-            for (int i = 1; i <= Lower; i++)
-            {
-                for (int j = 1; j <= RightMost; j++)
-                {
-                    Excel.Range Cell = R.Cells.Item[i, j];
-                    string Formula = Cell.Formula;
-                    if (Cell.HasFormula)
-                    {
-                        Formula = RemoveFirstSymbol(Formula);
-                        if (T.CanBeAppliedonBool(Formula))
-                        {
-                            Cell.Formula = "=" + T.ApplyOn(Formula);
-                            Cell.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Red);
-                        }
-                    }
-                }    
-            }
-
-         }
-
-
-
-        public void ApplyinRange()
-        {
-            if (theRibbon.dropDown1.SelectedItem != null)
-            {
-                Log("ApplyinRange, " + theRibbon.dropDown1.SelectedItem.Label);
-                //get the transformation
-
-                FSharpTransformationRule T = AllTransformations.FirstOrDefault(x => x.Name == theRibbon.dropDown1.SelectedItem.Label);
-
-                Excel.Worksheet activeWorksheet = ((Excel.Worksheet)Application.ActiveSheet);
-                Excel.Range R = ((Excel.Range)Application.Selection);
-
-                foreach (Excel.Range Cell in R.Cells)
-                {
-                    string Formula = RemoveFirstSymbol(Cell.Formula);
-                    Cell.Formula = "=" + T.ApplyOn(Formula);
-                }
-            }
-            else
-            {
-                Log("ApplyinRange tried with empty dropdown");
-            }
-
 
             //after applying, we want to empty the preview box, find new rewrites and show them (in dropdown and preview)
             FindApplicableTransformations();
-            MakePreview();                                
+            MakePreview();
+        }
+
+        private void applyInRange(FSharpTransformationRule T, Excel.Range Range, Boolean previewOnly = false)
+        {
+            foreach (Excel.Range cell in Range.Cells)
+            {
+                if (cell.HasFormula)
+                {
+                    var Formula = RemoveFirstSymbol(cell.Formula);
+                    if (T.CanBeAppliedonBool(Formula))
+                    {
+                        if (previewOnly)
+                        {
+                            var transformationCell = new HighlightedCell(cell, cell.Interior.Pattern, cell.Interior.Color, cell.Comment);
+                            cell.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Yellow);
+                            if (!transformationCells.Any(x => x.Equals(transformationCell)))
+                            {
+                                transformationCells.Add(transformationCell);
+                            }
+                        }
+                        else
+                        {
+                            cell.Formula = "=" + T.ApplyOn(Formula);
+                            cell.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Green);
+                        }
+                    }
+                }
+            }
         }
 
         public void ColorSmells()
         {
+            InitializeTransformations();
             SpreadsheetInfo.SetLicense("E7OS-D3IG-PM8L-A03O");
 
             if (!Application.ActiveWorkbook.Saved)
@@ -364,12 +344,13 @@ namespace ExcelAddIn3
 
         public void SelectSmellsOfType()
         {
+            InitializeTransformations();
             ColorSmellsOfType(theRibbon.selectSmellType.SelectedItem.Tag);
         }
 
         private void ColorSmellsOfType(String type)
         {
-            decolorCells();
+            decolorCells(smellyCells);
 
             List<Smell> smellsOfType;
 
@@ -389,13 +370,13 @@ namespace ExcelAddIn3
             }
         }
 
-        private void decolorCells()
+        private void decolorCells(ISet<HighlightedCell> cells)
         {
-            foreach (SmellyCell smellyCell in coloredCells)
+            foreach (HighlightedCell cell in cells)
             {
-                smellyCell.Reset();
+                cell.Reset();
             }
-            coloredCells.Clear();
+            cells.Clear();
         }
 
         private void ColorCell(Smell smell)
@@ -408,11 +389,11 @@ namespace ExcelAddIn3
 
                 var excelCell = Application.Sheets[cell.Worksheet.Name].Cells[cell.Location.Row + 1, cell.Location.Column + 1];
 
-                var smellyCell = new SmellyCell(excelCell, excelCell.Interior.Pattern, excelCell.Interior.Color, excelCell.Comment);
+                var smellyCell = new HighlightedCell(excelCell, excelCell.Interior.Pattern, excelCell.Interior.Color, excelCell.Comment);
                 smellyCell.Apply(smell);
-                if (!coloredCells.Any(x => x.Equals(smellyCell)))
+                if (!smellyCells.Any(x => x.Equals(smellyCell)))
                 {
-                    coloredCells.Add(smellyCell);
+                    smellyCells.Add(smellyCell);
                 }
             }
             catch (Exception e)
@@ -457,7 +438,6 @@ namespace ExcelAddIn3
             throw new ArgumentException();
         }
 
-
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
 
@@ -486,8 +466,7 @@ namespace ExcelAddIn3
 
         void Application_SheetSelectionChange(object Sh, Excel.Range Target)
         {
-            theRibbon.Preview.Text = "";
-            theRibbon.dropDown1.Items.Clear();
+            InitializeTransformations();
         }
 
 
