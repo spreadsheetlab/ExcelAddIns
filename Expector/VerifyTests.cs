@@ -30,7 +30,7 @@ namespace Expector
 
             Label l = new Label();
             l.Location = new Point(12, height);
-            l.Text = Formula.worksheet + "! " +Formula.location + " tests "+ Text;
+            l.Text = Formula.worksheet + "!" +Formula.location + " tests "+ Text;
             l.AutoSize = true;
             this.Controls.Add(l);
 
