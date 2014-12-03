@@ -66,63 +66,7 @@ namespace Expector
                             if (P.IsTestFormula(t.original))
                             {
                                 ntests++;
-                                int Passing = P.GetPassingBranch(t.original);
-
-                                string Condition = P.GetCondition(t.original);
-
-                                List<String> ConditionList = P.Split(Condition);
-
-                                string Text;
-
-                                if (ConditionList.Count == 1) //just 1 item in the condition, like IF(A4,"OK","NOT OK")
-                                {
-                                    Text = Condition + " should ";
-
-                                    if (P.GetPassingBranch(t.original) == 0) //if the first branch is passing, the test condition should be true, else false
-                                    //the senmatic of IF(A4) is that it is false if A4 = 0, true in all other cases.
-                                    {
-                                        Text += "not be 0"; //it should be true, so non-zero
-                                        t.shouldbe = true;
-                                    }
-                                    else
-                                    {
-                                        Text += "be 0";
-                                        t.shouldbe = false;
-                                    }
-                                }
-                                else
-                                {
-                                    if (ConditionList.Count == 2) //a function as condition 1, like IF(ISBLANK(A4),"OK","NOT OK")
-                                    {
-                                        Text = Condition + " should ";
-                                        if (P.GetPassingBranch(t.original) == 0) //if the first branch is passing, the test condition should be true, else false                                    
-                                        {
-                                            Text += "hold"; //it should be true, so non-zero
-                                            t.shouldbe = true;
-                                        }
-                                        else
-                                        {
-                                            Text += "not hold";
-                                            t.shouldbe = false;
-                                        }
-                                    }
-
-                                    else //the condition is a 'real' condition i.e. IF(A5 > 5, "OK", "ERROR")
-                                    {
-                                        Text = ConditionList[0];
-
-                                        if (P.GetPassingBranch(t.original) == 0) //if the first branch is passing, the test codintion should be true, else false
-                                        {
-                                            Text += " should be " + ConditionList[1] + ConditionList[2]; //this adds the > 5 part
-                                            t.shouldbe = true;
-                                        }
-                                        else
-                                        {
-                                            Text += " should be " + Invert(ConditionList[1]) + ConditionList[2]; //this adds the <= 5 part
-                                            t.shouldbe = false;
-                                        }
-                                    }
-                                }
+                                string Text = ProcessConditions(t, P);
 
                                 V.PrintTest(Text, t);
                             }
@@ -130,7 +74,6 @@ namespace Expector
                         catch (Exception)
                         {
                             //just skip this cell
-                            int i = 0;
                         }
                        
                     }
@@ -147,6 +90,68 @@ namespace Expector
             
         }
 
+        public string ProcessConditions(testFormula t, ExcelFormulaParser P)
+        {
+            int Passing = P.GetPassingBranch(t.original);
+
+            string Condition = P.GetCondition(t.original);
+
+            List<String> ConditionList = P.Split(Condition);
+
+            string Text;
+
+            if (ConditionList.Count == 1) //just 1 item in the condition, like IF(A4,"OK","NOT OK")
+            {
+                Text = Condition + " should ";
+
+                if (P.GetPassingBranch(t.original) == 0) //if the first branch is passing, the test condition should be true, else false
+                //the senmatic of IF(A4) is that it is false if A4 = 0, true in all other cases.
+                {
+                    Text += "not be 0"; //it should be true, so non-zero
+                    t.shouldbe = true;
+                }
+                else
+                {
+                    Text += "be 0";
+                    t.shouldbe = false;
+                }
+            }
+            else
+            {
+                if (ConditionList.Count == 2) //a function as condition 1, like IF(ISBLANK(A4),"OK","NOT OK")
+                {
+                    Text = Condition + " should ";
+                    if (P.GetPassingBranch(t.original) == 0) //if the first branch is passing, the test condition should be true, else false                                    
+                    {
+                        Text += "hold"; //it should be true, so non-zero
+                        t.shouldbe = true;
+                    }
+                    else
+                    {
+                        Text += "not hold";
+                        t.shouldbe = false;
+                    }
+                }
+
+                else //the condition is a 'real' condition i.e. IF(A5 > 5, "OK", "ERROR")
+                {
+                    Text = ConditionList[0];
+
+                    if (P.GetPassingBranch(t.original) == 0) //if the first branch is passing, the test codintion should be true, else false
+                    {
+                        Text += " should be " + ConditionList[1] + ConditionList[2]; //this adds the > 5 part
+                        t.shouldbe = true;
+                    }
+                    else
+                    {
+                        Text += " should be " + Invert(ConditionList[1]) + ConditionList[2]; //this adds the <= 5 part
+                        t.shouldbe = false;
+                    }
+                }
+            }
+            return Text;
+        }
+
         private string Invert(string p)
         {
             if (p == ">") return "<=";
@@ -156,7 +161,7 @@ namespace Expector
             if (p == "<>") return "=";
             if (p == "=") return "<>";
 
-            return "not p";
+            return "not" + p;
         }
 
         #region VSTO generated code
@@ -282,10 +287,15 @@ namespace Expector
                 }
 
                 w.Cells.Item[i, 1].Formula = "=" + formula;
-
+                             
                 //print worksheet
+
                 w.Cells.Item[i, 2].Value = item.worksheet;
                 w.Cells.Item[i, 3].Value = item.location;
+
+                Excel.Range rangeToHoldHyperlink = w.get_Range(new Location(3, i-1).ToString(), Type.Missing);
+                string hyperlinkTargetAddress = item.worksheet + "!" + item.location;
+                w.Hyperlinks.Add(rangeToHoldHyperlink, string.Empty, hyperlinkTargetAddress, "", item.worksheet +"!" + item.location);
 
                 i++;
                 
