@@ -34,9 +34,30 @@
             this.button1 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
+            // Tests
+            // 
+            this.Tests.Location = new System.Drawing.Point(0, 0);
+            this.Tests.Name = "Tests";
+            this.Tests.Size = new System.Drawing.Size(100, 23);
+            this.Tests.TabIndex = 7;
+            // 
+            // IsTestCheckBox
+            // 
+            this.IsTestCheckBox.Location = new System.Drawing.Point(0, 0);
+            this.IsTestCheckBox.Name = "IsTestCheckBox";
+            this.IsTestCheckBox.Size = new System.Drawing.Size(104, 24);
+            this.IsTestCheckBox.TabIndex = 6;
+            // 
+            // label1
+            // 
+            this.label1.Location = new System.Drawing.Point(0, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(100, 23);
+            this.label1.TabIndex = 5;
+            // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(15, 227);
+            this.button1.Location = new System.Drawing.Point(12, 12);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 4;
@@ -48,7 +69,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(365, 313);
+            this.ClientSize = new System.Drawing.Size(490, 831);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.IsTestCheckBox);
@@ -56,7 +77,6 @@
             this.Name = "VerifyTests";
             this.Text = "Tests Detected";
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
