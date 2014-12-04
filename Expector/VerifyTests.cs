@@ -10,23 +10,6 @@ using System.Windows.Forms;
 
 namespace Expector
 {
-    public class TestCheck : testFormula
-    {
-        public CheckBox checkbox;
-
-        public TestCheck(testFormula Formula, CheckBox Checkbox)
-        {
-            original = Formula.original;
-            shouldbe = Formula.shouldbe;
-            worksheet = Formula.worksheet;
-            condition = Formula.condition;
-            location = Formula.location;
-
-            checkbox = Checkbox;
-        }
-
-    }
-
     public partial class VerifyTests : Form
     {
         public List<TestCheck> TestsChecked = new List<TestCheck>();
@@ -47,13 +30,13 @@ namespace Expector
 
             Label l = new Label();
             l.Location = new Point(12, height);
-            l.Text = Formula.worksheet + "!"+Formula.location + ":"+ Text;
+            l.Text = Formula.worksheet + "!" +Formula.location + " tests "+ Text;
             l.AutoSize = true;
             this.Controls.Add(l);
 
             CheckBox C = new CheckBox();
             C.Checked = true;
-            C.Location = new Point(260, height);
+            C.Location = new Point(450, height);
             this.Controls.Add(C);
 
             TestCheck t = new TestCheck(Formula, C);
@@ -79,5 +62,22 @@ namespace Expector
 
             this.Close();
         }
+    }
+
+    public class TestCheck : testFormula
+    {
+        public CheckBox checkbox;
+
+        public TestCheck(testFormula Formula, CheckBox Checkbox)
+        {
+            original = Formula.original;
+            shouldbe = Formula.shouldbe;
+            worksheet = Formula.worksheet;
+            condition = Formula.condition;
+            location = Formula.location;
+
+            checkbox = Checkbox;
+        }
+
     }
 }
