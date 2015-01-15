@@ -133,15 +133,35 @@ namespace ExcelAddIn3
             
         }
 
+        public void AddSheetBumbleBeeTransformations()
+        {
+            Excel.Worksheet selectedSheet = Application.ActiveSheet;
+
+            var workbook = Application.ActiveWorkbook;
+            Excel.Worksheet BumbleBeeSheet = workbook.Sheets.Add(After: workbook.Sheets[workbook.Sheets.Count]);
+            BumbleBeeSheet.Name = "_bumblebeerules";
+            loadExampleTransformations(BumbleBeeSheet);
+            selectedSheet.Select();
+
+            InitializeBB();
+        }
+
         public void InitializeBB()
         {
+            //initialize transformations
+            Excel.Worksheet Sheet = GetWorksheetByName("_bumblebeerules");
+            if (Sheet == null)
+            {
+                theRibbon.groupInitialize.Visible = true;
+                theRibbon.groupBumbleBee.Visible = false;
+                return;
+            }
+
             //initialize smell controls
             theRibbon.selectSmellType.Items.Clear();
             theRibbon.selectSmellType.Enabled = false;
-
-            //initialize transformations
-            
-            Excel.Worksheet Sheet = GetWorksheetByName("Transformations");
+            theRibbon.groupInitialize.Visible = false;
+            theRibbon.groupBumbleBee.Visible = true;
 
             //find last filled cells
             int Lower = 50;
@@ -435,7 +455,29 @@ namespace ExcelAddIn3
                     return worksheet;
                 }
             }
-            throw new ArgumentException();
+            return null;
+        }
+
+        private void loadExampleTransformations(Excel.Worksheet BumbleBeeSheet)
+        {
+            String[,] exampleTransformations = {
+                                               {"'IF([c]<[d],[c],[d])", "'MIN([c],[d])", "3", "IF to MIN"},
+                                               {"'IF([c]>[d],[c],[d])", "'MAX([c],[d])", "3", "IF to MAX"},
+                                               {"SUM({r})/COUNT({r})", "AVERAGE({r})", "2", "SUM and COUNT to AVERAGE"},
+                                               {"[c]+[d]", "SUM([c],[d])", "4", "Plus to SUM"},
+                                               {"SUM([x],SUM([y]))", "SUM([x],[y])", "5", "Remove Double SUM"},
+                                               {"SUM({i,j}, {i,j+1}, [k])", "SUM({i,j}:{i,j+1},[k])", "6", "Merge Adjacent SUMs"},
+                                               {"SUM({x,y}: {i,j}, {i,j+1},[k])", "SUM({x,y}:{i,j+1},[k])", "7", "Merge Adjacent SUMs1"},
+                                               {"SUM({x,y}: {i,j}, {i,j+1} )", "SUM({x,y}:{i,j+1})", "8", "Merge Adjacent SUMs2"},
+                                               {"([c])", "[c]", "9", "Remove Braces"}
+                                               };
+            for (var i = 0; i < 9; i++)
+            {
+                for (var j = 0; j < 4; j++)
+                {
+                    BumbleBeeSheet.Cells[i + 1, j + 1] = exampleTransformations[i, j];
+                }
+            }
         }
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
@@ -450,7 +492,6 @@ namespace ExcelAddIn3
             InitializeBB();
         }
 
-
         #region VSTO generated code
 
         /// <summary>
@@ -462,14 +503,12 @@ namespace ExcelAddIn3
             this.Startup += new EventHandler(ThisAddIn_Startup);
             Application.WorkbookOpen += new Excel.AppEvents_WorkbookOpenEventHandler(Application_WorkbookOpen);
             Application.SheetSelectionChange += new Excel.AppEvents_SheetSelectionChangeEventHandler(Application_SheetSelectionChange);
-}
+        }
 
         void Application_SheetSelectionChange(object Sh, Excel.Range Target)
         {
             InitializeTransformations();
         }
-
-
 
 
 
