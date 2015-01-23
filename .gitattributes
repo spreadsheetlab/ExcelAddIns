@@ -3,6 +3,12 @@
 ###############################################################################
 * text=auto
 
+*.cs        eol=crlf
+*.fs        eol=crlf
+*.rc        eol=crlf
+*.vcproj    eol=crlf
+*.sln       eol=crlf
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #
