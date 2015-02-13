@@ -31,22 +31,39 @@ and AllSubTotal (source:list<'a>)(n:int):list<list<list<'a>>> = AllSubLists sour
 
 //----------------------------------
 
+/// Variable for row or column
 type Var = char
+/// Variable cell address
 type VarOp = Var * Var
 
+// Concrete cell address
 type Cell = int * int
-type DCell = VarOp * VarOp
+// Dynamic/Variable cell address
+type DCell =  VarOp * VarOp
+
+/// Either a concrete or a dynamic cell
 type SuperCell = 
+/// Concrete cell address
 |C of Cell
+/// Dynamic cell address
 |D of DCell
 
 type Formula = 
+    /// A constant/Literal
     | Constant of string
+    /// Concrete or dynamic cell
     | S of SuperCell
+    /// Concrete or dynamic cell range
     | Range of SuperCell * SuperCell
+    /// Named range
+    | NamedRange of string
+    /// Concrete function call with argument list
     | Function of string * list<Formula>
+    /// Dynamic Range
     | DRange of Var
+    /// Dynamic function argument
     | DArgument of Var
+    /// List of function arguments (?)
     | ArgumentList of list<Formula>
 
 
@@ -67,26 +84,27 @@ let makeDCell i j = D(i,j)
 let makeDRange r = DRange r
 let makeDArgument c = DArgument c
 let makeRange (x,y) = Range (x,y)
+let makeNamedRange name = NamedRange (name)
 let makeFormula (s:string) (x:list<Formula>) = Function (s,x)
 
 let rec IsDynamic (f:Formula) = 
     match f with
     | Constant c -> false
     | S(C (i,j)) -> false
-    | Range (C(i,j),C(k,l)) -> false //this might be also solveable with a forall, should look into that 
-    | Range (D(i,j),C(k,l)) -> true
-    | Range (C(i,j),D(k,l)) -> true
-    | Range (D(i,j),D(k,l)) -> true
+    | Range (a, b) -> IsDynamic (S a) || IsDynamic (S b)
     | S(D (i,j)) -> true
     | DRange s -> true
     | DArgument c -> true
-    | Function (s, arguments) -> List.forall(IsDynamic) arguments
+    // This seems wrong, wouldn't a formula be dynamic if any of the arguments were dynamic? Instead of all arguments?
+    | Function (_, arguments) | ArgumentList(arguments) -> List.forall(IsDynamic) arguments
+    | NamedRange (_) -> false
 
 let HasMap f:bool = 
     match f with
     | Some (x) -> true 
     | None -> false
 
+/// Returns the map from an option, or an empty map on none
 let GetMap f:Map<Var,mapElement> = 
     match f with
     | Some (x) -> x 
@@ -146,7 +164,7 @@ and TryMapArgumentList (d:Formula, source: list<Formula>):maps =
 
 and CanBeAppliedon (from:Formula,source:Formula):maps = 
     match (from, source) with
-    | (S(C (i,j)), S(C(k,l))) -> Some(Map.empty)
+    | (S(C _), S(C _)) -> Some(Map.empty)
 
     | (Constant x, Constant y) -> if x=y then Some(Map.empty) else None
 
@@ -221,13 +239,86 @@ let rec MapFormula (map:Map<char,mapElement>) (t:Formula) : Formula=
 //    | _ -> null
 
 
+/// <summary> Apply a transformation on a formula</summary>
+/// <param name="to'">Formula transformation target</param>
+/// <param name="from">Formula transformation origin</param>
+/// <param name="source">Formula to apply transformation on</param>
+/// <returns>The transformed formula if the transformation could be applied, the unaltered formula if it could not</returns>
+let rec ApplyOn to' from source:Formula = 
+    if source = from then
+        to'
+    else 
+        //if the function matches exactly, then return to.
+        if CanBeAppliedonRoot(from,source) then
+            MapFormula (CanBeAppliedonMap (from,source)) to'
+        else
+            (match source with
+            //try application in arguments
+            | Function (s, list) -> Function (s, list |> List.map (ApplyOn to' from))
+            | _ -> source)
 
-let rec ApplyOn t from source:Formula = 
-    if source = from then t else 
-    //if the function matches exactly, then return to.
-    if CanBeAppliedonRoot(from,source) then MapFormula (CanBeAppliedonMap (from,source)) t 
-       
-    else
-        (match source with //try application in arguments
-        | Function (s, list) -> Function (s, list |> List.map (ApplyOn t from))
-        | _ -> source)
+type Formula with
+    member this.ApplyOn to' from = this |> ApplyOn to' from
+
+let rec Contains (search:Formula) = function
+       | subject when search = subject -> true
+       | Function (_, arguments) | ArgumentList (arguments) -> Seq.exists (Contains search) arguments
+       | _ -> false
+
+type Formula with
+    /// Check if the AST contains a certain subtree
+    member this.Contains search = this |> Contains search
+
+// You'd think this would be better done by defining `map f ast`
+// but how do you decide whether to go deeper into the tree at a Function or apply f to the function?
+let rec ReplaceSubTree search replace =
+    let doArgs arguments = arguments |> List.map (ReplaceSubTree search replace)
+    function
+        // Found it, so replace
+        | subject when subject = search -> replace
+        // Look deeper into the AST
+        | Function (s, arguments) -> Function(s, doArgs arguments)
+        | ArgumentList (arguments) -> ArgumentList(doArgs arguments)
+        // No match, do nothing
+        | subject -> subject
+
+type Formula with
+    /// Replace every occurence of an expression in an AST with another expression
+    member this.ReplaceSubTree search replace = this |> ReplaceSubTree search replace
+
+/// Check if a cell is part of a range
+let IsCellInRange cell range =
+    match range with
+        | Range(C(startC, startR), C(endC, endR)) -> 
+            (match cell with
+                | S(C(c,r)) -> c >= startC && c <= endC && r >= startR && r <= endR
+                | _ -> invalidArg "cell" "cell must be a concrete cell")
+        | _ -> invalidArg "range" "range must be a concrete range"
+
+let rec Leaves = function
+    | Function (_, arguments) | ArgumentList (arguments) -> arguments |> List.collect Leaves
+    | l -> [l]
+
+type Formula with
+    member this.Leaves = this |> Leaves
+
+(*
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Formula =
+    let private Leaves = lazy(this |> Leaves)
+*)
+
+let Ranges (formula:Formula) =
+    formula.Leaves |>
+    List.filter (function | Range(_,_) -> true | _ -> false) 
+let NamedRanges (formula:Formula) =
+    formula.Leaves
+    |> List.map (function | NamedRange(r) -> r | _ -> "")
+    |> List.filter (fun x -> x <> "")
+ 
+type Formula with
+    member this.Ranges = this |> Ranges
+    member this.NamedRanges = this |> NamedRanges
+
+/// Test if a cell is contained in any concrete range
+let ContainsCellInRanges cell (formula:Formula) = formula.Ranges |> List.exists (IsCellInRange cell)

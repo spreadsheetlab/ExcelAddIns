@@ -19,6 +19,7 @@ using Infotron.PerfectXL.DataModel;
 using Microsoft.Office.Interop.Excel;
 using System.Windows.Forms;
 using ExcelAddIn3.UserDialogs;
+using FSharpEngine;
 
 namespace ExcelAddIn3
 {
@@ -593,6 +594,87 @@ namespace ExcelAddIn3
             //      but that still requires a VBA macro to be defined to undo the changes made by the addon.
         }
 
+        // TODO: Expand to ranges
+        public void inlineFormula()
+        {
+            if (Application.Selection.Count != 1) {
+                MessageBox.Show("Select a single cell");
+                return;
+            }
+
+            Range toInline = Application.Selection;
+            var toInlineFormula = toInline.HasFormula ? toInline.Formula.Substring(1) : toInline.Formula;
+            var toInlineAST = FSharpFormulaHelper.createFSharpTree(toInlineFormula);
+            var toInlineAddress = FSharpFormulaHelper.createFSharpTree(toInline.Address[false, false]);
+
+            var dependencies = RefactoringHelper.getAllDirectDependents(toInline);
+
+            if (dependencies.Count == 0)
+            {
+                MessageBox.Show("Cell has no dependencies");
+                return;
+            }
+
+            if (toInlineAST == null)
+            {
+                MessageBox.Show("Couldn't parse to-inline cell");
+                return;
+            }
+
+            var errors = new Dictionary<Range, string>();
+            foreach (Range dependent in dependencies)
+            {
+                //Debug.Print(dependent.Address[false,false,XlReferenceStyle.xlA1,true]);
+                var dependentAST = FSharpFormulaHelper.createFSharpTree(dependent.Formula.Substring(1));
+                if (dependentAST == null)
+                {
+                    errors.Add(dependent, "Could not parse cell formula");
+                    continue;
+                }
+                // Check if the dependent has the cell in a range
+                if (FSharpTransform.ContainsCellInRanges(toInlineAddress, dependentAST))
+                {
+                    // TODO: Handle cell in range gracefully, e.g. by altering the range
+                    errors.Add(dependent, "Cannot handle references in ranges yet");
+                    continue;
+                }
+                // Check if the dependent has the cell in a named range
+                string range;
+                if (RefactoringHelper.isInNamedRanges(toInline, dependentAST.NamedRanges, out range))
+                {
+                    errors.Add(dependent, String.Format("Cannot handle named ranges, refers to cell in named range '{0}'.", range));
+                    continue;
+                }
+                
+                var newFormula = dependentAST.ReplaceSubTree(toInlineAddress, toInlineAST);
+                dependent.Formula = "=" + FSharpFormulaHelper.Print(newFormula);
+            }
+
+            string message = "";
+            if (!dependencies.All(d => errors.ContainsKey(d)))
+            {
+                message += String.Format("Inlined formula '{0}' into cells:\r\n{1}",
+                    toInlineFormula,
+                    String.Join("\r\n",
+                        dependencies
+                            .Where(d => !errors.ContainsKey(d))
+                            .Select(d => d.Address[false, false, XlReferenceStyle.xlA1, true]))
+                    );
+            }
+            if (errors.Count > 0)
+            {
+                message += String.Format("\r\n\r\nCouldn't inline into:\r\n{0}",
+                    String.Join("\r\n", from d in errors select d.Key.Address[false, false, XlReferenceStyle.xlA1, true] + ": " + d.Value)
+                    );
+            }
+            else
+            {
+                toInline.Delete();
+            }
+
+            MessageBox.Show(message);
+        }
+
         #region VSTO generated code
 
         /// <summary>
@@ -625,6 +707,6 @@ namespace ExcelAddIn3
 
 
         
-        #endregion  
+        #endregion
     }
 }
