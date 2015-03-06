@@ -45,9 +45,13 @@ namespace Infotron.FSharpFormulaTransformation
         {
             var termName = input.Term.Name;
 
-            // Switch isn't possible due to GrammarNames.* not being constants
-            if (termName == GrammarNames.Reference ||
-                termName == GrammarNames.Formula ||
+            // Switch isn't possible due to GrammarNames.* not being constants (yet)
+            if (termName == GrammarNames.Reference)
+            {
+                // Skip prefix
+                return CreateFSharpTree(input.ChildNodes[input.ChildNodes.Count==1?0:1]);
+            }
+            else if (termName == GrammarNames.Formula ||
                 termName == GrammarNames.CellorRange ||
                 termName == GrammarNames.Argument)
             {
@@ -250,13 +254,6 @@ namespace Infotron.FSharpFormulaTransformation
                 {
                     return Print(y.Item2.First()) + FunctionName + Print(y.Item2.ElementAt(1));
                 }
-            }
-
-            if (result.IsRange) {
-                var y = (FSharpTransform.Formula.Range)result;
-                //string CellName1 = new Location(y.Item1.Item1, y.Item1.Item2).ToString();
-                //string CellName2 = new Location(y.Item2.Item1, y.Item2.Item2).ToString();
-                //return CellName1 + ":" + CellName2;
             }
 
             if (result.IsConstant) {
