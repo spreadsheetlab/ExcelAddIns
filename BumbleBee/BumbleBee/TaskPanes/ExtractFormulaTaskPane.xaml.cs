@@ -19,6 +19,7 @@ using Microsoft.Office.Interop.Excel;
 using System.IO;
 using System.Runtime.InteropServices;
 using ExcelAddIn3.Refactorings;
+using ExcelAddIn3.Refactorings.Util;
 
 namespace ExcelAddIn3.TaskPanes
 {
@@ -27,9 +28,8 @@ namespace ExcelAddIn3.TaskPanes
     /// </summary>
     public partial class ExtractFormulaTaskPane : UserControl, INotifyPropertyChanged
     {
-        private readonly Microsoft.Office.Interop.Excel.Application owner;
 
-        public ExtractFormulaTaskPane(Microsoft.Office.Interop.Excel.Application owner)
+        public ExtractFormulaTaskPane()
         {
             InitializeComponent();
             DataContext = this;
@@ -46,14 +46,6 @@ namespace ExcelAddIn3.TaskPanes
                         setRefactoredFormula();
                         break;
                 }
-            };
-
-            this.owner = owner;
-
-            // Listen to selection changes
-            owner.SheetSelectionChange += (sheet, range) =>
-            {
-                newRange(range);
             };
         }
 
@@ -72,7 +64,7 @@ namespace ExcelAddIn3.TaskPanes
 
             try
             {
-                orFormula = Helper.Parse(topleft);
+                orFormula = Helper.ParseCtx(topleft);
             }
             catch (InvalidDataException)
             {
@@ -324,6 +316,7 @@ namespace ExcelAddIn3.TaskPanes
                 {
                     ExtractFormula.Refactor(OrRange, Direction, Formula);
                 }
+                Globals.BBAddIn.extractFormulaCtp.Visible = false;
             }
             catch (ArgumentException ex)
             {

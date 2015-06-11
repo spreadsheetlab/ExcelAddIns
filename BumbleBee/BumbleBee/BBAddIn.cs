@@ -103,6 +103,9 @@ namespace ExcelAddIn3
 
     public partial class BBAddIn
     {
+        /// Enable to profile speed where implemented
+        internal const bool PROFILE = false;
+
         public Ribbon1 theRibbon;
         readonly List<FSharpTransformationRule> AllTransformations = new List<FSharpTransformationRule>();
         public AnalysisController AnalysisController;
@@ -507,20 +510,28 @@ namespace ExcelAddIn3
         }
 
         // TODO: Better place / dynamic location, preferably inside source control
-        private const string BumbleBeeDebugStartupfile = @"C:\bumblebee_startup.xlsx";
+        private readonly string[] BumbleBeeDebugStartupfiles =
+        {
+            @"C:\bumblebee\startup.xlsx",
+            @"C:\bumblebee\startup.xlsm"
+        };
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            #if DEBUG
-            if (System.IO.File.Exists(BumbleBeeDebugStartupfile))
+#if DEBUG
+            foreach (var startupfile in BumbleBeeDebugStartupfiles.Where(System.IO.File.Exists))
             {
-                Application.Workbooks.Open(BumbleBeeDebugStartupfile);
+                Application.Workbooks.Open(startupfile);
             }
-            #endif
+#endif
 
-            extractFormulaTp = new TaksPaneWPFContainer<ExtractFormulaTaskPane>(new ExtractFormulaTaskPane(Application));
+            extractFormulaTp = new TaksPaneWPFContainer<ExtractFormulaTaskPane>(new ExtractFormulaTaskPane());
             extractFormulaCtp = CustomTaskPanes.Add(extractFormulaTp, "Extract formula");
-            //extractFormulaCTP.Visible = true;
+
+            RefactoringContextMenuInitialize();
+            this.Application.SheetBeforeRightClick +=
+                new AppEvents_SheetBeforeRightClickEventHandler(RefactorMenuEnableRelevant);
+
         }
 
         void Application_WorkbookOpen(Excel.Workbook Wb)
@@ -528,9 +539,10 @@ namespace ExcelAddIn3
             InitializeBB();
         }
 
-        private TaksPaneWPFContainer<ExtractFormulaTaskPane> extractFormulaTp;
-        private CustomTaskPane extractFormulaCtp;
+        internal TaksPaneWPFContainer<ExtractFormulaTaskPane> extractFormulaTp;
+        internal CustomTaskPane extractFormulaCtp;
 
+        /*
         public void extractFormula()
         {
             extractFormulaTp.Child.init(Application.Selection);
@@ -547,7 +559,7 @@ namespace ExcelAddIn3
             }
             try
             {
-                InlineFormula.Refactor(Application.Selection);
+                new InlineFormula().Refactor(Application.Selection);
                 MessageBox.Show("Succesfully inlined selected cells");
             }
             catch (AggregateException e)
@@ -563,6 +575,92 @@ namespace ExcelAddIn3
             {
                 MessageBox.Show("Unknown error");
                 throw;
+            }
+        }
+         */
+
+        private class RefactorMenuItem
+        {
+            public string MenuText { get; set; }
+            public IRangeRefactoring Refactoring { get; set; }
+            public bool NewGroup { get; set; }
+            public Office.CommandBarButton Button { get; set; }
+        }
+
+        private readonly List<RefactorMenuItem> contextMenuRefactorings = new List<RefactorMenuItem>
+        {
+            new RefactorMenuItem {MenuText="+ to SUM",Refactoring=new OpToAggregate()},
+            new RefactorMenuItem {MenuText="SUM to SUMIF", Refactoring=new GroupReferences()},
+            new RefactorMenuItem {MenuText="Group References", Refactoring=new GroupReferences(), NewGroup = true},
+            new RefactorMenuItem {MenuText="Inline Formula", Refactoring=new InlineFormula(), NewGroup = true},
+            new RefactorMenuItem {MenuText="Extract Formula", Refactoring=new ExtractFormulaMenuStub()},
+        };
+
+        private void RefactoringContextMenuInitialize()
+        {
+            const string tag = "REFACTORMENU";
+            var cellcontextmenu = this.Application.CommandBars["Cell"];
+
+            // Check if menu already defined
+            if (cellcontextmenu.FindControl(Office.MsoControlType.msoControlPopup, 0, tag) != null) return;
+
+            var menu = (Office.CommandBarPopup)cellcontextmenu.Controls.Add(
+                Type:Office.MsoControlType.msoControlPopup,
+                Before: cellcontextmenu.Controls.Count,
+                Temporary: true);
+            menu.Caption = "Refactor";
+            menu.BeginGroup = true;
+            menu.Tag = tag;
+
+            foreach (var menuitem in contextMenuRefactorings)
+            {
+                var control = (Office.CommandBarButton) menu.Controls.Add(Type: Office.MsoControlType.msoControlButton, Temporary:true);
+                control.Caption = menuitem.MenuText;
+                control.BeginGroup = menuitem.NewGroup;
+                // Disable by default, only enable when relevant
+                control.Enabled = false;
+                menuitem.Button = control;
+                // Create a copy of the iterator item because we're going to use it within a closure
+                var refactoring = menuitem.Refactoring;
+                control.Click += (Office.CommandBarButton ctrl, ref bool cancelDefault) =>
+                {
+                    try
+                    {
+                        refactoring.Refactor(Application.Selection);
+                    }
+                    catch (AggregateException e)
+                    {
+                        MessageBox.Show(
+                            String.Format(
+                                "Errors:\n{0}",
+                                String.Join("\n\n", e.InnerExceptions.Select(ie => ie.Message))
+                            )
+                       );
+                    }
+                    catch (Exception e)
+                    {
+                        MessageBox.Show(String.Format("Error: {0}", e.Message));
+                    }
+                };
+            }
+        }
+
+        private void RefactorMenuEnableRelevant(object Sh, Range Target, ref bool Cancel)
+        {
+            foreach (var item in contextMenuRefactorings)
+            {
+                Stopwatch sw;
+                if (PROFILE)
+                {
+                    sw = Stopwatch.StartNew();
+                }
+                item.Button.Enabled = item.Refactoring.CanRefactor(Target);
+                if (PROFILE)
+                {
+                    sw.Stop();
+                    var cap = item.MenuText;
+                    item.Button.Caption = String.Format("{0} ({1}s)", cap, sw.Elapsed.TotalSeconds);
+                }
             }
         }
 
