@@ -27,8 +27,44 @@ namespace Expector
         List<testFormula> TestFormulas = new List<testFormula>();
         VerifyTests V;
 
+        private void Application_WorkbookOpenHandle(Excel.Workbook Wb)
+        {
+            //try to find the sheet where the tests are loaded. If found load, if not do nothing
+
+            try
+            {
+                Excel.Worksheet w = GetWorksheetByName("Expector-Tests");
+    
+                int ntests = w.UsedRange.Rows.Count;
+
+                for (int i = 1; i <= ntests; i++)
+                {
+                    testFormula f = new testFormula();
+                    
+                    //get the tests value:
+
+                    f.shouldbe = true;
+                    f.condition = w.Cells.Item[i, 1].formula;
+                    f.worksheet = w.Cells.Item[i, 2].value;
+                    f.location = w.Cells.Item[i, 3].value;
+
+                    TestFormulas.Add(f);
+                }
+            }
+            catch (Exception)
+            {
+                //no problem, maybe the user will init the tests this time.
+            }
+
+
+
+        }
+
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
+
+
+            
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
@@ -174,6 +210,7 @@ namespace Expector
         {
             this.Startup += new System.EventHandler(ThisAddIn_Startup);
             this.Shutdown += new System.EventHandler(ThisAddIn_Shutdown);
+            this.Application.WorkbookOpen += new Excel.AppEvents_WorkbookOpenEventHandler(Application_WorkbookOpenHandle);
         }
         
         #endregion
@@ -373,7 +410,7 @@ namespace Expector
             {
                 ResetCellColors();
 
-                List<Excel.Range> cellsToColor = GetCoveredCells();
+                List<Excel.Range> cellsToColor = GetCoveredCells(false);
 
                 foreach (Excel.Range prec in cellsToColor)
                 {
@@ -382,8 +419,9 @@ namespace Expector
             }
         }
 
-        private List<Excel.Range> GetCoveredCells()
+        private List<Excel.Range> GetCoveredCells(Boolean Global)
         {
+            //if global is false, only cells on the current worksheet (activesheet) are returned
 
             Excel.Worksheet w = GetWorksheetByName("Expector-Tests");
 
@@ -406,15 +444,14 @@ namespace Expector
                     // no precedents found
                     precs = null;
                 }
-
-                int x = precs.Count;
+    
 
                 if (precs != null)
                 {
                     foreach (Excel.Range item in precs)
                     {
                         
-                        if (item.Worksheet == (Excel.Worksheet)this.Application.ActiveSheet)
+                        if (Global || item.Worksheet == (Excel.Worksheet)this.Application.ActiveSheet)
                         {
                             if (!ContainsCell(cellsToColor, item))
                             {
@@ -426,7 +463,7 @@ namespace Expector
                 }
 
 
-                if (testCell.Worksheet == (Excel.Worksheet)this.Application.ActiveSheet)
+                if (Global || testCell.Worksheet == (Excel.Worksheet)this.Application.ActiveSheet)
                 {
                     if (!ContainsCell(cellsToColor, testCell))
                     {
@@ -458,13 +495,13 @@ namespace Expector
 
         internal void HighLightNonTested()
         {
-            List<Excel.Range> coveredCells = GetCoveredCells();
+            List<Excel.Range> coveredCells = GetCoveredCells(false);
 
             ResetCellColors();
 
             foreach (Excel.Range Cell in Application.ActiveWorkbook.ActiveSheet.UsedRange)
             {
-                if (!ContainsCell(coveredCells, Cell))
+                if (!ContainsCell(coveredCells, Cell) && Cell.Value != null)
                     {
                         Cell.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Yellow);
                     }
@@ -479,5 +516,37 @@ namespace Expector
                 Cell.Interior.ColorIndex = 0;
             }
         }
+
+        internal void Coverage()
+        {
+            List<Excel.Range> coveredCells = GetCoveredCells(true);
+
+            List<Excel.Range> allFormulas = new List<Excel.Range>() ;
+            //get all cells:
+
+            foreach (Excel.Worksheet w in Application.ActiveWorkbook.Worksheets)
+            {
+                foreach (Excel.Range c in w.UsedRange)
+                {
+                    if (c.Value2 != null)
+	                {
+                        allFormulas.Add(c);
+	                }
+                }
+            }
+
+            double coverage = (double)coveredCells.Count / allFormulas.Count;
+
+            coverage = coverage * 100;
+
+            string message = String.Format("{0}% of all non-empty cells are covered by at least one test", Math.Round(coverage));
+
+            MessageBox.Show(message);
+        }
     }
+
+    //TODOS (in de trein dus geen internet:
+    // * Sum valt weg bij tests runnen
+    //lege cellen niet geel maken by hightlight non-tested, DONE
+    // tests runnen mag nu niet als niet geklikt in deze sessie moet op basis bestaan worksheet zijn DONE
 }

@@ -43,6 +43,7 @@
             this.ColorTestsButton = this.Factory.CreateRibbonButton();
             this.MarkCoverageButton = this.Factory.CreateRibbonButton();
             this.MakeNonTestButton = this.Factory.CreateRibbonButton();
+            this.coverageButton = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.ExpectorTab.SuspendLayout();
             this.group2.SuspendLayout();
@@ -72,11 +73,12 @@
             this.group2.Items.Add(this.ColorTestsButton);
             this.group2.Items.Add(this.MarkCoverageButton);
             this.group2.Items.Add(this.MakeNonTestButton);
+            this.group2.Items.Add(this.coverageButton);
             this.group2.Name = "group2";
             // 
             // FindTestButton
             // 
-            this.FindTestButton.Label = "Initialize Tests";
+            this.FindTestButton.Label = "Find Tests in this Spreadsheet";
             this.FindTestButton.Name = "FindTestButton";
             this.FindTestButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.FindTestButton_Click);
             // 
@@ -103,6 +105,12 @@
             this.MakeNonTestButton.Label = "Highlight Non-Tested Cells";
             this.MakeNonTestButton.Name = "MakeNonTestButton";
             this.MakeNonTestButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.MakeNonTestButton_Click);
+            // 
+            // coverageButton
+            // 
+            this.coverageButton.Label = "How well is my spreadsheet tested?";
+            this.coverageButton.Name = "coverageButton";
+            this.coverageButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.coverageButton_Click);
             // 
             // ExpectorRibbon
             // 
@@ -131,6 +139,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton MarkCoverageButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton MakeNonTestButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton ColorTestsButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton coverageButton;
     }
 
     partial class ThisRibbonCollection

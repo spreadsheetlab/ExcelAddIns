@@ -37,5 +37,10 @@ namespace Expector
         {
             Globals.Expector.HighLightNonTested();
         }
+
+        private void coverageButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Globals.Expector.Coverage();
+        }
     }
 }
