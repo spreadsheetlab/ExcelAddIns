@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Infotron.Parsing;
 
 namespace Expector
 {
@@ -14,16 +15,94 @@ namespace Expector
     {
         public List<TestCheck> TestsChecked = new List<TestCheck>();
 
-        Expector Expector;
+        Expector instanceofExpector;
 
         public VerifyTests(Expector t)
         {
-            Expector = t;
+            instanceofExpector = t;
             InitializeComponent();
         }
 
-        internal void PrintTest(string Text, testFormula Formula)
+        public string ProcessConditions(testFormula t, ExcelFormulaParser P)
         {
+            int Passing = P.GetPassingBranch(t.original);
+
+            string Condition = P.GetCondition(t.original);
+
+            List<String> ConditionList = P.Split(Condition);
+
+            string Text;
+
+            if (ConditionList.Count == 1) //just 1 item in the condition, like IF(A4,"OK","NOT OK")
+            {
+                Text = Condition + " should ";
+
+                if (P.GetPassingBranch(t.original) == 0) //if the first branch is passing, the test condition should be true, else false
+                //the senmatic of IF(A4) is that it is false if A4 = 0, true in all other cases.
+                {
+                    Text += "not be 0"; //it should be true, so non-zero
+                    t.shouldbe = true;
+                }
+                else
+                {
+                    Text += "be 0";
+                    t.shouldbe = false;
+                }
+            }
+            else
+            {
+                if (ConditionList.Count == 2) //a function as condition 1, like IF(ISBLANK(A4),"OK","NOT OK")
+                {
+                    Text = Condition + " should ";
+                    if (P.GetPassingBranch(t.original) == 0) //if the first branch is passing, the test condition should be true, else false                                    
+                    {
+                        Text += "hold"; //it should be true, so non-zero
+                        t.shouldbe = true;
+                    }
+                    else
+                    {
+                        Text += "not hold";
+                        t.shouldbe = false;
+                    }
+                }
+
+                else //the condition is a 'real' condition i.e. IF(A5 > 5, "OK", "ERROR")
+                {
+                    Text = ConditionList[0];
+
+                    if (P.GetPassingBranch(t.original) == 0) //if the first branch is passing, the test codintion should be true, else false
+                    {
+                        Text += " should be " + ConditionList[1] + ConditionList[2]; //this adds the > 5 part
+                        t.shouldbe = true;
+                    }
+                    else
+                    {
+                        Text += " should be " + Invert(ConditionList[1]) + ConditionList[2]; //this adds the <= 5 part
+                        t.shouldbe = false;
+                    }
+                }
+            }
+            return Text;
+        }
+
+
+        private string Invert(string p)
+        {
+            if (p == ">") return "<=";
+            if (p == "<") return ">=";
+            if (p == ">=") return "<";
+            if (p == "<=") return ">";
+            if (p == "<>") return "=";
+            if (p == "=") return "<>";
+
+            return "not" + p;
+        }
+
+        internal void PrintTest(testFormula Formula)
+        {
+
+            string Text = ProcessConditions(Formula, new ExcelFormulaParser());
+
             int NTestsPrinted = TestsChecked.Count;
 
             int height = 41 + 23 * NTestsPrinted;
@@ -56,9 +135,26 @@ namespace Expector
                     formulas.Add(c);
                     i++;
 	            }
+
+                //transform the original formula to a condition that always should be true
+                ExcelFormulaParser P = new ExcelFormulaParser();
+
+
+                string formula = P.GetCondition(c.original, c.worksheet);
+
+                if (c.shouldbe == false)
+                {
+                    c.condition = "NOT(" + formula + ")";
+                }
+                else
+                {
+                    c.condition = formula;
+                }
+
 	        }
 
-            Expector.SaveTests(formulas);
+            instanceofExpector.TestFormulas = formulas;
+            instanceofExpector.SaveTests();
 
             this.Close();
         }

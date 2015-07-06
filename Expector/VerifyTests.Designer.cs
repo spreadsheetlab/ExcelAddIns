@@ -75,7 +75,7 @@
             this.Controls.Add(this.IsTestCheckBox);
             this.Controls.Add(this.Tests);
             this.Name = "VerifyTests";
-            this.Text = "Tests Detected";
+            this.Text = "All tests detected";
             this.ResumeLayout(false);
 
         }

@@ -28,7 +28,7 @@ namespace Expector
             Globals.Expector.ColorTests();
         }
 
-        private void MarkCoverageButton_Click(object sender, RibbonControlEventArgs e)
+        private void MarkTestedButton_Click(object sender, RibbonControlEventArgs e)
         {
             Globals.Expector.HighLightTested();
         }
@@ -41,6 +41,11 @@ namespace Expector
         private void coverageButton_Click(object sender, RibbonControlEventArgs e)
         {
             Globals.Expector.Coverage();
+        }
+
+        private void addTestSmelly_Click(object sender, RibbonControlEventArgs e)
+        {
+            Globals.Expector.ProposeSmellyCell();
         }
     }
 }

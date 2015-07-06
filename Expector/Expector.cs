@@ -1,31 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-using Excel = Microsoft.Office.Interop.Excel;
-using Office = Microsoft.Office.Core;
-using Microsoft.Office.Tools.Excel;
 using System.Windows.Forms;
+using GemBox.Spreadsheet;
 using Infotron.Parsing;
+using Infotron.PerfectXL.DataModel;
+using Infotron.PerfectXL.SmellAnalyzer;
+using Infotron.PerfectXL.SmellAnalyzer.SmellAnalyzer;
 using Infotron.Util;
+using Excel = Microsoft.Office.Interop.Excel;
 
 
 namespace Expector
 {
     public class testFormula
     {
-        public string original;
+        public string original; //TODO: volgens mij hoeft dit alleen bij het genereren (= in testcheck?) 
         public string condition;
-        public bool shouldbe;
+        public bool shouldbe; //en dit ook want getransformeerd is het dus altijd true
         public string worksheet;
         public string location;
     }
 
     public partial class Expector
     {
-        List<testFormula> TestFormulas = new List<testFormula>();
-        VerifyTests V;
+        public AnalysisController controller;
+        public List<testFormula> TestFormulas = new List<testFormula>();
+        VerifyTests V; //moet dit globaal zijn, denk niet dat dat hoeft.
 
         private void Application_WorkbookOpenHandle(Excel.Workbook Wb)
         {
@@ -39,15 +41,19 @@ namespace Expector
 
                 for (int i = 1; i <= ntests; i++)
                 {
-                    testFormula f = new testFormula();
+                    string formula = w.Cells.Item[i, 1].formula;
+                    formula = formula.Substring(1);
+
+                    testFormula f = new testFormula()
+                    {
+                        //get the tests value:
+                        shouldbe = true, //because the formula is now transformed, they should always be true
+
+                        condition = formula,
+                        worksheet = w.Cells.Item[i, 2].value,
+                        location = w.Cells.Item[i, 3].value,
+                    };
                     
-                    //get the tests value:
-
-                    f.shouldbe = true;
-                    f.condition = w.Cells.Item[i, 1].formula;
-                    f.worksheet = w.Cells.Item[i, 2].value;
-                    f.location = w.Cells.Item[i, 3].value;
-
                     TestFormulas.Add(f);
                 }
             }
@@ -92,20 +98,23 @@ namespace Expector
                     {
                         try
                         {
-                            testFormula t = new testFormula();
-                            t.original = cell.Formula.Substring(1, cell.Formula.Length - 1);
-                            t.location = cell.AddressLocal.Replace("$", "");
-                            t.worksheet = w.Name;
+                            //is this formula a test formula?
+                             ExcelFormulaParser P = new ExcelFormulaParser();
 
-                            ExcelFormulaParser P = new ExcelFormulaParser();
+                            string formula = cell.Formula.Substring(1, cell.Formula.Length - 1);
 
-                            if (P.IsTestFormula(t.original))
+                            if (P.IsTestFormula(formula))
                             {
-                                ntests++;
-                                string Text = ProcessConditions(t, P);
+                                testFormula t = new testFormula();
+                                t.original = formula;
+                                t.location = cell.AddressLocal.Replace("$", "");
+                                t.worksheet = w.Name;
 
-                                V.PrintTest(Text, t);
-                            }
+                                ntests++;
+
+                                V.PrintTest(t);
+                                
+                            }    
                         }
                         catch (Exception)
                         {
@@ -126,79 +135,8 @@ namespace Expector
             
         }
 
-        public string ProcessConditions(testFormula t, ExcelFormulaParser P)
-        {
-            int Passing = P.GetPassingBranch(t.original);
 
-            string Condition = P.GetCondition(t.original);
 
-            List<String> ConditionList = P.Split(Condition);
-
-            string Text;
-
-            if (ConditionList.Count == 1) //just 1 item in the condition, like IF(A4,"OK","NOT OK")
-            {
-                Text = Condition + " should ";
-
-                if (P.GetPassingBranch(t.original) == 0) //if the first branch is passing, the test condition should be true, else false
-                //the senmatic of IF(A4) is that it is false if A4 = 0, true in all other cases.
-                {
-                    Text += "not be 0"; //it should be true, so non-zero
-                    t.shouldbe = true;
-                }
-                else
-                {
-                    Text += "be 0";
-                    t.shouldbe = false;
-                }
-            }
-            else
-            {
-                if (ConditionList.Count == 2) //a function as condition 1, like IF(ISBLANK(A4),"OK","NOT OK")
-                {
-                    Text = Condition + " should ";
-                    if (P.GetPassingBranch(t.original) == 0) //if the first branch is passing, the test condition should be true, else false                                    
-                    {
-                        Text += "hold"; //it should be true, so non-zero
-                        t.shouldbe = true;
-                    }
-                    else
-                    {
-                        Text += "not hold";
-                        t.shouldbe = false;
-                    }
-                }
-
-                else //the condition is a 'real' condition i.e. IF(A5 > 5, "OK", "ERROR")
-                {
-                    Text = ConditionList[0];
-
-                    if (P.GetPassingBranch(t.original) == 0) //if the first branch is passing, the test codintion should be true, else false
-                    {
-                        Text += " should be " + ConditionList[1] + ConditionList[2]; //this adds the > 5 part
-                        t.shouldbe = true;
-                    }
-                    else
-                    {
-                        Text += " should be " + Invert(ConditionList[1]) + ConditionList[2]; //this adds the <= 5 part
-                        t.shouldbe = false;
-                    }
-                }
-            }
-            return Text;
-        }
-
-        private string Invert(string p)
-        {
-            if (p == ">") return "<=";
-            if (p == "<") return ">=";
-            if (p == ">=") return "<";
-            if (p == "<=") return ">";
-            if (p == "<>") return "=";
-            if (p == "=") return "<>";
-
-            return "not" + p;
-        }
 
         #region VSTO generated code
 
@@ -289,9 +227,8 @@ namespace Expector
             return bool_result;
         }
 
-        internal void SaveTests(List <testFormula> formulas)
+        internal void SaveTests()
         {
-            TestFormulas = formulas;
             int i = 1;
 
             foreach (var item in TestFormulas)
@@ -313,20 +250,7 @@ namespace Expector
                     w.Name = "Expector-Tests";                             
                 }
 
-                ExcelFormulaParser P = new ExcelFormulaParser();
-
-                
-                string formula = P.GetCondition(item.original, item.worksheet);
-
-                if (item.shouldbe == false)
-                {
-                    formula = "NOT(" + formula + ")";
-                }
-
-                w.Cells.Item[i, 1].Formula = "=" + formula;
-                             
-                //print worksheet
-
+                w.Cells.Item[i, 1].formula = "="+item.condition;
                 w.Cells.Item[i, 2].Value = item.worksheet;
                 w.Cells.Item[i, 3].Value = item.location;
 
@@ -543,10 +467,68 @@ namespace Expector
 
             MessageBox.Show(message);
         }
+
+        internal void ProposeSmellyCell()
+        {
+            //TODO: alleen niet gecoverde cellen voorstellen
+            SpreadsheetInfo.SetLicense("E7OS-D3IG-PM8L-A03O");
+
+            if (!Application.ActiveWorkbook.Saved)
+            {
+                Application.Dialogs[Excel.XlBuiltInDialog.xlDialogSaveAs].Show();
+            }
+
+            if (!Application.ActiveWorkbook.Saved)
+            {
+                MessageBox.Show("The workbook must be saved before analysis. Aborting.");
+                return;
+            }
+
+            controller = new AnalysisController
+            {
+                Worker = new BackgroundWorker { WorkerReportsProgress = true },
+                Filename = Application.ActiveWorkbook.FullName,
+            };
+
+
+            controller.RiskAnalyzers = new List<IRiskAnalyzer>()
+            {
+                new ManyOperationsAnalyzer(),
+                new ManyReferencesAnalyzer(),
+            };
+
+            controller.RunAnalysis();
+
+            if (!controller.Spreadsheet.AnalysisSucceeded)
+            {
+                throw new Exception(controller.Spreadsheet.ErrorMessage);
+            }
+
+
+            //detected smells now contains all smells
+
+            //now filter out the small ones, and pick the max one of that and select its cell
+
+            Smell maxSmell = controller.DetectedSmells.Where(x => x.RiskValue > 4).OrderBy(x => x.RiskValue).First();
+
+            var maxCell = ((SiblingClass)maxSmell.Source).Cells.First(); 
+
+            string message = String.Format("You could a a test for the cell on {0}: {1}. Do you want to do this?", maxCell.GetLocationIncludingSheetnameString(), maxCell.Formula);
+
+            DialogResult result1 = MessageBox.Show(message, "Add new test", MessageBoxButtons.YesNo);
+
+            if (result1 == DialogResult.Yes)
+            {
+                //TODO: set focus on this cell.
+
+                var A = new AddTest(this, maxCell);
+                A.Show();    
+            }
+
+
+
+        }
     }
 
-    //TODOS (in de trein dus geen internet:
-    // * Sum valt weg bij tests runnen
-    //lege cellen niet geel maken by hightlight non-tested, DONE
-    // tests runnen mag nu niet als niet geklikt in deze sessie moet op basis bestaan worksheet zijn DONE
+
 }
