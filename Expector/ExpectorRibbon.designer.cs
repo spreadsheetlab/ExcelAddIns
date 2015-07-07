@@ -145,6 +145,7 @@
             // 
             this.addTestBig.Label = "I want to test a formula with a big value";
             this.addTestBig.Name = "addTestBig";
+            this.addTestBig.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.addTestBig_Click);
             // 
             // addTestReferences
             // 

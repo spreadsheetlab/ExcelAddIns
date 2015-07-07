@@ -37,14 +37,14 @@
     </UpgradeBackupLocation>
     <IsWebBootstrapper>False</IsWebBootstrapper>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <PublishUrl>C:\Users\Efthimia\Documents\GitHub\ExcelAddIns\ExcelAddIns\Expector\ExpectorSetup\</PublishUrl>
+    <PublishUrl>C:\Users\Felienne\Infotron\ExcelAddIns\Expector\ExpectorSetup\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.4</ApplicationVersion>
+    <ApplicationVersion>1.0.0.5</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
-    <UpdateEnabled>true</UpdateEnabled>
-    <UpdateInterval>4</UpdateInterval>
-    <UpdateIntervalUnits>weeks</UpdateIntervalUnits>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateInterval>0</UpdateInterval>
+    <UpdateIntervalUnits>days</UpdateIntervalUnits>
     <ProductName>Expector</ProductName>
     <PublisherName>Expector</PublisherName>
     <SupportUrl />
@@ -154,10 +154,10 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>Expector_1_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>Expector_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>5EDA85CFD1C95765EFC3738E31CC6AB7C2B7EC4E</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>9F866B61AF4873A9E33B8CD8A1F4C16D82B80B50</ManifestCertificateThumbprint>
   </PropertyGroup>
   <!--
     This section specifies references for the project.
@@ -263,8 +263,7 @@
       <DependentUpon>VerifyTests.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="App.config" />
-    <None Include="Expector_1_TemporaryKey.pfx" />
-    <None Include="Infotron.Expector_TemporaryKey.pfx" />
+    <None Include="Expector_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

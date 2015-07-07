@@ -429,7 +429,6 @@ namespace Expector
                         Cell.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Yellow);
                     }
             }
-
         }
 
         private void ResetCellColors()
@@ -539,19 +538,64 @@ namespace Expector
             {
                 //there are no complex cells to test, for now do nothing
                 MessageBox.Show("No complex formulas found to test, hooray!");
-
             }
-
-
-
-
-
-
         }
 
         internal void ProposeHighCoverageCell()
         {
 
+        }
+
+        internal void ProposeLargeCell()
+        {
+            List<Excel.Range> nonCoveredCells = getNonCoveredCells();
+            
+            float maxvalue = int.MinValue;
+            Excel.Range maxCell = nonCoveredCells[0];
+
+            foreach (Excel.Range cell in nonCoveredCells)
+            {
+                try
+                {
+                    float v = (float)cell.Value;
+                    if (v > maxvalue)
+                    {
+                        maxvalue = v;
+                        maxCell = cell;
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+
+
+            }
+
+            MessageBox.Show(String.Format("What about {0} with value {1}?", maxCell.AddressLocal, maxvalue));
+        }
+
+        private List<Excel.Range> getNonCoveredCells()
+        {
+            List<Excel.Range> coveredCells = GetCoveredCells(true);
+
+            List<Excel.Range> nonCoveredCells = new List<Excel.Range>();
+
+            foreach (Excel.Worksheet w in Application.ActiveWorkbook.Worksheets)
+            {
+                if (w.Name != "Expector-Tests")
+                {
+                    foreach (Excel.Range cell in w.UsedRange.Cells)
+                    {
+                        if (!ContainsCell(coveredCells, cell) && cell.Value != null && cell.HasFormula)
+                        {
+                            nonCoveredCells.Add(cell);
+                        }
+                    }
+                }
+
+            }
+            return nonCoveredCells;
         }
     }
 

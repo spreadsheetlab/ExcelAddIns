@@ -52,5 +52,10 @@ namespace Expector
         {
             Globals.Expector.ProposeHighCoverageCell();
         }
+
+        private void addTestBig_Click(object sender, RibbonControlEventArgs e)
+        {
+            Globals.Expector.ProposeLargeCell();
+        }
     }
 }
