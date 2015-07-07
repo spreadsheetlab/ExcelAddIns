@@ -76,7 +76,6 @@ namespace Expector
             {
                 worksheet = cellToAddTestsFor.Worksheet.Name,
                 location = cellToAddTestsFor.Location.ToString(),
-                shouldbe = true
             };
             return f;
         }

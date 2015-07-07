@@ -16,9 +16,8 @@ namespace Expector
 {
     public class testFormula
     {
-        public string original; //TODO: volgens mij hoeft dit alleen bij het genereren (= in testcheck?) 
+        public string original; 
         public string condition;
-        public bool shouldbe; //en dit ook want getransformeerd is het dus altijd true
         public string worksheet;
         public string location;
     }
@@ -27,7 +26,22 @@ namespace Expector
     {
         public AnalysisController controller;
         public List<testFormula> TestFormulas = new List<testFormula>();
-        VerifyTests V; //moet dit globaal zijn, denk niet dat dat hoeft.
+
+
+        #region VSTO generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InternalStartup()
+        {
+            this.Startup += new System.EventHandler(ThisAddIn_Startup);
+            this.Shutdown += new System.EventHandler(ThisAddIn_Shutdown);
+            this.Application.WorkbookOpen += new Excel.AppEvents_WorkbookOpenEventHandler(Application_WorkbookOpenHandle);
+        }
+
+        #endregion
 
         private void Application_WorkbookOpenHandle(Excel.Workbook Wb)
         {
@@ -46,8 +60,7 @@ namespace Expector
 
                     testFormula f = new testFormula()
                     {
-                        //get the tests value:
-                        shouldbe = true, //because the formula is now transformed, they should always be true
+                        //we read the tests value from the worksheet
 
                         condition = formula,
                         worksheet = w.Cells.Item[i, 2].value,
@@ -80,7 +93,7 @@ namespace Expector
 
         public void InitializeTests()
         {
-            V = new VerifyTests(this);
+            var V = new VerifyTests(this);
             int ntests = 0;
 
             foreach (Excel.Worksheet w in Application.ActiveWorkbook.Worksheets)
@@ -138,20 +151,6 @@ namespace Expector
 
 
 
-        #region VSTO generated code
-
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
-        private void InternalStartup()
-        {
-            this.Startup += new System.EventHandler(ThisAddIn_Startup);
-            this.Shutdown += new System.EventHandler(ThisAddIn_Shutdown);
-            this.Application.WorkbookOpen += new Excel.AppEvents_WorkbookOpenEventHandler(Application_WorkbookOpenHandle);
-        }
-        
-        #endregion
 
 
         private Excel.Worksheet GetWorksheetByName(string name)
@@ -470,7 +469,6 @@ namespace Expector
 
         internal void ProposeSmellyCell()
         {
-            //TODO: alleen niet gecoverde cellen voorstellen
             SpreadsheetInfo.SetLicense("E7OS-D3IG-PM8L-A03O");
 
             if (!Application.ActiveWorkbook.Saved)
@@ -506,26 +504,53 @@ namespace Expector
 
 
             //detected smells now contains all smells
+            List<Excel.Range> coveredCells = GetCoveredCells(true);
 
-            //now filter out the small ones, and pick the max one of that and select its cell
-
-            Smell maxSmell = controller.DetectedSmells.Where(x => x.RiskValue > 4).OrderBy(x => x.RiskValue).First();
-
-            var maxCell = ((SiblingClass)maxSmell.Source).Cells.First(); 
-
-            string message = String.Format("You could a a test for the cell on {0}: {1}. Do you want to do this?", maxCell.GetLocationIncludingSheetnameString(), maxCell.Formula);
-
-            DialogResult result1 = MessageBox.Show(message, "Add new test", MessageBoxButtons.YesNo);
-
-            if (result1 == DialogResult.Yes)
+            List<string> testedCellLocations = new List<string>();
+            foreach (Excel.Range c in coveredCells)
             {
-                //TODO: set focus on this cell.
+                string loc = c.Worksheet.Name+"!"+c.Address.Replace("$","");
+                testedCellLocations.Add(loc);
+            }
 
-                var A = new AddTest(this, maxCell);
-                A.Show();    
+            //first filter out only the high risk smells:
+            List<Smell> sortedSmells = controller.DetectedSmells.Where(x => x.RiskValue > 4).OrderBy(x => x.RiskValue).ToList();
+            
+            //then, find the corresponding cells:
+            List<Cell> smellyCells = sortedSmells.Select(x => ((SiblingClass)x.Source).Cells.First()).ToList();
+
+            //now locate the non-covered ones
+            smellyCells = smellyCells.Where(x => !testedCellLocations.Contains(x.GetLocationIncludingSheetnameString())).ToList();
+
+            if (smellyCells.Count() > 0)
+            {
+                Cell maxCell = smellyCells.First();
+                string message = String.Format("You could a a test for the cell on {0}: {1}. Do you want to do this?", maxCell.GetLocationIncludingSheetnameString(), maxCell.Formula);
+
+                DialogResult result1 = MessageBox.Show(message, "Add new test", MessageBoxButtons.YesNo);
+
+                if (result1 == DialogResult.Yes)
+                {
+                    var A = new AddTest(this, maxCell);
+                    A.Show();
+                }
+            }
+            else
+            {
+                //there are no complex cells to test, for now do nothing
+                MessageBox.Show("No complex formulas found to test, hooray!");
+
             }
 
 
+
+
+
+
+        }
+
+        internal void ProposeHighCoverageCell()
+        {
 
         }
     }

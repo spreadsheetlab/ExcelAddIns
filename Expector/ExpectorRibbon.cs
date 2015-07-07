@@ -47,5 +47,10 @@ namespace Expector
         {
             Globals.Expector.ProposeSmellyCell();
         }
+
+        private void addTestReferences_Click(object sender, RibbonControlEventArgs e)
+        {
+            Globals.Expector.ProposeHighCoverageCell();
+        }
     }
 }

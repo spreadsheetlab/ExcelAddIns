@@ -11,6 +11,27 @@ using Infotron.Parsing;
 
 namespace Expector
 {
+    public class TestCheck : testFormula
+    {
+        public CheckBox checkbox;
+        public bool shouldbe; // we only need to save this for non-transformed formulas, because we make them as always should be true
+        public string outputText;
+
+        public TestCheck(testFormula Formula)
+        {
+            original = Formula.original;
+            worksheet = Formula.worksheet;
+            condition = Formula.condition;
+            location = Formula.location;
+        }
+
+        public void AddCheckbox(CheckBox Checkbox)
+        {
+            checkbox = Checkbox;
+        }
+
+    }
+
     public partial class VerifyTests : Form
     {
         public List<TestCheck> TestsChecked = new List<TestCheck>();
@@ -23,11 +44,14 @@ namespace Expector
             InitializeComponent();
         }
 
-        public string ProcessConditions(testFormula t, ExcelFormulaParser P)
+        public TestCheck ProcessConditions(testFormula f, ExcelFormulaParser P)
         {
-            int Passing = P.GetPassingBranch(t.original);
+            TestCheck t = new TestCheck(f);
+            
 
-            string Condition = P.GetCondition(t.original);
+            int Passing = P.GetPassingBranch(f.original);
+
+            string Condition = P.GetCondition(f.original);
 
             List<String> ConditionList = P.Split(Condition);
 
@@ -37,7 +61,7 @@ namespace Expector
             {
                 Text = Condition + " should ";
 
-                if (P.GetPassingBranch(t.original) == 0) //if the first branch is passing, the test condition should be true, else false
+                if (P.GetPassingBranch(f.original) == 0) //if the first branch is passing, the test condition should be true, else false
                 //the senmatic of IF(A4) is that it is false if A4 = 0, true in all other cases.
                 {
                     Text += "not be 0"; //it should be true, so non-zero
@@ -54,7 +78,7 @@ namespace Expector
                 if (ConditionList.Count == 2) //a function as condition 1, like IF(ISBLANK(A4),"OK","NOT OK")
                 {
                     Text = Condition + " should ";
-                    if (P.GetPassingBranch(t.original) == 0) //if the first branch is passing, the test condition should be true, else false                                    
+                    if (P.GetPassingBranch(f.original) == 0) //if the first branch is passing, the test condition should be true, else false                                    
                     {
                         Text += "hold"; //it should be true, so non-zero
                         t.shouldbe = true;
@@ -70,7 +94,7 @@ namespace Expector
                 {
                     Text = ConditionList[0];
 
-                    if (P.GetPassingBranch(t.original) == 0) //if the first branch is passing, the test codintion should be true, else false
+                    if (P.GetPassingBranch(f.original) == 0) //if the first branch is passing, the test codintion should be true, else false
                     {
                         Text += " should be " + ConditionList[1] + ConditionList[2]; //this adds the > 5 part
                         t.shouldbe = true;
@@ -82,7 +106,9 @@ namespace Expector
                     }
                 }
             }
-            return Text;
+
+            t.outputText = Text;
+            return t;
         }
 
 
@@ -100,8 +126,7 @@ namespace Expector
 
         internal void PrintTest(testFormula Formula)
         {
-
-            string Text = ProcessConditions(Formula, new ExcelFormulaParser());
+            TestCheck t =  ProcessConditions(Formula, new ExcelFormulaParser());
 
             int NTestsPrinted = TestsChecked.Count;
 
@@ -109,7 +134,7 @@ namespace Expector
 
             Label l = new Label();
             l.Location = new Point(12, height);
-            l.Text = Formula.worksheet + "!" +Formula.location + " tests "+ Text;
+            l.Text = Formula.worksheet + "!" +Formula.location + " tests "+ t.outputText;
             l.AutoSize = true;
             this.Controls.Add(l);
 
@@ -118,7 +143,8 @@ namespace Expector
             C.Location = new Point(450, height);
             this.Controls.Add(C);
 
-            TestCheck t = new TestCheck(Formula, C);
+            t.AddCheckbox(C);
+
 
             TestsChecked.Add(t);
         }
@@ -160,20 +186,5 @@ namespace Expector
         }
     }
 
-    public class TestCheck : testFormula
-    {
-        public CheckBox checkbox;
 
-        public TestCheck(testFormula Formula, CheckBox Checkbox)
-        {
-            original = Formula.original;
-            shouldbe = Formula.shouldbe;
-            worksheet = Formula.worksheet;
-            condition = Formula.condition;
-            location = Formula.location;
-
-            checkbox = Checkbox;
-        }
-
-    }
 }

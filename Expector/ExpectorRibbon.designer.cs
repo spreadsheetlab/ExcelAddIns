@@ -41,10 +41,10 @@
             this.FindTestButton = this.Factory.CreateRibbonButton();
             this.MarkTestButton = this.Factory.CreateRibbonButton();
             this.ColorTestsButton = this.Factory.CreateRibbonButton();
+            this.group3 = this.Factory.CreateRibbonGroup();
             this.MarkTestedButton = this.Factory.CreateRibbonButton();
             this.MakeNonTestButton = this.Factory.CreateRibbonButton();
             this.coverageButton = this.Factory.CreateRibbonButton();
-            this.group3 = this.Factory.CreateRibbonGroup();
             this.group4 = this.Factory.CreateRibbonGroup();
             this.addTestSmelly = this.Factory.CreateRibbonButton();
             this.addTestBig = this.Factory.CreateRibbonButton();
@@ -101,6 +101,14 @@
             this.ColorTestsButton.Name = "ColorTestsButton";
             this.ColorTestsButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ColorTestsButtonClick);
             // 
+            // group3
+            // 
+            this.group3.Items.Add(this.MarkTestedButton);
+            this.group3.Items.Add(this.MakeNonTestButton);
+            this.group3.Items.Add(this.coverageButton);
+            this.group3.Label = "Understand quality of tests";
+            this.group3.Name = "group3";
+            // 
             // MarkTestedButton
             // 
             this.MarkTestedButton.Label = "Show me what is tested";
@@ -118,14 +126,6 @@
             this.coverageButton.Label = "How well is this spreadsheet tested?";
             this.coverageButton.Name = "coverageButton";
             this.coverageButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.coverageButton_Click);
-            // 
-            // group3
-            // 
-            this.group3.Items.Add(this.MarkTestedButton);
-            this.group3.Items.Add(this.MakeNonTestButton);
-            this.group3.Items.Add(this.coverageButton);
-            this.group3.Label = "Understand quality of tests";
-            this.group3.Name = "group3";
             // 
             // group4
             // 
@@ -148,8 +148,9 @@
             // 
             // addTestReferences
             // 
-            this.addTestReferences.Label = "I want to test a formula with many references";
+            this.addTestReferences.Label = "I want to test a formula with many precedents";
             this.addTestReferences.Name = "addTestReferences";
+            this.addTestReferences.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.addTestReferences_Click);
             // 
             // ExpectorRibbon
             // 
