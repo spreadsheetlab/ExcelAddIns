@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
-using GemBox.Spreadsheet;
 using Infotron.Parsing;
 using Infotron.PerfectXL.DataModel;
 using Infotron.PerfectXL.SmellAnalyzer;
-using Infotron.PerfectXL.SmellAnalyzer.SmellAnalyzer;
 using Infotron.Util;
 using Excel = Microsoft.Office.Interop.Excel;
 
@@ -489,6 +486,12 @@ namespace Expector
                         maxCell = c;
                     }
                 }
+
+                //put focus on the smelly cell
+
+                //maxCell.Worksheet.Select();
+                maxCell.Select();
+
 
                 string message = String.Format("You could a a test for the cell on {0}: {1}. Do you want to do this?", maxCell.Worksheet.Name + "!"+maxCell.Address.Replace("$", ""), maxCell.Formula);
 
