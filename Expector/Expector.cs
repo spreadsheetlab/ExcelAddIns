@@ -468,69 +468,35 @@ namespace Expector
 
         internal void ProposeSmellyCell()
         {
-            SpreadsheetInfo.SetLicense("E7OS-D3IG-PM8L-A03O");
-
-            if (!Application.ActiveWorkbook.Saved)
-            {
-                Application.Dialogs[Excel.XlBuiltInDialog.xlDialogSaveAs].Show();
-            }
-
-            if (!Application.ActiveWorkbook.Saved)
-            {
-                MessageBox.Show("The workbook must be saved before analysis. Aborting.");
-                return;
-            }
-
-            controller = new AnalysisController
-            {
-                Worker = new BackgroundWorker { WorkerReportsProgress = true },
-                Filename = Application.ActiveWorkbook.FullName,
-            };
 
 
-            controller.RiskAnalyzers = new List<IRiskAnalyzer>()
-            {
-                new ManyOperationsAnalyzer(),
-                new ManyReferencesAnalyzer(),
-            };
+            List<Excel.Range> nonCoveredCells = getNonCoveredCells();
 
-            controller.RunAnalysis();
+            if (nonCoveredCells.Count() > 0)
+            {                         
+                int maxComplexity = int.MinValue;
+                Excel.Range maxCell = nonCoveredCells[0];
 
-            if (!controller.Spreadsheet.AnalysisSucceeded)
-            {
-                throw new Exception(controller.Spreadsheet.ErrorMessage);
-            }
+                foreach (Excel.Range c in nonCoveredCells)
+                {
+                    ExcelFormulaParser p = new ExcelFormulaParser();
+                    FormulaAnalyzer f = new FormulaAnalyzer(c.Formula.Substring(1), p);
+                    int complexity = f.References().Count + f.GetFunctions().Count;
 
+                    if (complexity > maxComplexity)
+                    {
+                        maxComplexity = complexity;
+                        maxCell = c;
+                    }
+                }
 
-            //detected smells now contains all smells
-            List<Excel.Range> coveredCells = GetCoveredCells(true);
-
-            List<string> testedCellLocations = new List<string>();
-            foreach (Excel.Range c in coveredCells)
-            {
-                string loc = c.Worksheet.Name+"!"+c.Address.Replace("$","");
-                testedCellLocations.Add(loc);
-            }
-
-            //first filter out only the high risk smells:
-            List<Smell> sortedSmells = controller.DetectedSmells.Where(x => x.RiskValue > 4).OrderBy(x => x.RiskValue).ToList();
-            
-            //then, find the corresponding cells:
-            List<Cell> smellyCells = sortedSmells.Select(x => ((SiblingClass)x.Source).Cells.First()).ToList();
-
-            //now locate the non-covered ones
-            smellyCells = smellyCells.Where(x => !testedCellLocations.Contains(x.GetLocationIncludingSheetnameString())).ToList();
-
-            if (smellyCells.Count() > 0)
-            {
-                Cell maxCell = smellyCells.First();
-                string message = String.Format("You could a a test for the cell on {0}: {1}. Do you want to do this?", maxCell.GetLocationIncludingSheetnameString(), maxCell.Formula);
+                string message = String.Format("You could a a test for the cell on {0}: {1}. Do you want to do this?", maxCell.Worksheet.Name + "!"+maxCell.Address.Replace("$", ""), maxCell.Formula);
 
                 DialogResult result1 = MessageBox.Show(message, "Add new test", MessageBoxButtons.YesNo);
 
                 if (result1 == DialogResult.Yes)
                 {
-                    var A = new AddTest(this, maxCell);
+                    var A = new AddTest(this,maxCell.Worksheet.Name, maxCell.Formula, maxCell.Address.Replace("$",""));
                     A.Show();
                 }
             }

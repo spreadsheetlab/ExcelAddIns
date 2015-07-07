@@ -145,7 +145,6 @@ namespace Expector
 
             t.AddCheckbox(C);
 
-
             TestsChecked.Add(t);
         }
 
