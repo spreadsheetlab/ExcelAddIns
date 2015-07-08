@@ -465,8 +465,6 @@ namespace Expector
 
         internal void ProposeSmellyCell()
         {
-
-
             List<Excel.Range> nonCoveredCells = getNonCoveredCells();
 
             if (nonCoveredCells.Count() > 0)
@@ -488,10 +486,8 @@ namespace Expector
                 }
 
                 //put focus on the smelly cell
-
-                //maxCell.Worksheet.Select();
+                maxCell.Worksheet.Select();
                 maxCell.Select();
-
 
                 string message = String.Format("You could a a test for the cell on {0}: {1}. Do you want to do this?", maxCell.Worksheet.Name + "!"+maxCell.Address.Replace("$", ""), maxCell.Formula);
 
@@ -512,7 +508,43 @@ namespace Expector
 
         internal void ProposeHighCoverageCell()
         {
+            List<Excel.Range> nonCoveredCells = getNonCoveredCells();
 
+            if (nonCoveredCells.Count() > 0)
+            {
+                int maxReferences = 0;
+                Excel.Range maxCell = nonCoveredCells[0];
+
+                foreach (Excel.Range c in nonCoveredCells)
+                {
+                    int nReferences = c.Precedents.Count;
+
+                    if (nReferences > maxReferences)
+                    {
+                        maxReferences = nReferences;
+                        maxCell = c;
+                    }
+                }
+
+                //put focus on the smelly cell
+                maxCell.Worksheet.Select();
+                maxCell.Select();
+                maxCell.Activate();                
+
+                //string message = String.Format("You could a a test for the cell on {0}: {1}. Do you want to do this?", maxCell.Worksheet.Name + "!" + maxCell.Address.Replace("$", ""), maxCell.Formula);
+
+                //DialogResult result1 = MessageBox.Show(message, "Add new test", MessageBoxButtons.YesNo);
+                //if (result1 == DialogResult.Yes)
+                {
+                    var A = new AddTest(this, maxCell.Worksheet.Name, maxCell.Formula, maxCell.Address.Replace("$", ""));
+                    A.Show();
+                }
+            }
+            else
+            {
+                //there are no complex cells to test, for now do nothing
+                MessageBox.Show("No complex formulas found to test, hooray!");
+            }
         }
 
         internal void ProposeLargeCell()
@@ -537,11 +569,22 @@ namespace Expector
                 {
 
                 }
-
-
             }
 
-            MessageBox.Show(String.Format("What about {0} with value {1}?", maxCell.AddressLocal, maxvalue));
+            //put focus on the smelly cell
+            maxCell.Worksheet.Select();
+            maxCell.Select();
+
+            string message = String.Format("You could a a test for the cell on {0}: {1}. Do you want to do this?", maxCell.Worksheet.Name + "!" + maxCell.Address.Replace("$", ""), maxCell.Formula);
+
+            DialogResult result1 = MessageBox.Show(message, "Add new test", MessageBoxButtons.YesNo);
+
+            if (result1 == DialogResult.Yes)
+            {
+                var A = new AddTest(this, maxCell.Worksheet.Name, maxCell.Formula, maxCell.Address.Replace("$", ""));
+                A.Show();
+            }
+
         }
 
         private List<Excel.Range> getNonCoveredCells()

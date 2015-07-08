@@ -25,7 +25,9 @@ namespace Expector
             _formula = formula;
             _location = location;
             InitializeComponent();
-            cellToAddTestsForLabel.Text = worksheet + "!" + location + ":" + formula;
+            cellToAddTestsForLabel.Text = String.Format("You could a a test for the cell on {0}: {1}", _worksheet + "!" + _location, _formula);
+
+
         }
 
         private void AddTest_Load(object sender, EventArgs e)
@@ -69,6 +71,8 @@ namespace Expector
             }
 
             instanceofExpector.SaveTests();
+
+            MessageBox.Show("Test(s) added!");
             this.Close();
         }
 
@@ -80,6 +84,16 @@ namespace Expector
                 location = _location,
             };
             return f;
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            this.Height = 362;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }
