@@ -178,7 +178,7 @@ namespace Expector
 
 	        }
 
-            instanceofExpector.TestFormulas = formulas;
+            instanceofExpector.testFormulas = formulas;
             instanceofExpector.SaveTests();
 
             this.Close();

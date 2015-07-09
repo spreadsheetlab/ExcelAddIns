@@ -48,31 +48,37 @@ namespace Expector
 
         private void button1_Click(object sender, EventArgs e)
         {
+            double coverageBefore = instanceofExpector.getCurrentCoverage();
 
             if (typeCheck.Checked)
             {
                 testFormula f = newTestForCurrentCell();
                 f.condition = (string)comboBox1.SelectedValue;
-                instanceofExpector.TestFormulas.Add(f);
+                instanceofExpector.testFormulas.Add(f);
             }
 
             if (lowerCheck.Checked)
             {
                 testFormula f = newTestForCurrentCell();
                 f.condition = String.Format("{0} > {1}", _location, lowerText.Text);
-                instanceofExpector.TestFormulas.Add(f);
+                instanceofExpector.testFormulas.Add(f);
             }
 
             if (upperCheck.Checked)
             {
                 testFormula f = newTestForCurrentCell();
                 f.condition = String.Format("{0} < {1}", _location, upperText.Text);
-                instanceofExpector.TestFormulas.Add(f);
+                instanceofExpector.testFormulas.Add(f);
             }
 
             instanceofExpector.SaveTests();
 
-            MessageBox.Show("Test(s) added!");
+            //update the covered cells
+            instanceofExpector.coveredCells = instanceofExpector.GetCoveredCells();
+
+            double coverageAfter = instanceofExpector.getCurrentCoverage();
+
+            MessageBox.Show(String.Format("Wonderful, you have increased coverage from {0}% to {1}%",Math.Round(coverageBefore),Math.Round(coverageAfter)));
             this.Close();
         }
 

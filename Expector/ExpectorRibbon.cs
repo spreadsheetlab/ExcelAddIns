@@ -40,7 +40,7 @@ namespace Expector
 
         private void coverageButton_Click(object sender, RibbonControlEventArgs e)
         {
-            Globals.Expector.Coverage();
+            Globals.Expector.ShowCoverage();
         }
 
         private void addTestSmelly_Click(object sender, RibbonControlEventArgs e)
