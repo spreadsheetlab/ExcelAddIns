@@ -49,37 +49,69 @@ namespace Expector
         private void button1_Click(object sender, EventArgs e)
         {
             double coverageBefore = instanceofExpector.getCurrentCoverage();
+            bool validTestsFound = false;
 
             if (typeCheck.Checked)
             {
                 testFormula f = newTestForCurrentCell();
                 f.condition = (string)comboBox1.SelectedValue;
                 instanceofExpector.testFormulas.Add(f);
+                validTestsFound = true;
             }
 
             if (lowerCheck.Checked)
             {
-                testFormula f = newTestForCurrentCell();
-                f.condition = String.Format("{0} > {1}", _location, lowerText.Text);
-                instanceofExpector.testFormulas.Add(f);
+                if (lowerText.Text != "" )
+                {
+                    testFormula f = newTestForCurrentCell();
+                    f.condition = String.Format("{0} > {1}", _location, lowerText.Text);
+                    instanceofExpector.testFormulas.Add(f);
+                    validTestsFound = true;
+                }
+                else
+                {
+                    MessageBox.Show("No bound filled out, please input one.");
+                }
             }
 
             if (upperCheck.Checked)
             {
-                testFormula f = newTestForCurrentCell();
-                f.condition = String.Format("{0} < {1}", _location, upperText.Text);
-                instanceofExpector.testFormulas.Add(f);
+                if (upperText.Text != "")
+                {
+                    testFormula f = newTestForCurrentCell();
+                    f.condition = String.Format("{0} < {1}", _location, upperText.Text);
+                    instanceofExpector.testFormulas.Add(f);
+                    validTestsFound = true;
+                }
+                else
+                {
+                    MessageBox.Show("No bound filled out, please input one.");
+                }
             }
 
-            instanceofExpector.SaveTests();
+            if (typeCheck.Checked || lowerCheck.Checked || upperCheck.Checked)
+            {
+                if (validTestsFound)
+                {
+                    instanceofExpector.SaveTests();
 
-            //update the covered cells
-            instanceofExpector.coveredCells = instanceofExpector.GetCoveredCells();
+                    //update the covered cells
+                    instanceofExpector.coveredCells = instanceofExpector.GetCoveredCells();
 
-            double coverageAfter = instanceofExpector.getCurrentCoverage();
+                    double coverageAfter = instanceofExpector.getCurrentCoverage();
 
-            MessageBox.Show(String.Format("Wonderful, you have increased coverage from {0}% to {1}%",Math.Round(coverageBefore),Math.Round(coverageAfter)));
-            this.Close();
+                    MessageBox.Show(String.Format("Wonderful, you have increased coverage from {0}% to {1}%", Math.Round(coverageBefore), Math.Round(coverageAfter)));
+                    this.Close();
+                }
+            }
+            else
+            {
+                MessageBox.Show("No tests selected");
+            }
+
+
+
+
         }
 
         private testFormula newTestForCurrentCell()
