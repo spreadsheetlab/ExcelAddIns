@@ -150,7 +150,7 @@ namespace Expector
 
         private void button1_Click(object sender, EventArgs e)
         {
-            List<testFormula> formulas = new List<testFormula>();
+            List<testFormula> formulas = instanceofExpector.testFormulas;
 
             foreach (var c in TestsChecked)
 	        {
@@ -164,7 +164,6 @@ namespace Expector
                 //transform the original formula to a condition that always should be true
                 ExcelFormulaParser P = new ExcelFormulaParser();
 
-
                 string formula = P.GetCondition(c.original, c.worksheet);
 
                 if (c.shouldbe == false)
@@ -175,7 +174,6 @@ namespace Expector
                 {
                     c.condition = formula;
                 }
-
 	        }
 
             instanceofExpector.testFormulas = formulas;
