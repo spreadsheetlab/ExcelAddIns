@@ -11,26 +11,7 @@ using Infotron.Parsing;
 
 namespace Expector
 {
-    public class TestCheck : testFormula
-    {
-        public CheckBox checkbox;
-        public bool shouldbe; // we only need to save this for non-transformed formulas, because we make them as always should be true
-        public string outputText;
 
-        public TestCheck(testFormula Formula)
-        {
-            original = Formula.original;
-            worksheet = Formula.worksheet;
-            condition = Formula.condition;
-            location = Formula.location;
-        }
-
-        public void AddCheckbox(CheckBox Checkbox)
-        {
-            checkbox = Checkbox;
-        }
-
-    }
 
     public partial class VerifyTests : Form
     {
@@ -175,7 +156,34 @@ namespace Expector
 
             this.Close();
         }
-    }
 
+        private void button2_Click(object sender, EventArgs e)
+        {
+            foreach (TestCheck c in TestsChecked)
+            {
+                c.checkbox.Checked = false;
+            }
+        }
+    }
+    public class TestCheck : testFormula
+    {
+        public CheckBox checkbox;
+        public bool shouldbe; // we only need to save this for non-transformed formulas, because we make them as always should be true
+        public string outputText;
+
+        public TestCheck(testFormula Formula)
+        {
+            original = Formula.original;
+            worksheet = Formula.worksheet;
+            condition = Formula.condition;
+            location = Formula.location;
+        }
+
+        public void AddCheckbox(CheckBox Checkbox)
+        {
+            checkbox = Checkbox;
+        }
+
+    }
 
 }
