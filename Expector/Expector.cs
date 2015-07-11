@@ -26,7 +26,9 @@ namespace Expector
         public List<testFormula> testFormulas = new List<testFormula>();
         public List<Excel.Range> coveredCells = new List<Excel.Range>();
         public List<Excel.Range> nonCoveredCells = new List<Excel.Range>();
-
+        public List<Excel.Range> nonEmptyCells = new List<Excel.Range>();
+        public List<Excel.Range> allFormulas = new List<Excel.Range>();
+        public string maxCell = "V50";
 
         #region initialization of Expector (load testformulas etc.)
 
@@ -37,88 +39,110 @@ namespace Expector
 
         public List<Excel.Range> GetCoveredCells()
         {
+            List<Excel.Range> coveredCells = new List<Excel.Range>();
+
             Excel.Worksheet w = GetExpectorSheet();
 
-            List<Excel.Range> coveredCells = new List<Excel.Range>();
-            int ntests = w.UsedRange.Rows.Count;
-            for (int i = 1; i <= ntests; i++)
+            if (w != null)
             {
-                //for eacht test, get all precedents and add them to the list of covered cells
-
-                Excel.Range testCell = GetTestatRowi(w, i);
-
-                if (testCell != null)
+                int ntests = w.UsedRange.Rows.Count;
+                for (int i = 1; i <= ntests; i++)
                 {
-                    //add the test cell
-                    if (!ContainsCell(coveredCells, testCell))
-                    {
-                        coveredCells.Add(testCell);
-                    }
-                    
+                    //for eacht test, get all precedents and add them to the list of covered cells
 
-                    Excel.Range precs;
+                    Excel.Range testCell = GetCellUnderTestatRowi(w, i);
 
-                    try
+                    if (testCell != null)
                     {
-                        precs = testCell.Precedents; //unfortunately, there is no hasprecedents propoerty
-                        //we do not need recursion though, because this is recursive already
-                    }
-                    catch (Exception e)
-                    {
-                        // no precedents found
-                        precs = null;
-                    }
-
-
-                    if (precs != null)
-                    {
-                        foreach (Excel.Range item in precs)
+                        //add the test cell
+                        if (!ContainsCell(coveredCells, testCell))
                         {
-                            if (item.Value != null) //empty cells are not considered covered
-                            {
-                                if (!ContainsCell(coveredCells, item))
-                                {
-                                    coveredCells.Add(item);
-                                }   
-                            }
+                            coveredCells.Add(testCell);
+                        }
 
+
+                        Excel.Range precs;
+
+                        try
+                        {
+                            precs = testCell.Precedents; //unfortunately, there is no hasprecedents propoerty
+                            //we do not need recursion though, because this is recursive already
+                        }
+                        catch (Exception e)
+                        {
+                            // no precedents found
+                            precs = null;
+                        }
+
+
+                        if (precs != null)
+                        {
+                            foreach (Excel.Range item in precs)
+                            {
+                                if (item.Value != null) //empty cells are not considered covered
+                                {
+                                    if (!ContainsCell(coveredCells, item))
+                                    {
+                                        coveredCells.Add(item);
+                                    }
+                                }
+
+                            }
                         }
                     }
                 }
             }
+      
             return coveredCells;
         }
 
-        private List<Excel.Range> getNonCoveredCells()
+        public void initCellsLists()
         {
-            List<Excel.Range> nonCoveredCells = new List<Excel.Range>();
+            coveredCells = GetCoveredCells();
+
+            nonCoveredCells = new List<Excel.Range>();
+            nonEmptyCells = new List<Excel.Range>();
+            allFormulas = new List<Excel.Range>();
 
             foreach (Excel.Worksheet w in Application.ActiveWorkbook.Worksheets)
             {
                 if (w.Name != expectorWorksheetName)
                 {
-                    foreach (Excel.Range cell in w.UsedRange.Cells)
+                    Excel.Range range = w.get_Range("A1", maxCell);
+
+                    foreach (Excel.Range cell in range)
                     {
-                        if (!ContainsCell(coveredCells, cell) && cell.Value != null && cell.HasFormula)
+                        if (cell.Value2 != null)
                         {
-                            nonCoveredCells.Add(cell);
+                            nonEmptyCells.Add(cell);
+
+                            //empty cells do not cound for coverage
+                            if (!ContainsCell(coveredCells, cell))
+                            {
+                                nonCoveredCells.Add(cell);
+                            }
+                            //we could add another cache 'non covered formulas' too?
+                        }
+
+                        if (cell.HasFormula)
+                        {
+                            allFormulas.Add(cell);
                         }
                     }
                 }
-
-            }
-            return nonCoveredCells;
+            }    
         }
+
+
 
         private void Application_WorkbookOpenHandle(Excel.Workbook Wb)
         {
-            //try to find the sheet where the tests are loaded. If found load, if not do nothing
+            //try to find the sheet where the tests are loaded. 
+            Excel.Worksheet w = GetExpectorSheet();
 
-            try
-            {
-                Excel.Worksheet w = GetExpectorSheet();
-    
-                int ntests = w.UsedRange.Rows.Count;
+            if (w != null)
+	        {
+		        int ntests = w.UsedRange.Rows.Count;
 
                 for (int i = 1; i <= ntests; i++)
                 {
@@ -136,16 +160,11 @@ namespace Expector
                     
                     testFormulas.Add(f);
                 }
+	        }
+   
 
-                coveredCells = GetCoveredCells();
-            }
-            catch (Exception)
-            {
-                //no problem, maybe the user will init the tests this time.
-            }
-
-
-
+            //save covered, non-covered cells and formulas
+            initCellsLists();
         }
 
 
@@ -156,47 +175,34 @@ namespace Expector
             var V = new VerifyTests(this);
             int ntests = 0;
 
-            foreach (Excel.Worksheet w in Application.ActiveWorkbook.Worksheets)
-            {
-                //we limit the number of cells to analyze to 250, otherwise it will be too slow.
-                int AnalyzedCells = 0;
-                foreach (Excel.Range cell in w.UsedRange)
+            foreach (Excel.Range cell in allFormulas)
+	        {
+		        try
                 {
-                    AnalyzedCells++;
-                    if (AnalyzedCells > 250)
+                    //is this formula a test formula?
+                    ExcelFormulaParser P = new ExcelFormulaParser();
+
+                    string formula = cell.Formula.Substring(1, cell.Formula.Length - 1);
+
+                    if (P.IsTestFormula(formula))
                     {
-                        continue;
-                    }
-                    if (cell.HasFormula)
-                    {
-                        try
-                        {
-                            //is this formula a test formula?
-                             ExcelFormulaParser P = new ExcelFormulaParser();
+                        testFormula t = new testFormula();
+                        t.original = formula;
+                        t.location = cell.AddressLocal.Replace("$", "");
+                        t.worksheet = cell.Worksheet.Name;
 
-                            string formula = cell.Formula.Substring(1, cell.Formula.Length - 1);
+                        ntests++;
 
-                            if (P.IsTestFormula(formula))
-                            {
-                                testFormula t = new testFormula();
-                                t.original = formula;
-                                t.location = cell.AddressLocal.Replace("$", "");
-                                t.worksheet = w.Name;
-
-                                ntests++;
-
-                                V.PrintTest(t);
+                        V.PrintTest(t);
                                 
-                            }    
-                        }
-                        catch (Exception)
-                        {
-                            //just skip this cell
-                        }
-                       
-                    }
+                    }    
                 }
-            }
+                catch (Exception)
+                {
+                    //just skip this cell
+                }
+	        }
+
             if (ntests == 0)
             {
                 MessageBox.Show("No tests found");
@@ -210,7 +216,15 @@ namespace Expector
 
         private Excel.Worksheet GetExpectorSheet()
         {
-            return GetWorksheetByName(expectorWorksheetName);
+            try
+            {
+                return GetWorksheetByName(expectorWorksheetName);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
         }
 
         private Excel.Worksheet GetWorksheetByName(string name)
@@ -227,6 +241,7 @@ namespace Expector
 
         internal void ColorTests()
         {
+            //do we want to color precedents of failing tests too? I think we do.
             if (testFormulas.Count == 0)
             {
                 MessageBox.Show("No tests saved yet, either extract or add them");
@@ -238,12 +253,11 @@ namespace Expector
 
                 for (int i = 1; i <= ntests; i++)
                 {
-                    //get the tests value:
-                    var result = w.Cells.Item[i, 1].value;
-
+                    //get the value of the fifth column, that determines if all tests pass for a given cell
+                    var result = w.Cells.Item[i, 5].value;
                     bool bool_result = GetBool(result);
 
-                    Excel.Range testCell = GetTestatRowi(w, i);
+                    Excel.Range testCell = GetCellUnderTestatRowi(w, i);
 
                     if (bool_result)
                     {
@@ -258,7 +272,7 @@ namespace Expector
             }
         }
 
-        private Excel.Range GetTestatRowi(Excel.Worksheet w, int i)
+        private Excel.Range GetCellUnderTestatRowi(Excel.Worksheet w, int i)
         {
             Excel.Range worksheetCell = w.Cells.Item[i, 2];
             if (worksheetCell.Value != null)
@@ -322,13 +336,20 @@ namespace Expector
                 w.Cells.Item[i, 2].Value = item.worksheet;
                 w.Cells.Item[i, 3].Value = item.location;
 
+                //adding the hyperlink to the cell under test
                 Excel.Range rangeToHoldHyperlink = w.get_Range(new Location(3, i-1).ToString(), Type.Missing);
+
                 string hyperlinkTargetAddress = item.worksheet + "!" + item.location;
                 w.Hyperlinks.Add(rangeToHoldHyperlink, string.Empty, hyperlinkTargetAddress, "", item.worksheet +"!" + item.location);
+
+                //this add the formula to calculate if any of the test pass, easy way to calculate it.
+                w.Cells.Item[i, 5].FormulaR1C1 = "=COUNTIFS(C[-4],TRUE,C[-3],RC[-3],C[-2],RC[-2])=COUNTIFS(C[-3],RC[-3],C[-2],RC[-2])";
 
                 i++;
                 
             }
+
+            initCellsLists();
 
         }
 
@@ -414,7 +435,16 @@ namespace Expector
         {
             foreach (Excel.Range Cell in Application.ActiveWorkbook.ActiveSheet.UsedRange)
             {
-                Cell.Interior.ColorIndex = 0;
+                try
+                {
+                    Cell.Interior.ColorIndex = 0;
+                }
+                catch (Exception)
+                {
+                    //for merged cells, setting the color throws an exception (yeah Excel, wonderful)
+                    //so skip them and continue
+                }
+
             }
         }
 
@@ -430,7 +460,15 @@ namespace Expector
 
                 foreach (Excel.Range prec in coveredCells)
                 {
-                    prec.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Yellow);
+                    try
+                    {
+                        prec.Interior.Color = System.Drawing.ColorTranslator.ToOle(System.Drawing.Color.Yellow);
+                    }
+                    catch (Exception)
+                    {
+                        //for merged cells, setting the color throws an exception (yeah Excel, wonderful)
+                        //so skip them and continue
+                    }
                 }
             }
         }
@@ -438,9 +476,7 @@ namespace Expector
 
 
         internal void HighLightNonTested()
-        {
-            
-
+        {          
             ResetCellColors();
 
             foreach (Excel.Range Cell in Application.ActiveWorkbook.ActiveSheet.UsedRange)
@@ -454,28 +490,13 @@ namespace Expector
 
         public double getCurrentCoverage()
         {
-            List<Excel.Range> allNonEmptyCells = new List<Excel.Range>();
-
-            foreach (Excel.Worksheet w in Application.ActiveWorkbook.Worksheets)
-            {
-                if (w.Name != expectorWorksheetName)
-                {
-                    foreach (Excel.Range c in w.UsedRange)
-                    {
-                        if (c.Value2 != null)
-                        {
-                            allNonEmptyCells.Add(c);
-                        }
-                    }
-                }
-
-            }
-
-            double coverage = (double)coveredCells.Count / allNonEmptyCells.Count;
+            double coverage = (double)coveredCells.Count / nonEmptyCells.Count;
 
             coverage = coverage * 100;
             return coverage;
         }
+
+
 
 
 
@@ -497,27 +518,43 @@ namespace Expector
         public int getComplexity(Excel.Range c)
         {
             ExcelFormulaParser p = new ExcelFormulaParser();
+
             FormulaAnalyzer f = new FormulaAnalyzer(c.Formula.Substring(1), p);
             int complexity = f.References().Count + f.GetFunctions().Count;
             return complexity;
+
+
+
         }
 
 
         public delegate int CellMaxFunction(Excel.Range c);
 
-        internal void ShowTestforMaxCellforGivenFunction(List<Excel.Range> nonCoveredCells, CellMaxFunction cellFunc)
+        internal void ShowTestforMaxCellforGivenFunction(CellMaxFunction cellFunc)
         {
-            int maxReferences = 0;
+            int maxValue = int.MinValue;
             Excel.Range maxCell = nonCoveredCells[0];
 
             foreach (Excel.Range c in nonCoveredCells)
             {
-                int functionResult = cellFunc(c);
-
-                if (functionResult > maxReferences)
+                if (c.HasFormula) //we only want to test formulas
                 {
-                    maxReferences = functionResult;
-                    maxCell = c;
+                    int functionResult = int.MinValue;
+
+                    try
+                    {
+                        functionResult = cellFunc(c);
+                    }
+                    catch (Exception)
+                    {
+                        //error in calculating value, return original (in.minvalue)
+                    }
+
+                    if (functionResult > maxValue)
+                    {
+                        maxValue = functionResult;
+                        maxCell = c;
+                    }
                 }
             }
 
@@ -531,19 +568,15 @@ namespace Expector
             var A = new AddTest(this, maxCell.Worksheet.Name, maxCell.Formula, maxCell.Address.Replace("$", ""));
             A.Show();
 
-
-
         }
 
 
 
         internal void ProposeLargeCell()
         {
-            List<Excel.Range> nonCoveredCells = getNonCoveredCells();
-
             if (nonCoveredCells.Count() > 0)
             {
-                ShowTestforMaxCellforGivenFunction(nonCoveredCells, x => (int)x.Value);
+                ShowTestforMaxCellforGivenFunction(x => (int)x.Value);
             }
             else
             {
@@ -555,11 +588,9 @@ namespace Expector
 
         internal void ProposeSmellyCell()
         {
-            List<Excel.Range> nonCoveredCells = getNonCoveredCells();
-
             if (nonCoveredCells.Count() > 0)
             {
-                ShowTestforMaxCellforGivenFunction(nonCoveredCells, getComplexity);
+                ShowTestforMaxCellforGivenFunction(getComplexity);
             }
             else
             {
@@ -570,11 +601,9 @@ namespace Expector
 
         internal void ProposeHighCoverageCell()
         {
-            List<Excel.Range> nonCoveredCells = getNonCoveredCells();
-
             if (nonCoveredCells.Count() > 0)
             {
-                ShowTestforMaxCellforGivenFunction(nonCoveredCells, x => x.Precedents.Count);
+                ShowTestforMaxCellforGivenFunction(x => x.Precedents.Count);
             }
             else
             {

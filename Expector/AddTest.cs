@@ -17,6 +17,7 @@ namespace Expector
         string _formula;
         string _worksheet;
         string _location;
+        string _totalLocation;
 
         public AddTest(Expector e, string worksheet, string formula, string location)
         {
@@ -24,8 +25,9 @@ namespace Expector
             _worksheet = worksheet;
             _formula = formula;
             _location = location;
+            _totalLocation = _worksheet + "!" + _location;
             InitializeComponent();
-            cellToAddTestsForLabel.Text = String.Format("You could a a test for the cell on {0}: {1}", _worksheet + "!" + _location, _formula);
+            cellToAddTestsForLabel.Text = String.Format("You could a a test for the cell on {0}: {1}", _totalLocation, _formula);
 
 
         }
@@ -36,11 +38,11 @@ namespace Expector
             comboBox1.ValueMember = "Value";
 
             var items = new[] { 
-                new { Text = "should be a number", Value = String.Format("ISNUMBER({0})",_location) }, 
-                new { Text = "should not be a number", Value = String.Format("NOT(ISNUMBER({0}))",_location) }, 
-                new { Text = "should be text", Value = String.Format("ISTEXT({0})",_location) },
-                new { Text = "should not be text", Value = String.Format("NOT(ISTEXT({0}))",_location) },
-                new { Text = "should not be blank", Value = String.Format("NOT(ISBLANK({0}))",_location) }
+                new { Text = "should be a number", Value = String.Format("ISNUMBER({0})",_totalLocation) }, 
+                new { Text = "should not be a number", Value = String.Format("NOT(ISNUMBER({0}))",_totalLocation) }, 
+                new { Text = "should be text", Value = String.Format("ISTEXT({0})",_totalLocation) },
+                new { Text = "should not be text", Value = String.Format("NOT(ISTEXT({0}))",_totalLocation) },
+                new { Text = "should not be blank", Value = String.Format("NOT(ISBLANK({0}))",_totalLocation) }
             };
 
             comboBox1.DataSource = items;
@@ -64,7 +66,7 @@ namespace Expector
                 if (lowerText.Text != "" )
                 {
                     testFormula f = newTestForCurrentCell();
-                    f.condition = String.Format("{0} > {1}", _location, lowerText.Text);
+                    f.condition = String.Format("{0} > {1}", _totalLocation, lowerText.Text);
                     instanceofExpector.testFormulas.Add(f);
                     validTestsFound = true;
                 }
@@ -79,7 +81,7 @@ namespace Expector
                 if (upperText.Text != "")
                 {
                     testFormula f = newTestForCurrentCell();
-                    f.condition = String.Format("{0} < {1}", _location, upperText.Text);
+                    f.condition = String.Format("{0} < {1}", _totalLocation, upperText.Text);
                     instanceofExpector.testFormulas.Add(f);
                     validTestsFound = true;
                 }
@@ -95,8 +97,8 @@ namespace Expector
                 {
                     instanceofExpector.SaveTests();
 
-                    //update the covered cells
-                    instanceofExpector.coveredCells = instanceofExpector.GetCoveredCells();
+                    //update the covered and non covered cells cells
+                    instanceofExpector.initCellsLists();
 
                     double coverageAfter = instanceofExpector.getCurrentCoverage();
 

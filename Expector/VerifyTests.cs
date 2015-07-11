@@ -46,47 +46,43 @@ namespace Expector
 
         public TestCheck ProcessConditions(testFormula f, ExcelFormulaParser P)
         {
-            TestCheck t = new TestCheck(f);
-            
 
-            int Passing = P.GetPassingBranch(f.original);
-
+            int PassingBranch = P.GetPassingBranch(f.original);
             string Condition = P.GetCondition(f.original);
-
             List<String> ConditionList = P.Split(Condition);
 
             string Text;
+
+            TestCheck t = new TestCheck(f);
+            t.shouldbe = (PassingBranch == 0); //if the first branch is passing, the condition should be true, else false
 
             if (ConditionList.Count == 1) //just 1 item in the condition, like IF(A4,"OK","NOT OK")
             {
                 Text = Condition + " should ";
 
-                if (P.GetPassingBranch(f.original) == 0) //if the first branch is passing, the test condition should be true, else false
+                if (PassingBranch == 0) //if the first branch is passing, the test condition should be true, else false
                 //the senmatic of IF(A4) is that it is false if A4 = 0, true in all other cases.
                 {
                     Text += "not be 0"; //it should be true, so non-zero
-                    t.shouldbe = true;
                 }
                 else
                 {
                     Text += "be 0";
-                    t.shouldbe = false;
                 }
             }
             else
             {
-                if (ConditionList.Count == 2) //a function as condition 1, like IF(ISBLANK(A4),"OK","NOT OK")
+                if (ConditionList.Count == 2) //if the split found 2 items, the condition is a function, like IF(ISBLANK(A4),"OK","NOT OK")
                 {
                     Text = Condition + " should ";
-                    if (P.GetPassingBranch(f.original) == 0) //if the first branch is passing, the test condition should be true, else false                                    
+
+                    if (PassingBranch == 0) //if the first branch is passing, the test condition should be true, else false                                    
                     {
-                        Text += "hold"; //it should be true, so non-zero
-                        t.shouldbe = true;
+                        Text += "be true"; //it should be true, so non-zero
                     }
                     else
                     {
-                        Text += "not hold";
-                        t.shouldbe = false;
+                        Text += "not be true";
                     }
                 }
 
@@ -94,15 +90,13 @@ namespace Expector
                 {
                     Text = ConditionList[0];
 
-                    if (P.GetPassingBranch(f.original) == 0) //if the first branch is passing, the test codintion should be true, else false
+                    if (PassingBranch == 0) //if the first branch is passing, the test codintion should be true, else false
                     {
-                        Text += " should be " + ConditionList[1] + ConditionList[2]; //this adds the > 5 part
-                        t.shouldbe = true;
+                        Text += " should be " + ConditionList[1].Replace("=","") + ConditionList[2]; //this adds the > 5 part
                     }
                     else
                     {
-                        Text += " should be " + Invert(ConditionList[1]) + ConditionList[2]; //this adds the <= 5 part
-                        t.shouldbe = false;
+                        Text += " should be " + Invert(ConditionList[1]).Replace("=", "") + ConditionList[2]; //this adds the < 5 part, we remove '=' because "x should be =0" looks strange
                     }
                 }
             }
@@ -134,7 +128,7 @@ namespace Expector
 
             Label l = new Label();
             l.Location = new Point(12, height);
-            l.Text = Formula.worksheet + "!" +Formula.location + " tests "+ t.outputText;
+            l.Text = "The cell on " + Formula.worksheet + "!" +Formula.location + " expresses that "+ t.outputText;
             l.AutoSize = true;
             this.Controls.Add(l);
 
