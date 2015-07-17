@@ -25,7 +25,7 @@ namespace Expector
             _worksheet = worksheet;
             _formula = formula;
             _location = location;
-            _totalLocation = _worksheet + "!" + _location;
+            _totalLocation = "'"+_worksheet + "'!" + _location;
             InitializeComponent();
             cellToAddTestsForLabel.Text = String.Format("You could a a test for the cell on {0}: {1}", _totalLocation, _formula);
 

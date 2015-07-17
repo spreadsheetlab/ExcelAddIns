@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using Infotron.Parsing;
 using Infotron.PerfectXL.DataModel;
@@ -104,31 +105,60 @@ namespace Expector
             nonEmptyCells = new List<Excel.Range>();
             allFormulas = new List<Excel.Range>();
 
+            //we could add another cache 'non covered formulas' too?
+
             foreach (Excel.Worksheet w in Application.ActiveWorkbook.Worksheets)
             {
                 if (w.Name != expectorWorksheetName)
                 {
-                    Excel.Range range = w.get_Range("A1", maxCell);
+                    Excel.Range range = (Excel.Range)w.get_Range("A1:"+maxCell);
+                    
+                    //Excel.Range range = w.UsedRange;
 
-                    foreach (Excel.Range cell in range)
-                    {
-                        if (cell.Value2 != null)
+                    try 
+	                {
+                        Excel.Range formulasOnThisWorksheet = range.SpecialCells(Excel.XlCellType.xlCellTypeFormulas, Missing.Value).Cells;
+                        
+                        //allformulas
+                        foreach (Excel.Range cell in formulasOnThisWorksheet)
                         {
+                            allFormulas.Add(cell);
                             nonEmptyCells.Add(cell);
 
-                            //empty cells do not cound for coverage
                             if (!ContainsCell(coveredCells, cell))
                             {
                                 nonCoveredCells.Add(cell);
                             }
-                            //we could add another cache 'non covered formulas' too?
+
                         }
 
-                        if (cell.HasFormula)
+	                }
+	                catch (Exception)
+	                {
+		                //no formulasfound, do nothing
+	                }
+
+                    try
+                    {
+                        Excel.Range formulasOnThisWorksheet = range.SpecialCells(Excel.XlCellType.xlCellTypeConstants, Missing.Value).Cells;
+                        //allformulas
+                        foreach (Excel.Range cell in formulasOnThisWorksheet)
                         {
-                            allFormulas.Add(cell);
+                            nonEmptyCells.Add(cell);
+
+                            if (!ContainsCell(coveredCells, cell))
+                            {
+                                nonCoveredCells.Add(cell);
+                            }
                         }
+
                     }
+                    catch (Exception)
+                    {
+                        //no constants found, do nothing
+                    }
+
+
                 }
             }    
         }
@@ -229,6 +259,12 @@ namespace Expector
 
         private Excel.Worksheet GetWorksheetByName(string name)
         {
+            if (name.Substring(0,1) =="'")
+            {
+                //chop off the quotes
+                name = name.Substring(1, name.Length - 2);
+            }
+
             foreach (Excel.Worksheet worksheet in Application.ActiveWorkbook.Worksheets)
             {
                 if (worksheet.Name == name)
@@ -278,7 +314,9 @@ namespace Expector
             if (worksheetCell.Value != null)
             {
                 //get the location of the test
-                Excel.Worksheet testSheet = GetWorksheetByName(w.Cells.Item[i, 2].value);
+                string sheetName = w.Cells.Item[i, 2].value2;
+
+                Excel.Worksheet testSheet = GetWorksheetByName(sheetName);
                 Location L = new Location(w.Cells.Item[i, 3].value);
 
                 //get the cell
@@ -316,21 +354,15 @@ namespace Expector
             foreach (var item in testFormulas)
             {
                 //is there already a worksheet to save tests in?
-                Excel.Worksheet w;
+                Excel.Worksheet w = GetExpectorSheet();
 
-                try
-                {
-                    w = GetExpectorSheet();
-                }
-                catch (SystemException E)
-                {
-                    //w is not found
-
+                if (w == null) //w is not found
+	            {
                     //get the last worksheet to add Expector-Tests at the end
                     Excel.Worksheet Last = this.Application.Worksheets.get_Item(this.Application.Worksheets.Count);
                     w = (Excel.Worksheet)this.Application.Worksheets.Add(missing,Last);
-                    w.Name = expectorWorksheetName;                           
-                }
+                    w.Name = expectorWorksheetName;  
+	            }
 
                 w.Cells.Item[i, 1].formula = "="+item.condition;
                 w.Cells.Item[i, 2].Value = item.worksheet;
@@ -339,7 +371,7 @@ namespace Expector
                 //adding the hyperlink to the cell under test
                 Excel.Range rangeToHoldHyperlink = w.get_Range(new Location(3, i-1).ToString(), Type.Missing);
 
-                string hyperlinkTargetAddress = item.worksheet + "!" + item.location;
+                string hyperlinkTargetAddress = "'"+item.worksheet + "'!" + item.location;
                 w.Hyperlinks.Add(rangeToHoldHyperlink, string.Empty, hyperlinkTargetAddress, "", item.worksheet +"!" + item.location);
 
                 //this add the formula to calculate if any of the test pass, easy way to calculate it.
