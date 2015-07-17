@@ -139,7 +139,14 @@ namespace Expector
                 //transform the original formula to a condition that always should be true
                 ExcelFormulaParser P = new ExcelFormulaParser();
 
-                string formula = P.GetCondition(c.original, c.worksheet);
+                string inputSheetname=c.worksheet;
+
+                if (inputSheetname.Contains(" "))
+	            {
+		            inputSheetname = "'" + inputSheetname + "'";
+	            }
+
+                string formula = P.GetCondition(c.original, inputSheetname);
 
                 if (c.shouldbe == false)
                 {
