@@ -40,16 +40,16 @@
     <PublishUrl>C:\Users\Felienne\Infotron\ExcelAddIns\Expector\ExpectorSetup\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.6</ApplicationVersion>
+    <ApplicationVersion>1.0.0.8</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>false</UpdateEnabled>
     <UpdateInterval>0</UpdateInterval>
     <UpdateIntervalUnits>days</UpdateIntervalUnits>
     <ProductName>Expector</ProductName>
-    <PublisherName>Expector</PublisherName>
-    <SupportUrl />
+    <PublisherName>TU Delft</PublisherName>
+    <SupportUrl>http://www.felienne.com/Expector</SupportUrl>
     <FriendlyName>Expector</FriendlyName>
-    <OfficeApplicationDescription />
+    <OfficeApplicationDescription>Expector is a tool made at Delft University of Technology to supprt users in testing their spreadsheets.</OfficeApplicationDescription>
     <LoadBehavior>3</LoadBehavior>
   </PropertyGroup>
   <ItemGroup>
@@ -157,7 +157,7 @@
     <ManifestKeyFile>Expector_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>9F866B61AF4873A9E33B8CD8A1F4C16D82B80B50</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>D003B3F13E825B30527F8D7D47F175AD1BF8EA54</ManifestCertificateThumbprint>
   </PropertyGroup>
   <!--
     This section specifies references for the project.
