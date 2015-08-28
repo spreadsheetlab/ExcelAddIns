@@ -38,7 +38,6 @@
             this.polarisTabGroup1 = this.Factory.CreateRibbonGroup();
             this.buttonStart = this.Factory.CreateRibbonButton();
             this.buttonAnalyseCell = this.Factory.CreateRibbonButton();
-            this.buttonGraph = this.Factory.CreateRibbonButton();
             this.polarisRibbonTab.SuspendLayout();
             this.polarisTabGroup1.SuspendLayout();
             // 
@@ -52,7 +51,6 @@
             // 
             this.polarisTabGroup1.Items.Add(this.buttonStart);
             this.polarisTabGroup1.Items.Add(this.buttonAnalyseCell);
-            this.polarisTabGroup1.Items.Add(this.buttonGraph);
             this.polarisTabGroup1.Label = "Analysis";
             this.polarisTabGroup1.Name = "polarisTabGroup1";
             // 
@@ -66,12 +64,6 @@
             this.buttonAnalyseCell.Label = "Analyse Selected Cell";
             this.buttonAnalyseCell.Name = "buttonAnalyseCell";
             this.buttonAnalyseCell.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.buttonAnnalyseCell_Click);
-            // 
-            // buttonGraph
-            // 
-            this.buttonGraph.Label = "Test Graph";
-            this.buttonGraph.Name = "buttonGraph";
-            this.buttonGraph.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.buttonGraph_Click_1);
             // 
             // PolarisRibbon
             // 
@@ -92,7 +84,6 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup polarisTabGroup1;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton buttonStart;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton buttonAnalyseCell;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton buttonGraph;
     }
 
     partial class ThisRibbonCollection

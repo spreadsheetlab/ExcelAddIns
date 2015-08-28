@@ -24,9 +24,5 @@ namespace Polaris
             PolarisController pc = new PolarisController();
             pc.AnalyseSingleCell(Globals.ThisAddIn.Application.ActiveCell);
         }
-
-        private void buttonGraph_Click_1(object sender, RibbonControlEventArgs e)
-        {
-        }
     }
 }
