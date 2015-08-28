@@ -1,4 +1,3 @@
-Aragorn
-=======
+# Excel Add-ins
 
-Sohon's Excel dependency tracing add-in
+Repository containing the different Excel add-ins.
