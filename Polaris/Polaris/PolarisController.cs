@@ -25,7 +25,7 @@ namespace Polaris
         public void CreateGraphOutput(AnalyzedCell cell)
         {
             List<SEdge<string>> edges = new List<SEdge<string>>();
-            foreach (AnalyzedCell.PrecedentCell p in cell.Precedents)
+            foreach (AnalyzedCell.PrecedentCell p in cell.TransitivePrecedents)
             {
                 edges.Add(new SEdge<string>(p.ID, p.Dependent.Parent.Name + "!" + p.Dependent.Address));
             }
@@ -68,7 +68,7 @@ namespace Polaris
                         outputSheet.get_Range("C" + Convert.ToString(row)).Value = "'" + c.Value.Formula;
                         AnalyzedCell oCell = new AnalyzedCell(c.Value);
                         int precedentColumn = 0;
-                        foreach (AnalyzedCell.PrecedentCell p in oCell.Precedents)
+                        foreach (AnalyzedCell.PrecedentCell p in oCell.TransitivePrecedents)
                         { 
                             outputSheet.get_Range("D" + Convert.ToString(row)).Offset[0,precedentColumn].Value = "'" + p.Level + "|" + p.Cell.Address;
                             ++precedentColumn;
@@ -87,7 +87,7 @@ namespace Polaris
             Excel.Worksheet outputSheet = outputWorkbook.Worksheets[1];
             AnalyzedCell oCell = new AnalyzedCell(cell);
             int row = 1;
-            foreach (AnalyzedCell.PrecedentCell p in oCell.Precedents)
+            foreach (AnalyzedCell.PrecedentCell p in oCell.TransitivePrecedents)
             {
                 outputSheet.get_Range("A" + Convert.ToString(row)).Value = "'" + p.Level + "|" + p.Dependent.Address + "|" + p.ID;
                 ++row;

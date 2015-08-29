@@ -181,7 +181,7 @@
   -->
   <ItemGroup>
     <Compile Include="FileDotEngine.cs" />
-    <Compile Include="OutputCell.cs" />
+    <Compile Include="AnalyzedCell.cs" />
     <Compile Include="PCell.cs" />
     <Compile Include="PolarisController.cs">
       <SubType>Code</SubType>
