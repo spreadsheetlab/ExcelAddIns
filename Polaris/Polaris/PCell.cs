@@ -7,14 +7,14 @@ using Excel = Microsoft.Office.Interop.Excel;
 namespace Polaris
 {
     class PCell
-    {
+    {   
         private Excel.Range cell;
-        private List<Excel.Range> precedents = new List<Excel.Range>();
-        public List<Excel.Range> Precedents
-        {
-            get
+        private List<Excel.Range> precedents;
+        public List<Excel.Range> Precedents 
+        { 
+            get 
             {
-                return precedents;
+                return precedents ?? (precedents = this.getPrecedents());
             }
         }
 
@@ -28,15 +28,14 @@ namespace Polaris
             {
                 cell = rng.Cells[1, 1];
             }
-            getPrecedents();
         }
-
-        private void getPrecedents()
+        private List<Excel.Range> getPrecedents()
         {
             int arrowNr = 0;
             bool isNewArrow;
             Excel.Range precedent;
             Dictionary<string, Excel.Range> uniqueFormulas = new Dictionary<string, Excel.Range>();
+            precedents = new List<Excel.Range>();
 
             cell.ShowPrecedents();
 
@@ -82,6 +81,7 @@ namespace Polaris
                     break;
                 }
             } while (true);
+            return precedents;
         }
         private Dictionary<string,Excel.Range> getUniqueFormulas(Excel.Range rng)
         {

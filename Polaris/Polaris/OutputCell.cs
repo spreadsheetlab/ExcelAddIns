@@ -7,23 +7,23 @@ using System.Diagnostics;
 
 namespace Polaris
 {
-    class OutputCell
+    class AnalyzedCell
     {
-        public struct ProcessedCell: IEquatable <ProcessedCell>
+        public struct PrecedentCell: IEquatable <PrecedentCell>
         {
             public string ID;
             public Excel.Range Cell;
             public Excel.Range Dependent;
             public int Level;
 
-            public ProcessedCell(Excel.Range c, int l, Excel.Range dependent)
+            public PrecedentCell(Excel.Range c, int l, Excel.Range dependent)
             {
                 ID = c.Parent.Name + "!" + c.Address;
                 Cell = c;
                 Level = l;
                 Dependent = dependent;
             }
-            public bool Equals(ProcessedCell other)
+            public bool Equals(PrecedentCell other)
             {
                 return this.ID == other.ID;
             }
@@ -32,7 +32,7 @@ namespace Polaris
         private string spreadsheetID;
         private string formula;
         private string formulaR1C1;
-        private List<ProcessedCell> precedents;
+        private List<PrecedentCell> precedents;
         private Excel.Range thisCell;
         private Dictionary<string,string> uniquePrecedents;
 
@@ -40,25 +40,25 @@ namespace Polaris
         public string SpreadsheetID { get { return spreadsheetID; } }
         public string Formula { get { return formula; } }
         public string FormulaR1C1 { get { return formulaR1C1; } }
-        public List<ProcessedCell> Precedents { get { return precedents; } }
-        public OutputCell(Excel.Range c)
+        public List<PrecedentCell> Precedents { get { return precedents; } }
+        public AnalyzedCell(Excel.Range c)
         {
             thisCell = c;
             worksheetID = c.Parent.Index;
             spreadsheetID = c.Parent.Parent.Name;
             formulaR1C1 = c.FormulaR1C1;
             formula = c.Formula;
-            precedents = new List<ProcessedCell>();
+            precedents = new List<PrecedentCell>();
             GetAllPrecedents();
         }
         private void GetAllPrecedents()
         {
-            Queue<ProcessedCell> cellsToProcess = new Queue<ProcessedCell>();
+            Queue<PrecedentCell> cellsToProcess = new Queue<PrecedentCell>();
             uniquePrecedents = new Dictionary<string, string>();
             PCell c = new PCell(thisCell);
             foreach (Excel.Range p in c.Precedents)
             {
-                ProcessedCell pc = new ProcessedCell(p, 1, thisCell);
+                PrecedentCell pc = new PrecedentCell(p, 1, thisCell);
                 if (!uniquePrecedents.ContainsKey(pc.ID))
                 {
                     uniquePrecedents.Add(pc.ID, pc.Cell.Address);
@@ -71,28 +71,28 @@ namespace Polaris
             }
             while (cellsToProcess.Count > 0)
             {
-                ProcessedCell pc = cellsToProcess.Dequeue();
+                PrecedentCell pc = cellsToProcess.Dequeue();
                 System.Diagnostics.Debug.WriteLine("Dequeue " + pc.Cell.Address, "Polaris");
                 PrintPrecedentsQueue(cellsToProcess);
                 int level = ++pc.Level;
                 PCell cellToProcess = new PCell(pc.Cell);
                 foreach (Excel.Range p in cellToProcess.Precedents)
                 {
-                    ProcessedCell precedent = new ProcessedCell(p, level, pc.Cell);
+                    PrecedentCell precedent = new PrecedentCell(p, level, pc.Cell);
                     if (!uniquePrecedents.ContainsKey(precedent.ID))
                     {
                         uniquePrecedents.Add(precedent.ID, precedent.Cell.Address);
-                        cellsToProcess.Enqueue(new ProcessedCell(p, level, pc.Cell));
+                        cellsToProcess.Enqueue(new PrecedentCell(p, level, pc.Cell));
                     }
                     System.Diagnostics.Debug.WriteLine("Add new precedent, level " + level.ToString() + ", " + p.Address + " for cell " + pc.Cell.Address + " with formula " + (string)pc.Cell.Formula, "Polaris");
                     PrintPrecedentsQueue(cellsToProcess);
-                    precedents.Add(new ProcessedCell(p, level, pc.Cell));
+                    precedents.Add(new PrecedentCell(p, level, pc.Cell));
                 }
             }
         }
-        private void PrintPrecedentsQueue(Queue<ProcessedCell> queue)
+        private void PrintPrecedentsQueue(Queue<PrecedentCell> queue)
         {
-            foreach (ProcessedCell pc in queue)
+            foreach (PrecedentCell pc in queue)
             {
                 Debug.Indent();
                 Debug.WriteLine(pc.Cell.Address + '|' + pc.Level.ToString(), "Content queue");

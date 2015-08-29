@@ -22,10 +22,10 @@ namespace Polaris
 {
     class PolarisController
     {
-        public void CreateGraphOutput(OutputCell cell)
+        public void CreateGraphOutput(AnalyzedCell cell)
         {
             List<SEdge<string>> edges = new List<SEdge<string>>();
-            foreach (OutputCell.ProcessedCell p in cell.Precedents)
+            foreach (AnalyzedCell.PrecedentCell p in cell.Precedents)
             {
                 edges.Add(new SEdge<string>(p.ID, p.Dependent.Parent.Name + "!" + p.Dependent.Address));
             }
@@ -66,9 +66,9 @@ namespace Polaris
                         outputSheet.get_Range("A" + Convert.ToString(row)).Value = wks.Name;
                         outputSheet.get_Range("B" + Convert.ToString(row)).Value = c.Value.Address;
                         outputSheet.get_Range("C" + Convert.ToString(row)).Value = "'" + c.Value.Formula;
-                        OutputCell oCell = new OutputCell(c.Value);
+                        AnalyzedCell oCell = new AnalyzedCell(c.Value);
                         int precedentColumn = 0;
-                        foreach (OutputCell.ProcessedCell p in oCell.Precedents)
+                        foreach (AnalyzedCell.PrecedentCell p in oCell.Precedents)
                         { 
                             outputSheet.get_Range("D" + Convert.ToString(row)).Offset[0,precedentColumn].Value = "'" + p.Level + "|" + p.Cell.Address;
                             ++precedentColumn;
@@ -85,9 +85,9 @@ namespace Polaris
             Globals.ThisAddIn.Application.ScreenUpdating = false;
             Excel.Workbook outputWorkbook = Globals.ThisAddIn.Application.Workbooks.Add();
             Excel.Worksheet outputSheet = outputWorkbook.Worksheets[1];
-            OutputCell oCell = new OutputCell(cell);
+            AnalyzedCell oCell = new AnalyzedCell(cell);
             int row = 1;
-            foreach (OutputCell.ProcessedCell p in oCell.Precedents)
+            foreach (AnalyzedCell.PrecedentCell p in oCell.Precedents)
             {
                 outputSheet.get_Range("A" + Convert.ToString(row)).Value = "'" + p.Level + "|" + p.Dependent.Address + "|" + p.ID;
                 ++row;
