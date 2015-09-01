@@ -68,6 +68,7 @@ namespace Polaris
                         outputSheet.get_Range("C" + Convert.ToString(row)).Value = "'" + c.Value.Formula;
                         AnalyzedCell oCell = new AnalyzedCell(c.Value);
                         int precedentColumn = 0;
+                        string test = oCell.Functions.ToString();
                         foreach (AnalyzedCell.PrecedentCell p in oCell.TransitivePrecedents)
                         { 
                             outputSheet.get_Range("D" + Convert.ToString(row)).Offset[0,precedentColumn].Value = "'" + p.Level + "|" + p.Cell.Address;
@@ -86,6 +87,7 @@ namespace Polaris
             Excel.Workbook outputWorkbook = Globals.ThisAddIn.Application.Workbooks.Add();
             Excel.Worksheet outputSheet = outputWorkbook.Worksheets[1];
             AnalyzedCell oCell = new AnalyzedCell(cell);
+            string test = oCell.Functions.ToString();
             int row = 1;
             foreach (AnalyzedCell.PrecedentCell p in oCell.TransitivePrecedents)
             {
