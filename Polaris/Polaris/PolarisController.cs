@@ -50,6 +50,7 @@ namespace Polaris
             string folderToScan = getFolder();
             string[] files = Directory.GetFiles(folderToScan, "*.*", SearchOption.TopDirectoryOnly);
             int row = 0;
+            OutputGenerator outputGenerator = new OutputGenerator();
             foreach (string f in files)
             {
                 Excel.Workbook outputWorkbook = Globals.ThisAddIn.Application.Workbooks.Add();
@@ -62,6 +63,7 @@ namespace Polaris
                     Dictionary<string, Excel.Range> outputCells = currentSheet.OutputCells;
                     foreach (KeyValuePair<string,Excel.Range> c in outputCells)
                     {
+                        outputGenerator.AddOutputCell(c.Value);
                         ++row;
                         outputSheet.get_Range("A" + Convert.ToString(row)).Value = wks.Name;
                         outputSheet.get_Range("B" + Convert.ToString(row)).Value = c.Value.Address;
@@ -77,6 +79,7 @@ namespace Polaris
                     }
                 }
             }
+            outputGenerator.GenerateOutputCellFile();
             Globals.ThisAddIn.Application.StatusBar = false;
             Globals.ThisAddIn.Application.ScreenUpdating = true;
         }

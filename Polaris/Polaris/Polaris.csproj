@@ -111,6 +111,10 @@
   -->
   <ItemGroup>
     <Reference Include="Accessibility" />
+    <Reference Include="FileHelpers, Version=3.1.5.0, Culture=neutral, PublicKeyToken=3e0c08d59cc3d657, processorArchitecture=MSIL">
+      <HintPath>..\packages\FileHelpers.3.1.5\lib\net40\FileHelpers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Irony, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ca48ace7223ead47, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\XLParser\Irony.dll</HintPath>
@@ -182,6 +186,8 @@
   <ItemGroup>
     <Compile Include="FileDotEngine.cs" />
     <Compile Include="AnalyzedCell.cs" />
+    <Compile Include="OutputCell.cs" />
+    <Compile Include="OutputGenerator.cs" />
     <Compile Include="PFormulaAnalyzer.cs" />
     <Compile Include="PCell.cs" />
     <Compile Include="PolarisController.cs">

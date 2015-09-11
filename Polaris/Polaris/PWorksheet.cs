@@ -36,17 +36,26 @@ namespace Polaris
 
         private Dictionary<string, Excel.Range> setUniqueFormulas()
         {
-            // Get all formulas
-            Excel.Range allFormulas = wks.UsedRange.SpecialCells(Excel.XlCellType.xlCellTypeFormulas);
-            uniqueFormulas = new Dictionary<string, Excel.Range>();
-            foreach (Excel.Range c in allFormulas)
+
+            try
             {
-                // Only add formulas to dictionary if the R1C1 formula is unique
-                if (!uniqueFormulas.ContainsKey(c.FormulaR1C1))
+                Excel.Range allFormulas = wks.UsedRange.SpecialCells(Excel.XlCellType.xlCellTypeFormulas);
+                uniqueFormulas = new Dictionary<string, Excel.Range>();
+                foreach (Excel.Range c in allFormulas)
                 {
-                    uniqueFormulas.Add(c.FormulaR1C1, c);
+                    // Only add formulas to dictionary if the R1C1 formula is unique
+                    if (!uniqueFormulas.ContainsKey(c.FormulaR1C1))
+                    {
+                        uniqueFormulas.Add(c.FormulaR1C1, c);
+                    }
                 }
             }
+            catch (Exception)
+            {
+                uniqueFormulas = new Dictionary<string, Excel.Range>();
+            }
+            // Get all formulas
+                
             return uniqueFormulas;
         }
 

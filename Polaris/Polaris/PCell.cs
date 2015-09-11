@@ -64,7 +64,10 @@ namespace Polaris
                         isNewArrow = false;
                         if (precedent.Count == 1)
                         {
-                            precedents.Add(precedent);
+                            if (precedent.HasFormula)
+                            {
+                                precedents.Add(precedent);
+                            } 
                         }
                         else
                         {
