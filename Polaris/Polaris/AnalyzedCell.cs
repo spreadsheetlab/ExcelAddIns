@@ -94,15 +94,10 @@ namespace Polaris
                     cellsToProcess.Enqueue(pc);
                 }
                 transitivePrecedents.Add(pc);
-                //System.Diagnostics.Debug.WriteLine("Add direct precedent " + pc.cell.Address + " for cell " + thisCell.Address + " with formula " + thisCell.Formula, "Polaris");
-                System.Diagnostics.Debug.WriteLine("Add direct precedent " + pc.ID + " for cell " + thisCell.Address + " with formula " + (string)thisCell.Formula,"Polaris");
-                PrintPrecedentsQueue(cellsToProcess);
             }
             while (cellsToProcess.Count > 0)
             {
                 PrecedentCell pc = cellsToProcess.Dequeue();
-                System.Diagnostics.Debug.WriteLine("Dequeue " + pc.Cell.Address, "Polaris");
-                PrintPrecedentsQueue(cellsToProcess);
                 int level = ++pc.Level;
                 PCell cellToProcess = new PCell(pc.Cell);
                 foreach (Excel.Range p in cellToProcess.Precedents)
@@ -113,21 +108,10 @@ namespace Polaris
                         uniquePrecedents.Add(precedent.ID, precedent.Cell.Address);
                         cellsToProcess.Enqueue(new PrecedentCell(p, level, pc.Cell));
                     }
-                    System.Diagnostics.Debug.WriteLine("Add new precedent, level " + level.ToString() + ", " + p.Address + " for cell " + pc.Cell.Address + " with formula " + (string)pc.Cell.Formula, "Polaris");
-                    PrintPrecedentsQueue(cellsToProcess);
                     transitivePrecedents.Add(new PrecedentCell(p, level, pc.Cell));
                 }
             }
             return transitivePrecedents;
-        }
-        private void PrintPrecedentsQueue(Queue<PrecedentCell> queue)
-        {
-            foreach (PrecedentCell pc in queue)
-            {
-                Debug.Indent();
-                Debug.WriteLine(pc.Cell.Address + '|' + pc.Level.ToString(), "Content queue");
-                Debug.Unindent();
-            }
         }
     }
 }

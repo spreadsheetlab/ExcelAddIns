@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Excel = Microsoft.Office.Interop.Excel;
 using FileHelpers;
+using System.IO;
 
 namespace Polaris
 {
@@ -13,7 +14,10 @@ namespace Polaris
         private int maxId = 1;
         public OutputGenerator()
         {
-
+            if (File.Exists("OutputCells.txt"))
+            {
+                File.Delete("OutputCells.txt");
+            }
         }
         public void AddOutputCell(Excel.Range cell)
         {
@@ -26,7 +30,7 @@ namespace Polaris
             ++maxId;
             outputCells.Add(outputCell);
         }
-        public void GenerateOutputCellFile()
+        public void AppendToOutputCellFile()
         {
             var engine = new FileHelperEngine<OutputCell>();
             engine.AppendToFile("OutputCells.txt", outputCells);

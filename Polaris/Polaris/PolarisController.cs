@@ -51,35 +51,31 @@ namespace Polaris
             string[] files = Directory.GetFiles(folderToScan, "*.*", SearchOption.TopDirectoryOnly);
             int row = 0;
             OutputGenerator outputGenerator = new OutputGenerator();
+            int fileNumber = 0;
             foreach (string f in files)
             {
-                Excel.Workbook outputWorkbook = Globals.ThisAddIn.Application.Workbooks.Add();
-                Excel.Worksheet outputSheet = outputWorkbook.Worksheets[1];
+                ++fileNumber;
                 Excel.Workbook analyzedWorkbook = Globals.ThisAddIn.Application.Workbooks.Open(Filename:f, ReadOnly: true);
+                int wksNumber = 0;
                 foreach (Excel.Worksheet wks in analyzedWorkbook.Worksheets)
                 {
-                    Globals.ThisAddIn.Application.StatusBar = wks.Name;
+                    ++wksNumber;
+                    Globals.ThisAddIn.Application.StatusBar = "File " + fileNumber + " of " + files.Count() + ", Sheet " + wksNumber + " of " + analyzedWorkbook.Worksheets.Count;
                     PWorksheet currentSheet = new PWorksheet(wks);
                     Dictionary<string, Excel.Range> outputCells = currentSheet.OutputCells;
                     foreach (KeyValuePair<string,Excel.Range> c in outputCells)
                     {
                         outputGenerator.AddOutputCell(c.Value);
-                        ++row;
-                        outputSheet.get_Range("A" + Convert.ToString(row)).Value = wks.Name;
-                        outputSheet.get_Range("B" + Convert.ToString(row)).Value = c.Value.Address;
-                        outputSheet.get_Range("C" + Convert.ToString(row)).Value = "'" + c.Value.Formula;
                         AnalyzedCell oCell = new AnalyzedCell(c.Value);
-                        int precedentColumn = 0;
-                        string test = oCell.Functions.ToString();
                         foreach (AnalyzedCell.PrecedentCell p in oCell.TransitivePrecedents)
                         { 
-                            outputSheet.get_Range("D" + Convert.ToString(row)).Offset[0,precedentColumn].Value = "'" + p.Level + "|" + p.Cell.Address;
-                            ++precedentColumn;
+
                         }
                     }
                 }
+                analyzedWorkbook.Close(false);
             }
-            outputGenerator.GenerateOutputCellFile();
+            outputGenerator.AppendToOutputCellFile();
             Globals.ThisAddIn.Application.StatusBar = false;
             Globals.ThisAddIn.Application.ScreenUpdating = true;
         }
