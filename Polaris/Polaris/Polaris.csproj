@@ -119,6 +119,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\XLParser\Irony.dll</HintPath>
     </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.1.1\lib\net40\NLog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="QuickGraph, Version=3.6.61114.0, Culture=neutral, PublicKeyToken=f3fb40175eec2af3, processorArchitecture=MSIL">
       <HintPath>..\packages\QuickGraph.3.6.61119.7\lib\net4\QuickGraph.dll</HintPath>
       <Private>True</Private>
@@ -184,9 +188,11 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="CSV_Function.cs" />
+    <Compile Include="CSV_Transaction.cs" />
     <Compile Include="FileDotEngine.cs" />
     <Compile Include="AnalyzedCell.cs" />
-    <Compile Include="OutputCell.cs" />
+    <Compile Include="CSV_OutputCell.cs" />
     <Compile Include="OutputGenerator.cs" />
     <Compile Include="PFormulaAnalyzer.cs" />
     <Compile Include="PCell.cs" />
@@ -214,6 +220,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="Polaris_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">

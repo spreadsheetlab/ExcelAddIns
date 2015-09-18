@@ -7,7 +7,7 @@ using FileHelpers;
 namespace Polaris
 {
     [DelimitedRecord(",")]
-    class OutputCell
+    class CSV_OutputCell
     {
         public int Id;
         public string WorkbookName;

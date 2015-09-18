@@ -17,11 +17,13 @@ using QuickGraph.Data;
 using QuickGraph.Graphviz;
 using QuickGraph.Predicates;
 using System.Xml;
+using NLog;
 
 namespace Polaris
 {
     class PolarisController
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
         public void CreateGraphOutput(AnalyzedCell cell)
         {
             List<SEdge<string>> edges = new List<SEdge<string>>();
@@ -49,33 +51,56 @@ namespace Polaris
             Globals.ThisAddIn.Application.ScreenUpdating = false;
             string folderToScan = getFolder();
             string[] files = Directory.GetFiles(folderToScan, "*.*", SearchOption.TopDirectoryOnly);
-            int row = 0;
             OutputGenerator outputGenerator = new OutputGenerator();
             int fileNumber = 0;
             foreach (string f in files)
             {
                 ++fileNumber;
-                Excel.Workbook analyzedWorkbook = Globals.ThisAddIn.Application.Workbooks.Open(Filename:f, ReadOnly: true);
+                Globals.ThisAddIn.Application.DisplayAlerts = false;
+                Excel.Workbook analyzedWorkbook = Globals.ThisAddIn.Application.Workbooks.Open(Filename:f, ReadOnly: true, UpdateLinks: 2);
+                Globals.ThisAddIn.Application.DisplayAlerts = true;
                 int wksNumber = 0;
                 foreach (Excel.Worksheet wks in analyzedWorkbook.Worksheets)
                 {
-                    ++wksNumber;
-                    Globals.ThisAddIn.Application.StatusBar = "File " + fileNumber + " of " + files.Count() + ", Sheet " + wksNumber + " of " + analyzedWorkbook.Worksheets.Count;
-                    PWorksheet currentSheet = new PWorksheet(wks);
-                    Dictionary<string, Excel.Range> outputCells = currentSheet.OutputCells;
-                    foreach (KeyValuePair<string,Excel.Range> c in outputCells)
+                    try
                     {
-                        outputGenerator.AddOutputCell(c.Value);
-                        AnalyzedCell oCell = new AnalyzedCell(c.Value);
-                        foreach (AnalyzedCell.PrecedentCell p in oCell.TransitivePrecedents)
-                        { 
+                        ++wksNumber;
+                        PWorksheet currentSheet = new PWorksheet(wks);
+                        Dictionary<string, Excel.Range> outputCells = currentSheet.OutputCells;
+                        int cellNumber = 0;
+                        foreach (KeyValuePair<string, Excel.Range> c in outputCells)
+                        {
+                            try
+                            {
+                                ++cellNumber;
+                                Globals.ThisAddIn.Application.StatusBar = "File " + fileNumber + " of " + files.Count() + ", Sheet " + wksNumber + " of " + analyzedWorkbook.Worksheets.Count + ", Cell " + cellNumber + " of " + outputCells.Count();
+                                AnalyzedCell oCell = new AnalyzedCell(c.Value);
+                                if (oCell.Functions.Count > 0)
+                                {
+                                    outputGenerator.AddOutputCell(c.Value);
+                                    outputGenerator.AddFunctions(oCell);
+                                    outputGenerator.AddTransaction(oCell);
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                logger.Error("skipped cell|" + c.Value.Address + "|" +
+                                    "|" + f + "|"  + wks.Name +
+                                    "|" + e.Message);
+                            }
 
                         }
+                    }
+                    catch (Exception e)
+                    {
+                        logger.Error("skipped worksheet|" + f + "|" + wks.Name + "|" + e.Message);
                     }
                 }
                 analyzedWorkbook.Close(false);
             }
-            outputGenerator.AppendToOutputCellFile();
+            //outputGenerator.AppendToOutputCellFile();
+            //outputGenerator.AppendToFunctionFile();
+           // outputGenerator.AppendToTransactionFile();
             Globals.ThisAddIn.Application.StatusBar = false;
             Globals.ThisAddIn.Application.ScreenUpdating = true;
         }
