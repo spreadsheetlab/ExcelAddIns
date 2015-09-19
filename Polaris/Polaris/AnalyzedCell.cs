@@ -4,30 +4,12 @@ using System.Linq;
 using System.Text;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Polaris
 {
-    class AnalyzedCell
+    class AnalyzedCell : IDisposable
     {
-        public struct PrecedentCell: IEquatable <PrecedentCell>
-        {
-            public string ID;
-            public Excel.Range Cell;
-            public Excel.Range Dependent;
-            public int Level;
-
-            public PrecedentCell(Excel.Range c, int l, Excel.Range dependent)
-            {
-                ID = c.Parent.Name + "!" + c.Address;
-                Cell = c;
-                Level = l;
-                Dependent = dependent;
-            }
-            public bool Equals(PrecedentCell other)
-            {
-                return this.ID == other.ID;
-            }
-        }
         private int worksheetID;
         private string spreadsheetID;
         private string formula;
@@ -71,7 +53,7 @@ namespace Polaris
             
             foreach (PrecedentCell c in transitivePrecedents)
             {
-                PFormulaAnalyzer fa = new PFormulaAnalyzer(c.Cell.Formula);
+                PFormulaAnalyzer fa = new PFormulaAnalyzer(c.ThisCell.Formula);
                 foreach (string formula in fa.BuiltinFunctions())
                 {
                     uniqueFunctions.Add(formula);
@@ -90,7 +72,7 @@ namespace Polaris
                 PrecedentCell pc = new PrecedentCell(p, 1, thisCell);
                 if (!uniquePrecedents.ContainsKey(pc.ID))
                 {
-                    uniquePrecedents.Add(pc.ID, pc.Cell.Address);
+                    uniquePrecedents.Add(pc.ID, pc.ThisCell.Address);
                     cellsToProcess.Enqueue(pc);
                 }
                 transitivePrecedents.Add(pc);
@@ -99,19 +81,28 @@ namespace Polaris
             {
                 PrecedentCell pc = cellsToProcess.Dequeue();
                 int level = ++pc.Level;
-                PCell cellToProcess = new PCell(pc.Cell);
+                PCell cellToProcess = new PCell(pc.ThisCell);
                 foreach (Excel.Range p in cellToProcess.Precedents)
                 {
-                    PrecedentCell precedent = new PrecedentCell(p, level, pc.Cell);
+                    PrecedentCell precedent = new PrecedentCell(p, level, pc.ThisCell);
                     if (!uniquePrecedents.ContainsKey(precedent.ID))
                     {
-                        uniquePrecedents.Add(precedent.ID, precedent.Cell.Address);
-                        cellsToProcess.Enqueue(new PrecedentCell(p, level, pc.Cell));
+                        uniquePrecedents.Add(precedent.ID, precedent.ThisCell.Address);
+                        cellsToProcess.Enqueue(new PrecedentCell(p, level, pc.ThisCell));
                     }
-                    transitivePrecedents.Add(new PrecedentCell(p, level, pc.Cell));
+                    transitivePrecedents.Add(new PrecedentCell(p, level, pc.ThisCell));
                 }
             }
             return transitivePrecedents;
+        }
+        public void Dispose()
+        {
+            foreach (PrecedentCell pc  in transitivePrecedents)
+            {
+                Marshal.FinalReleaseComObject(pc.ThisCell);
+                Marshal.FinalReleaseComObject(pc.DependentCell);
+            }
+            transitivePrecedents = null;
         }
     }
 }

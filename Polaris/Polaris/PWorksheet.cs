@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Excel = Microsoft.Office.Interop.Excel;
+using System.Runtime.InteropServices;
 
 namespace Polaris
 {
-    class PWorksheet
+    class PWorksheet : IDisposable
     {
         private Excel.Worksheet wks;
         private Dictionary<string, Excel.Range> uniqueFormulas;
@@ -31,31 +32,37 @@ namespace Polaris
         public PWorksheet(Excel.Worksheet worksheet)
         {
             wks = worksheet;
-            wks.ClearArrows();
         }
 
         private Dictionary<string, Excel.Range> setUniqueFormulas()
         {
-
             try
             {
-                Excel.Range allFormulas = wks.UsedRange.SpecialCells(Excel.XlCellType.xlCellTypeFormulas);
+                var xlUsedRange = wks.UsedRange;
+                var allFormulas = xlUsedRange.SpecialCells(Excel.XlCellType.xlCellTypeFormulas);
                 uniqueFormulas = new Dictionary<string, Excel.Range>();
-                foreach (Excel.Range c in allFormulas)
+                for (int a = 1; a <= allFormulas.Areas.Count; a++)
                 {
-                    // Only add formulas to dictionary if the R1C1 formula is unique
-                    if (!uniqueFormulas.ContainsKey(c.FormulaR1C1))
+                    Excel.Range rng = allFormulas.Areas[a];
+                    for (int r = 1; r <= rng.Rows.Count; r++)
                     {
-                        uniqueFormulas.Add(c.FormulaR1C1, c);
+                        for (int c = 1; c <= rng.Columns.Count; c++)
+                        {
+                            if(!uniqueFormulas.ContainsKey(rng[r,c].FormulaR1C1))
+                            {
+                                uniqueFormulas.Add(rng[r, c].FormulaR1C1, rng[r, c]);
+                            }
+                        }
                     }
                 }
+                Marshal.FinalReleaseComObject(xlUsedRange);
+                Marshal.FinalReleaseComObject(allFormulas);
             }
             catch (Exception)
             {
                 uniqueFormulas = new Dictionary<string, Excel.Range>();
             }
             // Get all formulas
-                
             return uniqueFormulas;
         }
 
@@ -89,6 +96,20 @@ namespace Polaris
             {
                 return false;
             }
+            
+        }
+        public void Dispose()
+        {
+            foreach (var rng in outputCells)
+            {
+                Marshal.FinalReleaseComObject(rng.Value);
+            }
+            foreach (var f in uniqueFormulas)
+            {
+                Marshal.FinalReleaseComObject(f.Value);
+            }
+            outputCells = null;
+            uniqueFormulas = null;
         }
     }
 }

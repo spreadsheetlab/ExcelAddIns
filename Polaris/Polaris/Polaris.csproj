@@ -205,6 +205,7 @@
     <Compile Include="PolarisRibbon.Designer.cs">
       <DependentUpon>PolarisRibbon.cs</DependentUpon>
     </Compile>
+    <Compile Include="PrecedentCell.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -222,6 +223,7 @@
     </Compile>
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
