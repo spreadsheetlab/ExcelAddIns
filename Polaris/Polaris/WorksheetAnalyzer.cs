@@ -226,11 +226,14 @@ namespace Polaris
         }
         public void Dispose()
         {
-            foreach (var f in uniqueFormulas)
+            if (uniqueFormulas != null)
             {
-                Marshal.FinalReleaseComObject(f.Value);
+                foreach (var f in uniqueFormulas)
+                {
+                    Marshal.FinalReleaseComObject(f.Value);
+                }
+                uniqueFormulas = null;
             }
-            uniqueFormulas = null;
         }
     }
 }
