@@ -131,10 +131,17 @@ namespace Polaris
                         }
                         else
                         {
-                            uniqueFormulas = GetUniqueFormulas(precedent);
-                            foreach (Excel.Range uniqueFormula in uniqueFormulas.Values)
+                            try
                             {
-                                precedents.Add(uniqueFormula);
+                                var precedentFormulas = precedent.SpecialCells(Excel.XlCellType.xlCellTypeFormulas);
+                                uniqueFormulas = GetUniqueFormulas(precedentFormulas);
+                                foreach (Excel.Range uniqueFormula in uniqueFormulas.Values)
+                                {
+                                    precedents.Add(uniqueFormula);
+                                }
+                            }
+                            catch (Exception )
+                            {
                             }
                         }
                     }
