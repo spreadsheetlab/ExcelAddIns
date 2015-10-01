@@ -30,7 +30,7 @@ namespace Polaris
         {
             uniqueFormulas = new Dictionary<string, Excel.Range>();
             var areas = rng.Areas;
-            for (int i = 1; i < areas.Count; i++)
+            for (int i = 1; i <= areas.Count; i++)
             {
                 Excel.Range r = areas[i];
                 var rows = r.Rows;
