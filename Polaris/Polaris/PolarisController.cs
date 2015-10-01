@@ -58,67 +58,44 @@ namespace Polaris
             
             foreach (string f in files)
             {
-                ++fileNumber;
-                xlApp.DisplayAlerts = false;
-                Excel.Workbooks xlWorkbooks = xlApp.Workbooks;
-                Excel.Workbook analyzedWorkbook = xlWorkbooks.Open(Filename:f, ReadOnly: true, UpdateLinks: 2);
-                xlApp.DisplayAlerts = true;
-                int wksNumber = 0;
-                foreach (Excel.Worksheet wks in analyzedWorkbook.Worksheets)
+                try
                 {
-                    try
+                    ++fileNumber;
+                    logger.Info("started to analyze file " + fileNumber + " of " + files.Count() + ":" + f);
+                    xlApp.DisplayAlerts = false;
+                    Excel.Workbooks xlWorkbooks = xlApp.Workbooks;
+                    Excel.Workbook analyzedWorkbook = xlWorkbooks.Open(Filename: f, ReadOnly: true, UpdateLinks: 2);
+                    xlApp.DisplayAlerts = true;
+                    OutputGenerator fileGenerator = new OutputGenerator();
+                    foreach (Excel.Worksheet wks in analyzedWorkbook.Worksheets)
                     {
-                        ++wksNumber;
-                        using(PWorksheet currentSheet = new PWorksheet(wks))
+                        try
                         {
-                            Dictionary<string, Excel.Range> outputCells = currentSheet.OutputCells;
-                            int cellNumber = 0;
-                            foreach (KeyValuePair<string, Excel.Range> c in outputCells)
+                            logger.Info("started to analyze worksheet " + wks.Name);
+                            using(WorksheetAnalyzer analyzer = new WorksheetAnalyzer(wks))
                             {
-                                try
-                                {
-                                    ++cellNumber;
-                                    Globals.ThisAddIn.Application.StatusBar = "File " + fileNumber + " of " + files.Count() + ", Sheet " + wksNumber + " of " + analyzedWorkbook.Worksheets.Count + ", Cell " + cellNumber + " of " + outputCells.Count();
-                                    using (AnalyzedCell oCell = new AnalyzedCell(c.Value))
-                                    {
-                                        if (oCell.Functions.Count > 0)
-                                        {
-                                            outputGenerator.AddOutputCell(c.Value);
-                                            outputGenerator.AddFunctions(oCell);
-                                            outputGenerator.AddTransaction(oCell);
-                                        }
-                                    }
-                                }
-                                catch (Exception e)
-                                {
-                                    logger.Error("skipped cell|" + c.Value.Address + "|" +
-                                        "|" + f + "|" + wks.Name +
-                                        "|" + e.Message);
-                                }
-
-                           }
+                                fileGenerator.WriteOutputAndTransactionToFile(analyzer.OutputCellsWithFunctions);
+                            }
                         }
+                        catch (Exception e)
+                        {
+                            logger.Error(e.Message);
+                        }
+                        Marshal.FinalReleaseComObject(wks);
                     }
-                    catch (Exception e)
-                    {
-                        logger.Error(e.Message);
-                        //logger.Error("skipped worksheet|" + f + "|" + wks.Name + "|" + e.Message);
-                    }
-                    Marshal.FinalReleaseComObject(wks);
+                    analyzedWorkbook.Close(false);
+                    Marshal.FinalReleaseComObject(xlWorkbooks);
+                    Marshal.FinalReleaseComObject(analyzedWorkbook);
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
                 }
-                xlApp.DisplayAlerts = false;
-                analyzedWorkbook.Close(false);
-                xlApp.DisplayAlerts = true;
-                Marshal.FinalReleaseComObject(xlWorkbooks);
-                Marshal.FinalReleaseComObject(analyzedWorkbook);
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
+                catch (Exception e)
+                {   
+                    logger.Error(e.Message);
+                }
             }
             xlApp.StatusBar = false;
             xlApp.ScreenUpdating = true;
-            //Marshal.FinalReleaseComObject(xlApp);
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
         }
 
         public void AnalyseSingleCell(Excel.Range cell)

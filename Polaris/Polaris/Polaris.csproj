@@ -193,6 +193,7 @@
     <Compile Include="FileDotEngine.cs" />
     <Compile Include="AnalyzedCell.cs" />
     <Compile Include="CSV_OutputCell.cs" />
+    <Compile Include="OutputCell.cs" />
     <Compile Include="OutputGenerator.cs" />
     <Compile Include="PFormulaAnalyzer.cs" />
     <Compile Include="PCell.cs" />
@@ -209,6 +210,7 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="WorksheetAnalyzer.cs" />
     <EmbeddedResource Include="PolarisRibbon.resx">
       <DependentUpon>PolarisRibbon.cs</DependentUpon>
     </EmbeddedResource>
