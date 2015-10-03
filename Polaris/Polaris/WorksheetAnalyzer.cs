@@ -75,9 +75,18 @@ namespace Polaris
             List<Excel.Range> outputCells = new List<Excel.Range>();
 
             var usedRange = thisSheet.UsedRange;
-            var allFormulas = usedRange.SpecialCells(Excel.XlCellType.xlCellTypeFormulas);
-            uniqueFormulas = GetUniqueFormulas(allFormulas);
-
+            try
+            {
+                var allFormulas = usedRange.SpecialCells(Excel.XlCellType.xlCellTypeFormulas);
+                if (allFormulas != null)
+                {
+                    uniqueFormulas = GetUniqueFormulas(allFormulas);
+                    Marshal.FinalReleaseComObject(allFormulas);
+                }   
+            }
+            catch (Exception)
+            {
+            }
             foreach (KeyValuePair<string, Excel.Range> f in uniqueFormulas)
             {
                 if (isOutput(f.Value))
@@ -85,8 +94,7 @@ namespace Polaris
                     outputCells.Add(f.Value);
                 }
             }
-            Marshal.FinalReleaseComObject(usedRange);
-            Marshal.FinalReleaseComObject(allFormulas);
+            if (usedRange != null) Marshal.FinalReleaseComObject(usedRange);           
             return outputCells;
         }
         private List<Excel.Range> GetDirectPrecedents(Excel.Range cell)
