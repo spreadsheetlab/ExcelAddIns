@@ -29,6 +29,7 @@ namespace Polaris
         }
         public void WriteOutputAndTransactionToFile(List<OutputCell> cells)
         {
+            List<string> excelFunctions = Polaris.Properties.Resources.ExcelFunctions.Split(new string[] { "\n" }, StringSplitOptions.None).ToList<string>();
             var engineOutputCells = new FileHelperEngine<CSV_OutputCell>();
             var engineTransactions = new FileHelperEngine<CSV_Transaction>();
             List<CSV_OutputCell> outputCells = new List<CSV_OutputCell>();

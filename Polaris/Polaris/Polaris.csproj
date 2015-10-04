@@ -211,6 +211,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="WorksheetAnalyzer.cs" />
+    <None Include="Resources\ExcelFunctions.txt" />
     <EmbeddedResource Include="PolarisRibbon.resx">
       <DependentUpon>PolarisRibbon.cs</DependentUpon>
     </EmbeddedResource>
@@ -222,6 +223,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <Content Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 
 namespace Polaris.Properties {
+    using System;
     
     
     /// <summary>
@@ -56,6 +57,75 @@ namespace Polaris.Properties {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ABS
+        ///ACCRINT
+        ///ACCRINTM
+        ///ACOS
+        ///ACOSH
+        ///ACOT 
+        ///ACOTH 
+        ///AGGREGATE
+        ///ADDRESS
+        ///AMORDEGRC
+        ///AMORLINC
+        ///AND
+        ///ARABIC 
+        ///AREAS
+        ///ASC
+        ///ASIN
+        ///ASINH
+        ///ATAN
+        ///ATAN2
+        ///ATANH
+        ///AVEDEV
+        ///AVERAGE
+        ///AVERAGEA
+        ///AVERAGEIF
+        ///AVERAGEIFS
+        ///BAHTTEXT
+        ///BASE
+        ///BESSELI
+        ///BESSELJ
+        ///BESSELK
+        ///BESSELY
+        ///BETADIST
+        ///BETA.DIST 
+        ///BETAINV
+        ///BETA.INV 
+        ///BIN2DEC
+        ///BIN2HEX
+        ///BIN2OCT
+        ///BINOMDIST
+        ///BINOM.DIST 
+        ///BINOM.DIST.RANGE 
+        ///BINOM.INV 
+        ///BITAND 
+        ///BITLSHIFT 
+        ///BITOR 
+        ///BITRSHIFT 
+        ///BITXOR 
+        ///CALL
+        ///CEILING
+        ///CEILING.MATH 
+        ///CEILING.PRECISE
+        ///CELL
+        ///CHAR
+        ///CHIDIST
+        ///CHIINV
+        ///CHITEST
+        ///CHISQ.DIST 
+        ///CHISQ.DIST.RT 
+        ///CHISQ.INV 
+        ///CHISQ.INV.RT 
+        ///CHI [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ExcelFunctions {
+            get {
+                return ResourceManager.GetString("ExcelFunctions", resourceCulture);
             }
         }
     }
