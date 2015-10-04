@@ -82,17 +82,17 @@ namespace Polaris
                 {
                     uniqueFormulas = GetUniqueFormulas(allFormulas);
                     Marshal.FinalReleaseComObject(allFormulas);
-                }   
+                }
+                foreach (KeyValuePair<string, Excel.Range> f in uniqueFormulas)
+                {
+                    if (isOutput(f.Value))
+                    {
+                        outputCells.Add(f.Value);
+                    }
+                }
             }
             catch (Exception)
             {
-            }
-            foreach (KeyValuePair<string, Excel.Range> f in uniqueFormulas)
-            {
-                if (isOutput(f.Value))
-                {
-                    outputCells.Add(f.Value);
-                }
             }
             if (usedRange != null) Marshal.FinalReleaseComObject(usedRange);           
             return outputCells;
