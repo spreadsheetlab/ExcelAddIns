@@ -29,11 +29,12 @@ namespace Polaris
         }
         public void WriteOutputAndTransactionToFile(List<OutputCell> cells)
         {
-            List<string> excelFunctions = Polaris.Properties.Resources.ExcelFunctions.Split(new string[] { "\n" }, StringSplitOptions.None).ToList<string>();
+            
             var engineOutputCells = new FileHelperEngine<CSV_OutputCell>();
             var engineTransactions = new FileHelperEngine<CSV_Transaction>();
             List<CSV_OutputCell> outputCells = new List<CSV_OutputCell>();
             List<CSV_Transaction> transactions = new List<CSV_Transaction>();
+            List<string> convertedFunctions = new List<string>();
             foreach (var c in cells)
             {
                 CSV_OutputCell outputCell= new CSV_OutputCell();
@@ -42,12 +43,23 @@ namespace Polaris
                 outputCell.WorkbookName = c.WorkbookName;
                 outputCell.WorksheetName = c.WorksheetName;
                 outputCells.Add(outputCell);
-                transaction.functions = string.Join(" ", c.Functions);
+                convertedFunctions = functionIntegers(c.Functions);
+                transaction.functions = string.Join(" ", convertedFunctions);
                 transactions.Add(transaction);
 
             }
             engineOutputCells.AppendToFile("OutputCells.txt", outputCells);
             engineTransactions.AppendToFile("Transactions.txt", transactions);
+        }
+        private List<string> functionIntegers(List<string> functions)
+        {
+            List<string> excelFunctions = Polaris.Properties.Resources.ExcelFunctions.Split(new string[] { "\n" }, StringSplitOptions.None).ToList<string>();
+            List<string> functionIntegers = new List<string>();
+            foreach (string function in functions)
+            {
+                functionIntegers.Add(excelFunctions.IndexOf(function).ToString());
+            }
+            return functionIntegers;
         }
         public void AddTransaction(AnalyzedCell cell)
         {
