@@ -47,9 +47,9 @@ namespace Polaris
                     outputCell.CellAddress = c.CellAddress;
                     outputCell.WorkbookName = c.WorkbookName;
                     outputCell.WorksheetName = c.WorksheetName;
-                    outputCells.Add(outputCell);
                     convertedFunctions = functionIntegers(c.Functions);
                     transaction.functions = string.Join(" ", convertedFunctions);
+                    outputCells.Add(outputCell);
                     transactions.Add(transaction);
                 }
                 catch (Exception e)
