@@ -5,11 +5,14 @@ using System.Text;
 using Excel = Microsoft.Office.Interop.Excel;
 using FileHelpers;
 using System.IO;
+using NLog;
 
 namespace Polaris
 {
     class OutputGenerator
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         private int maxId = 1;
         private int functionId = 1;
         private Dictionary<string, int> functions;
@@ -37,15 +40,22 @@ namespace Polaris
             List<string> convertedFunctions = new List<string>();
             foreach (var c in cells)
             {
-                CSV_OutputCell outputCell= new CSV_OutputCell();
-                CSV_Transaction transaction = new CSV_Transaction();
-                outputCell.CellAddress = c.CellAddress;
-                outputCell.WorkbookName = c.WorkbookName;
-                outputCell.WorksheetName = c.WorksheetName;
-                outputCells.Add(outputCell);
-                convertedFunctions = functionIntegers(c.Functions);
-                transaction.functions = string.Join(" ", convertedFunctions);
-                transactions.Add(transaction);
+                try
+                {
+                    CSV_OutputCell outputCell = new CSV_OutputCell();
+                    CSV_Transaction transaction = new CSV_Transaction();
+                    outputCell.CellAddress = c.CellAddress;
+                    outputCell.WorkbookName = c.WorkbookName;
+                    outputCell.WorksheetName = c.WorksheetName;
+                    outputCells.Add(outputCell);
+                    convertedFunctions = functionIntegers(c.Functions);
+                    transaction.functions = string.Join(" ", convertedFunctions);
+                    transactions.Add(transaction);
+                }
+                catch (Exception e)
+                {
+                    logger.Error(e.Message);
+                }
 
             }
             engineOutputCells.AppendToFile("OutputCells.txt", outputCells);
@@ -57,7 +67,15 @@ namespace Polaris
             List<string> functionIntegers = new List<string>();
             foreach (string function in functions)
             {
-                functionIntegers.Add(excelFunctions.IndexOf(function).ToString());
+                int index = excelFunctions.IndexOf(function);
+                if (index != -1)
+                {
+                    functionIntegers.Add(index.ToString());
+                }
+                else
+                {
+                    throw  new InvalidOperationException("Function " + function + " does not exist in functionlist");
+                }
             }
             return functionIntegers;
         }

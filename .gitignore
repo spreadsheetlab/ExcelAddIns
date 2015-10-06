@@ -153,3 +153,19 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+/Polaris/packages/NLog.4.1.1/NLog.4.1.1.nupkg
+/Polaris/packages/NLog.4.1.1/lib/net35/NLog.dll
+/Polaris/packages/NLog.4.1.1/lib/net35/NLog.xml
+/Polaris/packages/NLog.4.1.1/lib/net40/NLog.dll
+/Polaris/packages/NLog.4.1.1/lib/net40/NLog.xml
+/Polaris/packages/NLog.4.1.1/lib/net45/NLog.dll
+/Polaris/packages/NLog.4.1.1/lib/net45/NLog.xml
+/Polaris/packages/NLog.4.1.1/lib/sl4/NLog.dll
+/Polaris/packages/NLog.4.1.1/lib/sl4/NLog.xml
+/Polaris/packages/NLog.4.1.1/lib/sl5/NLog.dll
+/Polaris/packages/NLog.4.1.1/lib/sl5/NLog.xml
+/Polaris/packages/NLog.Config.4.1.1/NLog.Config.4.1.1.nupkg
+/Polaris/packages/NLog.Config.4.1.1/content/NLog.config
+/Polaris/packages/NLog.Config.4.1.1/tools/Install.ps1
+/Polaris/packages/NLog.Schema.4.0.1/NLog.Schema.4.0.1.nupkg
+/Polaris/packages/NLog.Schema.4.0.1/content/NLog.xsd
