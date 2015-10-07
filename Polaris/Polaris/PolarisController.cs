@@ -80,7 +80,14 @@ namespace Polaris
                                 if (wks.ProtectScenarios) sheetProtected = true;
                                 if (sheetProtected)
                                 {
-                                    wks.Unprotect();
+                                    try
+                                    {
+                                        wks.Unprotect("");
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        logger.Error(e.Message);
+                                    }
                                 }
                                 fileGenerator.WriteOutputAndTransactionToFile(analyzer.OutputCellsWithFunctions);
                             }
