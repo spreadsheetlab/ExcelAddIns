@@ -91,8 +91,9 @@ namespace Polaris
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                logger.Error(e.Message);
             }
             if (usedRange != null) Marshal.FinalReleaseComObject(usedRange);           
             return outputCells;

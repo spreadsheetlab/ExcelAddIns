@@ -74,6 +74,14 @@ namespace Polaris
                             logger.Info("started to analyze worksheet " + wks.Name);
                             using(WorksheetAnalyzer analyzer = new WorksheetAnalyzer(wks))
                             {
+                                bool sheetProtected = false;
+                                if (wks.ProtectContents) sheetProtected = true;
+                                if (wks.ProtectDrawingObjects) sheetProtected = true;
+                                if (wks.ProtectScenarios) sheetProtected = true;
+                                if (sheetProtected)
+                                {
+                                    wks.Unprotect();
+                                }
                                 fileGenerator.WriteOutputAndTransactionToFile(analyzer.OutputCellsWithFunctions);
                             }
                         }
