@@ -67,11 +67,14 @@ namespace Polaris
                     Excel.Workbook analyzedWorkbook = xlWorkbooks.Open(Filename: f, ReadOnly: true, UpdateLinks: 2);
                     xlApp.DisplayAlerts = true;
                     OutputGenerator fileGenerator = new OutputGenerator();
+                    int wksNumber = 0;
                     foreach (Excel.Worksheet wks in analyzedWorkbook.Worksheets)
                     {
                         try
                         {
+                            ++wksNumber;
                             logger.Info("started to analyze worksheet " + wks.Name);
+                            xlApp.StatusBar = "File " + fileNumber + " of " + files.Count() + " / worksheet " + wksNumber + " of " + analyzedWorkbook.Worksheets.Count;
                             using(WorksheetAnalyzer analyzer = new WorksheetAnalyzer(wks))
                             {
                                 bool sheetProtected = false;
