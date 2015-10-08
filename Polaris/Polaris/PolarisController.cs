@@ -109,6 +109,10 @@ namespace Polaris
                     logger.Error(e.Message);
                 }
             }
+            long numberOfTransactions = File.ReadLines("Transactions.txt").Count();
+            long numberOfOutputCells = File.ReadLines("OutputCells.txt").Count();
+            logger.Info("Number of transactions = " + numberOfTransactions);
+            logger.Info("Number of output cells = " + numberOfOutputCells);
             xlApp.StatusBar = false;
             xlApp.ScreenUpdating = true;
         }
