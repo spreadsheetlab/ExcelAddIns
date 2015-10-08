@@ -54,7 +54,7 @@ namespace Polaris
                 }
                 catch (Exception e)
                 {
-                    logger.Error(e.Message);
+                    logger.Error(e.Message + " in file " + c.WorkbookName + " and sheet " + c.WorksheetName);
                 }
 
             }

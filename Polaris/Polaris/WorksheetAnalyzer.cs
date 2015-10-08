@@ -93,7 +93,7 @@ namespace Polaris
             }
             catch (Exception e)
             {
-                logger.Error(e.Message);
+                logger.Error(e.Message + " in file " + wkb.Name + " and sheet " + thisSheet.Name);
             }
             if (usedRange != null) Marshal.FinalReleaseComObject(usedRange);           
             return outputCells;
@@ -209,7 +209,7 @@ namespace Polaris
                 }
                 catch (Exception e)
                 {
-                    logger.Error(e.Message);
+                    logger.Error(e.Message + " in file " + wkb.Name + " and sheet " + thisSheet.Name);
                 }
             }
             return uniqueFunctions.ToList<string>();

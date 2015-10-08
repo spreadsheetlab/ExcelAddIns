@@ -89,7 +89,7 @@ namespace Polaris
                                     }
                                     catch (Exception e)
                                     {
-                                        logger.Error(e.Message);
+                                        logger.Error(e.Message + " in file " + f + " and sheet " + wks.Name);
                                     }
                                 }
                                 fileGenerator.WriteOutputAndTransactionToFile(analyzer.OutputCellsWithFunctions);
@@ -97,7 +97,7 @@ namespace Polaris
                         }
                         catch (Exception e)
                         {
-                            logger.Error(e.Message);
+                            logger.Error(e.Message + " in file " + f + " and sheet " + wks.Name);
                         }
                         Marshal.FinalReleaseComObject(wks);
                     }
@@ -108,8 +108,8 @@ namespace Polaris
                     GC.WaitForPendingFinalizers();
                 }
                 catch (Exception e)
-                {   
-                    logger.Error(e.Message);
+                {
+                    logger.Error(e.Message + " in file " + f);
                 }
             }
             long numberOfTransactions = File.ReadLines("Transactions.txt").Count();
