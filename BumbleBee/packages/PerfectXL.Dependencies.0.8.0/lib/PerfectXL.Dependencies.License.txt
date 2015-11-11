@@ -1,3 +1,0 @@
-This package can only be used in combination with a licensed PerfectXL.Core product.
-
-Any other use or distribution of this package is prohibited.
