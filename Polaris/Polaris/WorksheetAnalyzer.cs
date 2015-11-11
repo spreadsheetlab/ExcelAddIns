@@ -77,12 +77,15 @@ namespace Polaris
             var usedRange = thisSheet.UsedRange;
             try
             {
+                // Get all cells on the worksheet that contain a formula 
                 var allFormulas = usedRange.SpecialCells(Excel.XlCellType.xlCellTypeFormulas);
                 if (allFormulas != null)
                 {
+                    // Limit the set of cells to only unique formulas
                     uniqueFormulas = GetUniqueFormulas(allFormulas);
                     Marshal.FinalReleaseComObject(allFormulas);
                 }
+                // Check for every cell if it is an output cell, in other words: does not have any dependants
                 foreach (KeyValuePair<string, Excel.Range> f in uniqueFormulas)
                 {
                     if (isOutput(f.Value))
@@ -173,18 +176,21 @@ namespace Polaris
                 if (uniquePrecedents.Add(thisSheet.Name + "!" + p.Address))
                 {
                     cellsToProcess.Enqueue(p);
+                    logger.Info(cell.Address + "|" + String.Join(",", cellsToProcess.Select(c => c.Address).ToList()));
                 }
                 transitivePrecedents.Add(p);
             }
             while (cellsToProcess.Count > 0)
             {
                 Excel.Range pc = cellsToProcess.Dequeue();
+                logger.Info(String.Join(",", cellsToProcess.Select(c => c.Address).ToList()));
                 directPrecedents = GetDirectPrecedents(pc);
                 foreach (Excel.Range p in directPrecedents)
                 {
                     if (uniquePrecedents.Add(thisSheet.Name + "!" + p.Address))
                     {
                         cellsToProcess.Enqueue(p);
+                        logger.Info(cell.Address + "|" + pc.Address + "|" + String.Join(",",cellsToProcess.Select(c => c.Address).ToList()));
                     }
                     transitivePrecedents.Add(p);
                 }
@@ -196,7 +202,6 @@ namespace Polaris
             List<string>functions = new List<string>();
             HashSet<string> uniqueFunctions = new HashSet<string>();
             List<Excel.Range> transitivePrecedents = GetAllPrecedents(cell);
-
             foreach (Excel.Range c in transitivePrecedents)
             {
                 try
