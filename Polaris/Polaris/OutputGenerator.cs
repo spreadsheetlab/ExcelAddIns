@@ -63,7 +63,7 @@ namespace Polaris
         }
         private List<string> functionIntegers(List<string> functions)
         {
-            List<string> excelFunctions = Polaris.Properties.Resources.ExcelFunctions.Split(new string[] { "\n" }, StringSplitOptions.None).ToList<string>();
+            List<string> excelFunctions = Polaris.Properties.Resources.ExcelFunctions.Split(new string[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries).ToList<string>();
             List<string> functionIntegers = new List<string>();
             foreach (string function in functions)
             {

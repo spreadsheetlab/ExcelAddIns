@@ -199,18 +199,14 @@ namespace Polaris
         }
         private List<string> GetAllFunctions(Excel.Range cell)
         {
-            List<string>functions = new List<string>();
-            HashSet<string> uniqueFunctions = new HashSet<string>();
+            HashSet<string> uniqueFunctions = new HashSet<string>((new PFormulaAnalyzer(cell.Formula)).BuiltinFunctions());
             List<Excel.Range> transitivePrecedents = GetAllPrecedents(cell);
             foreach (Excel.Range c in transitivePrecedents)
             {
                 try
                 {
                     PFormulaAnalyzer fa = new PFormulaAnalyzer(c.Formula);
-                    foreach (string function in fa.BuiltinFunctions())
-                    {
-                        uniqueFunctions.Add(function);
-                    }
+                    uniqueFunctions.UnionWith(fa.BuiltinFunctions());
                 }
                 catch (Exception e)
                 {
