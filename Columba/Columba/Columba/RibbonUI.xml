@@ -5,6 +5,7 @@
       <tab id="Columba" label="Columba">
         <group id="group1" label="Columba">
            <button id="aboutButton" label="About" imageMso="AdvertisePublishAs" size="large" onAction="AboutButton_Click" />
+           <button id="analyzeCharts" label="Analyze Charts" imageMso="Chart3DBarChart" size="large" onAction="AnalyzeCharts_Click" />
         </group>
       </tab>
     </tabs>
