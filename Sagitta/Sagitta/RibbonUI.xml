@@ -4,7 +4,8 @@
     <tabs>
       <tab id="Sagitta" label="Sagitta">
         <group id="group1" label="Sagitta">
-           <button id="aboutButton" label="About" imageMso="AdvertisePublishAs" size="large" onAction="AboutButton_Click" />
+          <button id="createGraph" label="Create Graph" imageMso="MacroConditions" size="large" onAction="CreateGraph_Click" />
+          <button id="aboutButton" label="About" imageMso="AdvertisePublishAs" size="large" onAction="AboutButton_Click" />
         </group>
       </tab>
     </tabs>

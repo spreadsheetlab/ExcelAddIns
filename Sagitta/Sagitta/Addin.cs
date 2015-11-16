@@ -36,6 +36,11 @@ namespace Sagitta
 		{
 		}
 
+        public void CreateGraph_Click(Office.IRibbonControl control)
+        {
+            GraphBuilder gb = new GraphBuilder();
+            gb.BuildGraphFromWorkbook(Application.ActiveWorkbook);
+        }
         public void AboutButton_Click(Office.IRibbonControl control)
         {
 			MessageBox.Show(String.Format("Sagitta Version {0}", this.GetType().Assembly.GetName().Version),
